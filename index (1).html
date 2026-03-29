@@ -1,0 +1,1819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Daily</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Daily">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="daily.">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#ffffff">
+<link rel="apple-touch-icon" id="appIcon">
+<link rel="manifest" id="appManifest">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --white:#ffffff;
+  --bg:#f9f9f9;
+  --border:#efefef;
+  --border2:#dbdbdb;
+  --ink:#111111;
+  --ink2:#262626;
+  --ink3:#737373;
+  --ink4:#a8a8a8;
+  --purple:#7c4dbe;
+  --purple-light:#e8dff7;
+  --purple-mid:#c4a8ee;
+  --purple-dark:#5b34a0;
+  --purple-bg:#f5f0ff;
+}
+html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;-webkit-font-smoothing:antialiased}
+.app{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh;background:var(--white)}
+
+/* ── Header ── */
+.header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--white);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:20}
+.header-logo{font-size:22px;font-weight:800;color:var(--ink);letter-spacing:-.03em}
+.header-logo span{color:var(--purple)}
+.header-date{font-size:12px;color:var(--ink3);font-weight:400}
+
+/* ── Tab bar ── */
+.tab-bar{display:flex;background:var(--white);border-bottom:1px solid var(--border);overflow-x:auto;-webkit-overflow-scrolling:touch;flex-shrink:0;position:sticky;top:53px;z-index:19;scrollbar-width:none}
+.tab-bar::-webkit-scrollbar{display:none}
+.tab-btn{padding:13px 16px;font-size:12px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:500;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:var(--ink3);white-space:nowrap;flex-shrink:0;transition:all .15s;letter-spacing:.01em}
+.tab-btn.active{color:var(--purple);border-bottom-color:var(--purple);font-weight:700}
+
+/* ── Feed body ── */
+.feed{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--bg)}
+.feed-inner{max-width:600px;margin:0 auto;padding:12px 0 60px}
+
+/* ── Post card (Instagram-style) ── */
+.post{background:var(--white);margin-bottom:8px;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.post-header{display:flex;align-items:center;gap:10px;padding:12px 16px}
+.post-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--purple-mid),var(--purple));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
+.post-title{font-size:14px;font-weight:700;color:var(--ink2)}
+.post-sub{font-size:12px;color:var(--ink3);margin-top:1px}
+.post-body{padding:0 16px 16px}
+
+/* ── Wins checklist ── */
+.wins-list{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.win-row{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg);border-radius:12px;cursor:pointer;transition:background .12s;touch-action:manipulation}
+.win-row.checked{background:var(--purple-bg)}
+.win-circle{width:22px;height:22px;border-radius:50%;border:2px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;transition:all .2s}
+.win-row.checked .win-circle{background:var(--purple);border-color:var(--purple)}
+.win-text{font-size:14px;color:var(--ink2);font-weight:500;flex:1}
+.win-row.checked .win-text{color:var(--purple)}
+.add-win-row{display:flex;gap:8px;margin-top:4px}
+.add-win-inp{flex:1;padding:11px 14px;font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;border:1.5px solid var(--border2);border-radius:12px;background:var(--white);color:var(--ink);outline:none}
+.add-win-inp:focus{border-color:var(--purple-mid)}
+.add-win-inp::placeholder{color:var(--ink4)}
+.add-win-btn{padding:11px 16px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;background:var(--purple);color:#fff;border:none;border-radius:12px;cursor:pointer;touch-action:manipulation}
+
+/* ── Priority block ── */
+.priority-block{background:var(--purple-bg);border-radius:14px;padding:16px;margin-bottom:8px}
+.block-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--purple);margin-bottom:6px}
+.block-prompt{font-size:14px;color:var(--ink3);margin-bottom:10px;line-height:1.5;font-weight:400}
+.ta{width:100%;padding:12px 14px;font-size:15px;font-family:'Plus Jakarta Sans',sans-serif;line-height:1.6;border:1.5px solid var(--border2);border-radius:12px;background:var(--white);color:var(--ink);outline:none;resize:none;transition:border-color .2s}
+.ta:focus{border-color:var(--purple-mid)}
+.ta::placeholder{color:var(--ink4)}
+
+/* ── Action rows ── */
+.action-rows{display:flex;flex-direction:column;gap:8px}
+.action-row{display:flex;align-items:center;gap:10px}
+.action-num{width:28px;height:28px;border-radius:50%;background:var(--purple);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.action-inp{flex:1;padding:11px 14px;font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;border:1.5px solid var(--border2);border-radius:12px;background:var(--bg);color:var(--ink);outline:none;transition:border-color .2s;min-width:0}
+.action-inp:focus{border-color:var(--purple-mid);background:var(--white)}
+.action-inp::placeholder{color:var(--ink4)}
+
+/* ── Mindset block ── */
+.mindset-block{background:var(--bg);border-radius:14px;padding:16px;margin-bottom:10px}
+.mindset-prompt{font-size:15px;font-weight:700;color:var(--ink2);margin-bottom:4px}
+.mindset-prefix{font-size:13px;color:var(--ink3);margin-bottom:8px}
+
+/* ── Primary button ── */
+.primary-btn{width:100%;padding:15px;font-size:15px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;background:var(--purple);color:#fff;border:none;border-radius:14px;cursor:pointer;touch-action:manipulation;margin-top:4px;letter-spacing:.01em}
+.primary-btn:active{opacity:.85}
+.save-confirm{font-size:13px;color:var(--purple);text-align:center;opacity:0;transition:opacity .4s;margin-top:8px;font-weight:500}
+
+/* ── Relationships tab ── */
+.contact-list{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.contact-card{background:var(--bg);border-radius:14px;border:1.5px solid var(--border);padding:14px 16px;display:flex;align-items:center;gap:12px}
+.contact-card.overdue{border-color:#f0a0a0;background:#fff5f5}
+.contact-avatar{width:42px;height:42px;border-radius:50%;background:var(--purple);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex-shrink:0}
+.contact-info{flex:1;min-width:0}
+.contact-name{font-size:15px;font-weight:700;color:var(--ink2)}
+.contact-freq{font-size:12px;color:var(--ink3);margin-top:2px}
+.contact-due{font-size:11px;font-weight:600;color:#d04040;margin-top:2px}
+.contact-actions{display:flex;gap:6px;flex-shrink:0}
+.contact-btn{padding:7px 12px;font-size:12px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;border:none;border-radius:8px;cursor:pointer;touch-action:manipulation;background:var(--purple);color:#fff}
+.contact-del-btn{background:none;border:1.5px solid var(--border2);color:var(--ink3);padding:7px 10px;font-size:12px;border-radius:8px;cursor:pointer;touch-action:manipulation;font-family:'Plus Jakarta Sans',sans-serif}
+.rel-prompts{display:flex;flex-direction:column;gap:8px;margin-bottom:4px}
+.rel-prompt{background:var(--purple-bg);border-radius:12px;padding:12px 14px;font-size:13px;color:var(--purple-dark);font-weight:500;line-height:1.5;font-style:italic}
+.kind-types{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.kind-type-btn{padding:11px 10px;font-size:12px;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;border:1.5px solid var(--border2);border-radius:10px;background:var(--bg);cursor:pointer;touch-action:manipulation;color:var(--ink2);text-align:center;transition:all .15s;line-height:1.3}
+.kind-type-btn.kind-sel{background:var(--purple-bg);border-color:var(--purple);color:var(--purple)}
+.kind-preview{background:var(--purple-bg);border-radius:12px;padding:16px;font-size:14px;color:var(--ink2);line-height:1.7;font-style:italic;margin-bottom:12px;min-height:60px}
+.send-options{display:flex;gap:8px}
+.send-sms-btn{flex:1;padding:13px;font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;background:var(--purple);color:#fff;border:none;border-radius:12px;cursor:pointer;touch-action:manipulation}
+.send-email-btn{flex:1;padding:13px;font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;background:var(--ink2);color:#fff;border:none;border-radius:12px;cursor:pointer;touch-action:manipulation}
+.thinking-card{background:linear-gradient(135deg,var(--purple-bg),#f0f7f0);border-radius:14px;border:1.5px solid var(--purple-mid);padding:18px;margin-bottom:10px}
+
+/* ── Emotional tracker ── */
+.mood-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:4px}
+.mood-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;touch-action:manipulation;transition:all .15s}
+.mood-btn.mood-sel{border-color:var(--purple);background:var(--purple-bg)}
+.mood-emoji{font-size:22px;line-height:1}
+.mood-label{font-size:10px;font-weight:600;color:var(--ink3);letter-spacing:.03em}
+.mood-btn.mood-sel .mood-label{color:var(--purple)}
+.energy-dots{display:flex;gap:6px;flex-wrap:wrap}
+.e-dot{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--border2);background:var(--bg);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--ink3);transition:all .15s;touch-action:manipulation}
+.e-dot.e-dot-sel{background:var(--purple);border-color:var(--purple);color:#fff}
+
+/* ── Workout plan cards ── */
+.plans-list{display:flex;flex-direction:column;gap:8px}
+.plan-card{background:var(--bg);border-radius:14px;border:1.5px solid var(--border);overflow:hidden;cursor:pointer;transition:border-color .15s}
+.plan-card.plan-open{border-color:var(--purple)}
+.plan-card-head{display:flex;align-items:center;gap:12px;padding:14px 16px}
+.plan-emoji{font-size:24px;flex-shrink:0}
+.plan-title{font-size:15px;font-weight:700;color:var(--ink2)}
+.plan-tag{font-size:12px;color:var(--ink3);margin-top:2px}
+.plan-chevron{font-size:11px;color:var(--ink4);flex-shrink:0}
+.plan-body{padding:0 16px 12px;font-size:13px;color:var(--ink2);line-height:1.8;white-space:pre-wrap;font-family:monospace;background:var(--white);border-top:1px solid var(--border)}
+.plan-use-btn{display:block;width:calc(100% - 32px);margin:0 16px 14px;padding:12px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;background:var(--purple);color:#fff;border:none;border-radius:10px;cursor:pointer;touch-action:manipulation}
+
+/* ── Exercise tab ── */
+.week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:16px}
+.day-pill{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px;border-radius:10px;border:1.5px solid var(--border2);background:var(--bg);cursor:pointer;touch-action:manipulation;transition:all .15s}
+.day-pill.weights{background:var(--purple-bg);border-color:var(--purple-mid)}
+.day-pill.cardio{background:#e8f4ff;border-color:#90c4f0}
+.day-pill.rest{background:#f0f7f0;border-color:#a8d4a8}
+.day-pill.active-day{box-shadow:0 0 0 2px var(--purple)}
+.day-name{font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)}
+.day-type{font-size:9px;font-weight:600;color:var(--ink3)}
+.day-pill.weights .day-type{color:var(--purple)}
+.day-pill.cardio .day-type{color:#2196f3}
+.day-pill.rest .day-type{color:#4caf50}
+.type-selector{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.type-opt{padding:7px 14px;font-size:12px;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;border:1.5px solid var(--border2);border-radius:99px;background:var(--bg);cursor:pointer;touch-action:manipulation;color:var(--ink3);transition:all .15s}
+.type-opt.sel-weights{background:var(--purple-bg);border-color:var(--purple);color:var(--purple)}
+.type-opt.sel-cardio{background:#e8f4ff;border-color:#2196f3;color:#2196f3}
+.type-opt.sel-rest{background:#f0f7f0;border-color:#4caf50;color:#4caf50}
+
+/* ── Nourishment tab ── */
+.water-tracker{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.glass{width:38px;height:48px;border-radius:6px 6px 10px 10px;border:2px solid var(--border2);background:var(--bg);cursor:pointer;touch-action:manipulation;transition:all .2s;display:flex;align-items:flex-end;overflow:hidden;position:relative}
+.glass.filled{border-color:#2196f3}
+.glass-fill{width:100%;background:linear-gradient(180deg,#64b5f6,#1976d2);border-radius:0 0 8px 8px;transition:height .3s;height:0}
+.glass.filled .glass-fill{height:100%}
+.water-count{font-size:13px;font-weight:700;color:#2196f3;margin-top:8px;margin-bottom:4px}
+.vitamin-list{display:flex;flex-direction:column;gap:6px;margin-bottom:4px}
+.vitamin-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border-radius:10px;cursor:pointer;touch-action:manipulation;transition:background .12s}
+.vitamin-row.checked{background:#f5f0ff}
+.vitamin-check{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;transition:all .2s}
+.vitamin-row.checked .vitamin-check{background:var(--purple);border-color:var(--purple)}
+.vitamin-name{font-size:14px;font-weight:500;color:var(--ink2)}
+.vitamin-row.checked .vitamin-name{color:var(--purple)}
+.meal-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.meal-slot{background:var(--bg);border-radius:10px;padding:10px 12px;border:1.5px solid var(--border)}
+.meal-slot-label{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin-bottom:4px}
+.meal-inp{width:100%;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;border:none;background:transparent;color:var(--ink2);outline:none;padding:0}
+.meal-inp::placeholder{color:var(--ink4)}
+.meal-suggestions{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.meal-chip{padding:6px 12px;font-size:12px;font-weight:500;font-family:'Plus Jakarta Sans',sans-serif;background:var(--purple-bg);border:none;border-radius:99px;color:var(--purple-dark);cursor:pointer;touch-action:manipulation}
+
+/* ── Financial tab ── */
+.savings-goal-card{background:#f5f5f5;border-radius:14px;padding:18px;margin-bottom:10px;border:1px solid #e0e0e0}
+.savings-progress-bar{height:8px;background:var(--purple-light);border-radius:99px;overflow:hidden;margin:10px 0 4px}
+.savings-progress-fill{height:100%;background:var(--purple);border-radius:99px;transition:width .4s}
+.savings-amounts{display:flex;justify-content:space-between;font-size:12px;color:var(--ink3);font-weight:500}
+.desire-card{background:var(--purple-bg);border:1.5px solid var(--purple-mid);border-radius:14px;padding:16px;margin-bottom:10px}
+.desire-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--purple);margin-bottom:6px}
+.category-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.cat-card{background:var(--bg);border-radius:12px;padding:12px;border:1.5px solid var(--border)}
+.cat-name{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ink3);margin-bottom:4px}
+.cat-amount{font-size:20px;font-weight:800;color:var(--ink2)}
+.cat-add{display:flex;gap:6px;margin-top:8px}
+.cat-add-inp{flex:1;padding:7px 10px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;border:1.5px solid var(--border2);border-radius:8px;background:var(--white);color:var(--ink);outline:none;min-width:0}
+.cat-add-btn{padding:7px 12px;font-size:12px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;background:var(--purple);color:#fff;border:none;border-radius:8px;cursor:pointer;touch-action:manipulation}
+.spend-total{text-align:right;font-size:13px;font-weight:700;color:var(--ink3);margin-bottom:12px}
+.spend-total span{color:var(--purple);font-size:16px}
+
+/* ── Log entries (past) ── */
+.past-label{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);padding:14px 16px 8px}
+.log-entry{background:var(--white);border-top:1px solid var(--border);padding:14px 16px}
+.log-date{font-size:11px;color:var(--ink4);font-weight:600;margin-bottom:6px;letter-spacing:.04em;text-transform:uppercase}
+.log-text{font-size:14px;color:var(--ink2);line-height:1.65}
+.log-foot{display:flex;justify-content:flex-end;margin-top:10px}
+.del-btn{background:none;border:none;font-size:12px;color:var(--ink4);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-weight:500;touch-action:manipulation}
+
+/* ── Empty state ── */
+.empty-state{text-align:center;padding:60px 24px}
+.empty-icon{font-size:40px;margin-bottom:14px}
+.empty-title{font-size:17px;font-weight:700;color:var(--ink2);margin-bottom:6px}
+.empty-sub{font-size:14px;color:var(--ink3);line-height:1.6}
+
+/* ── Journal prompts ── */
+.prompts-scroll{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.prompt-chip{background:var(--purple-bg);border:none;border-radius:12px;padding:12px 14px;font-size:13px;color:var(--purple-dark);cursor:pointer;touch-action:manipulation;text-align:left;font-family:'Plus Jakarta Sans',sans-serif;font-weight:500;line-height:1.4;width:100%}
+.prompt-chip:active{background:var(--purple-light)}
+
+/* ── Inspire ── */
+.quote-wrap{padding:24px 16px}
+.quote-card{background:var(--white);border-radius:20px;padding:32px 24px;text-align:center;border:1px solid var(--border);margin-bottom:20px;box-shadow:0 2px 20px rgba(124,77,190,.08)}
+.quote-mark{font-size:40px;color:var(--purple-mid);line-height:1;margin-bottom:12px}
+.quote-text{font-size:19px;font-weight:500;color:var(--ink2);line-height:1.6;margin-bottom:18px;letter-spacing:-.01em}
+.quote-author{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3)}
+.new-quote-btn{display:flex;align-items:center;justify-content:center;gap:8px;margin:0 auto;padding:13px 28px;font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;background:var(--purple);color:#fff;border:none;border-radius:99px;cursor:pointer;touch-action:manipulation}
+/* ── Modal ── */
+.modal-title{font-size:18px;font-weight:700;color:var(--ink);margin-bottom:16px}
+.modal-footer{display:flex;gap:10px;margin-top:16px}
+.modal-cancel{flex:1;padding:13px;font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;background:none;border:1.5px solid var(--border2);border-radius:10px;cursor:pointer;color:var(--ink2)}
+.modal-save{flex:2;padding:13px;font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;background:var(--purple);color:#fff;border:none;border-radius:10px;cursor:pointer}
+.mi-ta{width:100%;padding:11px 13px;font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;line-height:1.6;border:1.5px solid var(--border2);border-radius:10px;background:#fff;color:var(--ink);outline:none;resize:vertical;min-height:80px}
+.fg{margin-bottom:12px}
+.lbl{display:block;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:6px}
+.modal-handle{width:36px;height:4px;background:var(--border2);border-radius:99px;margin:0 auto 18px}
+/* ── Relationships tab ── */
+.contact-item{display:flex;align-items:center;gap:12px;background:var(--white);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px}
+.contact-avatar{width:40px;height:40px;border-radius:50%;background:var(--purple-mid);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
+.contact-info{flex:1;min-width:0}
+.contact-name{font-size:14px;font-weight:700;color:var(--ink2)}
+.contact-freq{font-size:11px;color:var(--ink3);margin-top:2px}
+.contact-overdue{font-size:10px;font-weight:700;color:#e53935;background:#ffeaea;padding:2px 8px;border-radius:99px;margin-top:4px;display:inline-block}
+.contact-ok{font-size:10px;font-weight:700;color:#4caf50;background:#f0f7f0;padding:2px 8px;border-radius:99px;margin-top:4px;display:inline-block}
+.contact-actions{display:flex;flex-direction:column;gap:4px;flex-shrink:0}
+.contact-send-btn{padding:6px 12px;font-size:11px;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;background:var(--purple);color:#fff;border:none;border-radius:8px;cursor:pointer;touch-action:manipulation;white-space:nowrap}
+.contact-checkin-btn{padding:6px 12px;font-size:11px;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--ink3);border:1px solid var(--border2);border-radius:8px;cursor:pointer;touch-action:manipulation}
+.rel-prompt-chip{width:100%;padding:12px 14px;font-size:13px;font-weight:500;font-family:'Plus Jakarta Sans',sans-serif;background:var(--purple-bg);border:none;border-radius:12px;color:var(--purple-dark);cursor:pointer;touch-action:manipulation;text-align:left;line-height:1.4;margin-bottom:8px}
+.comm-tip-card{background:linear-gradient(135deg,var(--purple-bg),#f0f0ff);border-radius:14px;padding:18px;border:1px solid var(--purple-light)}
+.comm-tip-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--purple);margin-bottom:8px}
+.comm-tip-text{font-size:15px;font-weight:500;color:var(--ink2);line-height:1.6}
+.kind-msg-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:8px}
+.kind-msg-type{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--purple);margin-bottom:6px}
+.kind-msg-text{font-size:14px;color:var(--ink2);line-height:1.6;margin-bottom:10px}
+.kind-msg-actions{display:flex;gap:6px;flex-wrap:wrap}
+.kind-send-btn{padding:7px 14px;font-size:12px;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;border:none;border-radius:8px;cursor:pointer;touch-action:manipulation}
+.send-sms{background:#4caf50;color:#fff}
+.send-email{background:#2196f3;color:#fff}
+.send-copy{background:var(--bg);color:var(--ink3);border:1px solid var(--border2)}
+</style>
+<!-- TAB BAR - added Environment tab -->
+<body>
+<div class="app">
+  <div class="header">
+    <div class="header-logo">daily<span>.</span></div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="header-date" id="headerDate"></div>
+    </div>
+  </div>
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('daily',this)">Daily</button>
+    <button class="tab-btn" onclick="switchTab('exercise',this)">Exercise</button>
+    <button class="tab-btn" onclick="switchTab('nourish',this)">Nourishment</button>
+    <button class="tab-btn" onclick="switchTab('emotional',this)">Emotions</button>
+    <button class="tab-btn" onclick="switchTab('relationships',this)">Relationships</button>
+    <button class="tab-btn" onclick="switchTab('financial',this)">Money</button>
+    <button class="tab-btn" onclick="switchTab('journal',this)">Journal</button>
+    <button class="tab-btn" onclick="switchTab('inspire',this)">Inspire</button>
+    <button class="tab-btn" onclick="switchTab('environment',this)">Environment</button>
+  </div>
+  <div class="feed">
+    <div class="feed-inner" id="viewBody"></div>
+  </div>
+</div>
+
+<script>
+const DB_KEY='daily_v2';
+let curTab='daily';
+
+// Default wins — personalized list, saved permanently
+let DEFAULT_WINS=['Made my bed','Got dressed intentionally','Read / meditate','Movement / exercise','Ate something nourishing'];
+let wins=[...DEFAULT_WINS];
+let checkedWins=new Set();
+let actions=['','',''];
+let DB={};
+let currentQuote=null;
+
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function today(){return new Date().toISOString().slice(0,10)}
+function fmtFull(iso){if(!iso)return'';const d=new Date(iso+'T12:00:00');return d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})}
+function fmtShort(iso){if(!iso)return'';const d=new Date(iso+'T12:00:00');return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}).toUpperCase()}
+function dayOfYear(){return Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/(864e5));}
+function weekOfYear(){return Math.floor(dayOfYear()/7);}
+
+function loadDB(){
+  try{
+    DB=JSON.parse(localStorage.getItem(DB_KEY)||'{}');
+    wins=DB.wins||[...DEFAULT_WINS];
+    // Daily reset: clear daily fields if date has changed
+    const t=today();
+    if(DB.lastDate!==t){
+      // Save yesterday's data to log before clearing
+      DB.lastDate=t;
+      // Reset daily fields
+      checkedWins=new Set();
+      actions=['','',''];
+      if(DB.nourish){DB.nourish.glasses=0;DB.nourish.vitamins={};DB.nourish.meals={breakfast:'',lunch:'',dinner:'',snack:''};}
+      saveDB('lastDate',t);
+      if(DB.nourish)saveDB('nourish',DB.nourish);
+    }
+  }catch(e){DB={};wins=[...DEFAULT_WINS];}
+}
+function saveDB(key,value){DB[key]=value;localStorage.setItem(DB_KEY,JSON.stringify(DB));}
+
+loadDB();
+document.getElementById('headerDate').textContent=fmtFull(today());
+
+function switchTab(tab,btn){
+  curTab=tab;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  btn.scrollIntoView({inline:'center',behavior:'smooth'});
+  renderTab();
+}
+
+function renderTab(){
+  if(curTab==='daily') renderDaily();
+  else if(curTab==='emotional') renderEmotional();
+  else if(curTab==='relationships') renderRelationships();
+  else if(curTab==='exercise') renderExercise();
+  else if(curTab==='nourish') renderNourish();
+  else if(curTab==='financial') renderFinancial();
+  else if(curTab==='journal') renderJournal();
+  else if(curTab==='inspire') renderInspire();
+  else if(curTab==='environment') renderEnvironment();
+}
+
+// ═══════════════ DAILY ═══════════════
+function renderDaily(){
+  const t=today();
+  const saved=DB.dailySaved||{};
+  const todaySaved=saved[t]||{};
+  document.getElementById('viewBody').innerHTML=`
+    <div class="post">
+      <div class="post-header">
+        <div class="post-avatar">☀️</div>
+        <div>
+          <div class="post-title">Morning wins</div>
+          <div class="post-sub">Check off how you won this morning</div>
+        </div>
+      </div>
+      <div class="post-body">
+        <div class="wins-list" id="winsList"></div>
+        <div class="add-win-row">
+          <input class="add-win-inp" id="customWinInp" placeholder="Add your own win…" onkeydown="if(event.key==='Enter')addCustomWin()">
+          <button class="add-win-btn" onclick="addCustomWin()">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="post">
+      <div class="post-header">
+        <div class="post-avatar">🎯</div>
+        <div>
+          <div class="post-title">The priority</div>
+          <div class="post-sub">The one thing that matters most today</div>
+        </div>
+      </div>
+      <div class="post-body">
+        <div class="priority-block">
+          <div class="block-prompt">The one thing I've been avoiding that will move me forward the most…</div>
+          <textarea class="ta" id="inp_priority" placeholder="Be honest with yourself…" rows="2">${esc(todaySaved.priority||'')}</textarea>
+        </div>
+      </div>
+    </div>
+    <div class="post">
+      <div class="post-header">
+        <div class="post-avatar">⚡</div>
+        <div>
+          <div class="post-title">Top 3 actions</div>
+          <div class="post-sub">What moves you closer to your goals today?</div>
+        </div>
+      </div>
+      <div class="post-body">
+        <div class="action-rows" id="actionRows"></div>
+      </div>
+    </div>
+    <div class="post">
+      <div class="post-header">
+        <div class="post-avatar">✨</div>
+        <div>
+          <div class="post-title">Mindset</div>
+          <div class="post-sub">How you show up & how you give</div>
+        </div>
+      </div>
+      <div class="post-body">
+        <div class="mindset-block">
+          <div class="mindset-prompt">How do I want to show up today?</div>
+          <div class="mindset-prefix">I want to be someone who…</div>
+          <textarea class="ta" id="inp_showup" placeholder="…shows up fully, leads with love, moves with intention" rows="2">${esc(todaySaved.showup||'')}</textarea>
+        </div>
+        <div style="height:10px"></div>
+        <div class="mindset-block">
+          <div class="mindset-prompt">How can I add more value to others?</div>
+          <div class="mindset-prefix">Today I will…</div>
+          <textarea class="ta" id="inp_value" placeholder="…listen deeply, encourage someone, share what I know" rows="2">${esc(todaySaved.value||'')}</textarea>
+        </div>
+        <div style="height:4px"></div>
+        <button class="primary-btn" onclick="saveDaily()">Save today's entry</button>
+        <div class="save-confirm" id="saveConfirm">You're doing great ✦</div>
+      </div>
+    </div>`;
+  renderWins();
+  // Restore today's actions if saved
+  if(todaySaved.actions)actions=[...todaySaved.actions,'','',''].slice(0,3);
+  renderActions();
+}
+
+function renderWins(){
+  const el=document.getElementById('winsList');if(!el)return;
+  el.innerHTML=wins.map((w,i)=>`
+    <div class="win-row${checkedWins.has(i)?' checked':''}" style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:${checkedWins.has(i)?'var(--purple-bg)':'var(--bg)'};border-radius:12px;touch-action:manipulation">
+      <div onclick="toggleWin(${i})" style="display:flex;align-items:center;gap:12px;flex:1;cursor:pointer">
+        <div class="win-circle">${checkedWins.has(i)?'✓':''}</div>
+        <div class="win-text">${esc(w)}</div>
+      </div>
+      <button onclick="deleteWin(${i})" style="background:none;border:none;color:var(--ink4);cursor:pointer;font-size:16px;padding:4px 6px;touch-action:manipulation;flex-shrink:0" title="Remove">×</button>
+    </div>`).join('');
+}
+
+function toggleWin(i){
+  const wasChecked=checkedWins.has(i);
+  if(wasChecked)checkedWins.delete(i);else{checkedWins.add(i);burstConfetti();}
+  renderWins();
+}
+
+function burstConfetti(){
+  const colors=['#7c4dbe','#c4a8ee','#e8dff7','#f5f0ff','#5b34a0','#ffffff','#a78bda'];
+  const count=60;
+  for(let k=0;k<count;k++){
+    const el=document.createElement('div');
+    const size=Math.random()*8+5;
+    const isCircle=Math.random()>.4;
+    el.style.cssText=`
+      position:fixed;
+      left:${Math.random()*100}vw;
+      top:-10px;
+      width:${size}px;
+      height:${isCircle?size:size*0.4}px;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      border-radius:${isCircle?'50%':'2px'};
+      pointer-events:none;
+      z-index:9999;
+      opacity:1;
+      transform:rotate(${Math.random()*360}deg);
+    `;
+    document.body.appendChild(el);
+    const duration=900+Math.random()*700;
+    const drift=(Math.random()-0.5)*120;
+    const spin=Math.random()*720-360;
+    el.animate([
+      {transform:`translateY(0) translateX(0) rotate(0deg)`,opacity:1},
+      {transform:`translateY(${60+Math.random()*40}vh) translateX(${drift}px) rotate(${spin}deg)`,opacity:0}
+    ],{duration,easing:'cubic-bezier(.25,.46,.45,.94)',fill:'forwards'})
+    .onfinish=()=>el.remove();
+  }
+}
+
+function deleteWin(i){
+  wins.splice(i,1);
+  // Adjust checkedWins indices
+  const newChecked=new Set();
+  checkedWins.forEach(idx=>{if(idx<i)newChecked.add(idx);else if(idx>i)newChecked.add(idx-1);});
+  checkedWins=newChecked;
+  saveDB('wins',wins);
+  renderWins();
+}
+
+function addCustomWin(){
+  const inp=document.getElementById('customWinInp');
+  const val=(inp.value||'').trim();if(!val)return;
+  wins.push(val);saveDB('wins',wins);inp.value='';renderWins();
+}
+
+function renderActions(){
+  const el=document.getElementById('actionRows');if(!el)return;
+  el.innerHTML=actions.map((a,i)=>`
+    <div class="action-row">
+      <div class="action-num">${i+1}</div>
+      <input class="action-inp" type="text" value="${esc(a)}" placeholder="Action ${i+1}…" oninput="actions[${i}]=this.value">
+    </div>`).join('');
+}
+
+function saveDaily(){
+  const t=today();
+  const priority=(document.getElementById('inp_priority').value||'').trim();
+  const showup=(document.getElementById('inp_showup').value||'').trim();
+  const value=(document.getElementById('inp_value').value||'').trim();
+  const actionList=actions.filter(a=>a.trim());
+  const winsChecked=Array.from(checkedWins).map(i=>wins[i]);
+  if(!priority&&!showup&&!value&&!actionList.length&&!winsChecked.length)return;
+  if(!DB.dailySaved)DB.dailySaved={};
+  DB.dailySaved[t]={priority,showup,value,actions:actionList,wins:winsChecked,savedAt:Date.now()};
+  // Keep only last 30 days
+  const keys=Object.keys(DB.dailySaved).sort().reverse().slice(0,30);
+  const trimmed={};keys.forEach(k=>trimmed[k]=DB.dailySaved[k]);
+  DB.dailySaved=trimmed;
+  saveDB('dailySaved',DB.dailySaved);
+  if(!DB.dailyLog)DB.dailyLog=[];
+  // Upsert today's log entry
+  DB.dailyLog=DB.dailyLog.filter(e=>e.date!==t);
+  DB.dailyLog.unshift({id:Date.now().toString(),date:t,wins:winsChecked,priority,actions:actionList,showup,value});
+  saveDB('dailyLog',DB.dailyLog);
+  const conf=document.getElementById('saveConfirm');
+  conf.style.opacity='1';setTimeout(()=>{conf.style.opacity='0';},2600);
+}
+
+// ═══════════════ EXERCISE ═══════════════
+const DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const WORKOUT_TYPES=['weights','cardio','rest','off'];
+
+const WORKOUT_PLANS=[
+  {id:'full_body_weights',emoji:'🔥',title:'Full Body Weights',tag:'30–40 min · 3–4x/week',type:'weights',
+   content:`🔥 Full Body Workout (30–40 min)\n\n• Goblet Squats 3×12\n• Romanian Deadlifts 3×10\n• Shoulder Press 3×10\n• Bent Over Rows 3×10\n• KB Swings 3×15\n• Plank 3×45 sec\n\nRest 30–60 sec between sets.`},
+  {id:'cardio_hiit',emoji:'⚡',title:'HIIT Cardio',tag:'20–25 min · 3x/week',type:'cardio',
+   content:`⚡ HIIT Cardio (20–25 min)\n\n40 sec on · 20 sec rest · 4 rounds:\n• Jump squats\n• High knees\n• Burpees\n• Mountain climbers\n• Jump rope\n\nRest 90 sec between rounds.`},
+  {id:'upper_body',emoji:'💪',title:'Upper Body',tag:'30 min · 2x/week',type:'weights',
+   content:`💪 Upper Body (30 min)\n\n• Push-ups/Chest Press 3×12\n• Dumbbell Rows 3×10\n• Lateral Raises 3×12\n• Bicep Curls 2×12\n• Tricep Dips 2×12`},
+  {id:'walk_stretch',emoji:'🌿',title:'Walk + Stretch',tag:'30–45 min · Recovery',type:'cardio',
+   content:`🌿 Active Recovery\n\nWalk 20–30 min outside, no phone.\n\nStretch:\n• Hip flexors 60 sec each\n• Hamstrings 60 sec each\n• Chest opener 60 sec\n• Spinal twist 60 sec each side\n• Child's pose 90 sec`},
+];
+
+let expandedPlan=null;
+
+function renderExercise(){
+  const schedule=DB.exerciseSchedule||{};
+  const todayStr=today();
+  const todayDay=DAYS[new Date().getDay()===0?6:new Date().getDay()-1];
+  const todaySchedule=schedule[todayDay]||'';
+  // Get today's saved workout if any
+  const todayWorkout=(DB.exerciseLogs||{})[todayStr]||'';
+
+  const dayPills=DAYS.map(d=>{
+    const type=schedule[d]||'';
+    const isToday=d===todayDay;
+    const label=type?type.charAt(0).toUpperCase()+type.slice(1,4):'—';
+    return`<div class="day-pill${type?' '+type:''}${isToday?' active-day':''}" onclick="editDaySchedule('${d}')">
+      <div class="day-name">${d}</div>
+      <div class="day-type">${label}</div>
+    </div>`;
+  }).join('');
+
+  const planCards=WORKOUT_PLANS.map(p=>{
+    const isOpen=expandedPlan===p.id;
+    return`<div class="plan-card${isOpen?' plan-open':''}" onclick="togglePlan('${p.id}')">
+      <div class="plan-card-head">
+        <div class="plan-emoji">${p.emoji}</div>
+        <div style="flex:1"><div class="plan-title">${p.title}</div><div class="plan-tag">${p.tag}</div></div>
+        <div class="plan-chevron">${isOpen?'▲':'▼'}</div>
+      </div>
+      ${isOpen?`<div class="plan-body">${esc(p.content).replace(/\n/g,'<br>')}</div>
+        <button class="plan-use-btn" onclick="event.stopPropagation();usePlan('${p.id}')">Use this plan today ↓</button>`:''}
+    </div>`;
+  }).join('');
+
+  // Past exercise log
+  const logs=DB.exercise||[];
+  let pastHtml='';
+  if(logs.length){
+    pastHtml=`<div class="past-label">Past workouts</div>`;
+    logs.slice(0,10).forEach(e=>{
+      pastHtml+=`<div class="log-entry">
+        <div class="log-date">${fmtShort(e.date)}${e.type?' · '+e.type:''}</div>
+        ${e.plan?`<div class="log-text" style="color:var(--purple);font-size:12px;font-weight:600;margin-bottom:4px">${e.plan}</div>`:''}
+        <div class="log-text">${esc(e.log||'').replace(/\n/g,'<br>')}</div>
+        <div class="log-foot"><button class="del-btn" onclick="deleteExercise('${e.id}')">Delete</button></div>
+      </div>`;
+    });
+  }
+
+  document.getElementById('viewBody').innerHTML=`
+    <div class="post">
+      <div class="post-header">
+        <div class="post-avatar">🗓️</div>
+        <div><div class="post-title">Weekly schedule</div><div class="post-sub">Tap a day to assign your workout</div></div>
+      </div>
+      <div class="post-body">
+        <div class="week-grid">${dayPills}</div>
+      </div>
+    </div>
+    <div class="post">
+      <div class="post-header">
+        <div class="post-avatar">📋</div>
+        <div><div class="post-title">Workout plans</div><div class="post-sub">Tap to expand · drag to a day</div></div>
+      </div>
+      <div class="post-body">
+        <div class="plans-list">${planCards}</div>
+      </div>
+    </div>
+    <div class="post">
+      <div class="post-header">
+        <div class="post-avatar">💪</div>
+        <div><div class="post-title">Today's workout</div><div class="post-sub">${todayDay}${todaySchedule?' · '+todaySchedule.charAt(0).toUpperCase()+todaySchedule.slice(1):' · What are you doing today?'}</div></div>
+      </div>
+      <div class="post-body">
+        <textarea class="ta" id="ex_log" placeholder="Write your own workout or use a plan above… sets, reps, how it felt." rows="4">${esc(todayWorkout)}</textarea>
+        <div style="height:10px"></div>
+        <button class="primary-btn" onclick="saveExercise()">Save workout</button>
+        <div class="save-confirm" id="exConfirm" style="margin-top:8px">Workout saved ✦</div>
+      </div>
+    </div>
+    ${pastHtml}`;
+}
+
+function togglePlan(id){
+  expandedPlan=expandedPlan===id?null:id;
+  renderExercise();
+  setTimeout(()=>{const el=document.querySelector('.plan-open');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});},50);
+}
+
+function usePlan(id){
+  const plan=WORKOUT_PLANS.find(p=>p.id===id);
+  if(!plan)return;
+  const ta=document.getElementById('ex_log');
+  if(ta){ta.value=plan.content;ta.scrollIntoView({behavior:'smooth'});}
+}
+
+function editDaySchedule(day){
+  const schedule=DB.exerciseSchedule||{};
+  const current=schedule[day]||'';
+  // Show plan options to assign to this day
+  const planOpts=WORKOUT_PLANS.map(p=>`
+    <button class="type-opt${current===p.id?' sel-weights':''}" onclick="setDayPlan('${day}','${p.id}',this)" style="display:flex;align-items:center;gap:6px;width:100%;margin-bottom:6px;padding:10px 14px;border-radius:10px;font-size:13px">
+      <span>${p.emoji}</span><span>${p.title}</span>
+    </button>`).join('');
+  const typeOpts=WORKOUT_TYPES.map(t=>`<button class="type-opt${current===t?' sel-'+t:''}" onclick="setDayType('${day}','${t}')">${t.charAt(0).toUpperCase()+t.slice(1)}</button>`).join('');
+  openModal(`<div class="modal-handle"></div>
+    <div class="modal-title">${day} — assign workout</div>
+    <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px">Quick type</div>
+    <div class="type-selector" id="typeSelector" style="margin-bottom:16px">${typeOpts}</div>
+    <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px">Assign a plan</div>
+    <div id="planSelector">${planOpts}</div>
+    <div class="fg" style="margin-top:12px"><label class="lbl">Custom notes</label>
+    <textarea class="mi-ta" id="day_notes" placeholder="e.g. Push day — chest, shoulders, triceps">${esc(schedule[day+'_notes']||'')}</textarea></div>
+    <div class="modal-footer">
+      <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+      <button class="modal-save" onclick="saveDaySchedule('${day}')">Save</button>
+    </div>`);
+}
+
+function setDayPlan(day,planId,btn){
+  document.querySelectorAll('#planSelector .type-opt').forEach(b=>b.classList.remove('sel-weights'));
+  btn.classList.add('sel-weights');
+  document.querySelectorAll('#typeSelector .type-opt').forEach(b=>b.className='type-opt');
+  // Store temp selection
+  btn.dataset.planId=planId;
+}
+
+function setDayType(day,type){
+  document.querySelectorAll('#typeSelector .type-opt').forEach(b=>{
+    b.className='type-opt'+(b.textContent.toLowerCase()===type?' sel-'+type:'');
+  });
+  document.querySelectorAll('#planSelector .type-opt').forEach(b=>b.classList.remove('sel-weights'));
+}
+
+function saveDaySchedule(day){
+  if(!DB.exerciseSchedule)DB.exerciseSchedule={};
+  const selectedPlan=document.querySelector('#planSelector .sel-weights');
+  const selectedType=document.querySelector('#typeSelector .type-opt[class*="sel-"]');
+  if(selectedPlan){
+    DB.exerciseSchedule[day]=selectedPlan.querySelector('[data-plan-id]')?.dataset.planId||selectedType?.textContent.toLowerCase()||'';
+  } else if(selectedType){
+    DB.exerciseSchedule[day]=selectedType.textContent.toLowerCase();
+  }
+  DB.exerciseSchedule[day+'_notes']=(document.getElementById('day_notes').value||'').trim();
+  saveDB('exerciseSchedule',DB.exerciseSchedule);closeModal();renderExercise();
+}
+
+function saveExercise(){
+  const log=(document.getElementById('ex_log').value||'').trim();
+  if(!log)return;
+  const todayStr=today();
+  if(!DB.exerciseLogs)DB.exerciseLogs={};
+  DB.exerciseLogs[todayStr]=log;
+  // Keep 30 days
+  const keys=Object.keys(DB.exerciseLogs).sort().reverse().slice(0,30);
+  const trimmed={};keys.forEach(k=>trimmed[k]=DB.exerciseLogs[k]);
+  DB.exerciseLogs=trimmed;
+  saveDB('exerciseLogs',DB.exerciseLogs);
+  // Also add to log history
+  if(!DB.exercise)DB.exercise=[];
+  const todayDay=DAYS[new Date().getDay()===0?6:new Date().getDay()-1];
+  const type=(DB.exerciseSchedule||{})[todayDay]||'';
+  DB.exercise=DB.exercise.filter(e=>e.date!==todayStr);
+  DB.exercise.unshift({id:Date.now().toString(),date:todayStr,type,log});
+  saveDB('exercise',DB.exercise);
+  const conf=document.getElementById('exConfirm');
+  conf.style.opacity='1';setTimeout(()=>{conf.style.opacity='0';},1400);
+}
+
+function deleteExercise(id){
+  DB.exercise=(DB.exercise||[]).filter(e=>e.id!==id);
+  saveDB('exercise',DB.exercise);renderExercise();
+}
+
+// ═══════════════ NOURISHMENT ═══════════════
+const MEAL_SUGGESTIONS=['Overnight oats','Greek yogurt + berries','Avocado toast','Grilled salmon + greens','Chicken + quinoa','Veggie stir fry','Smoothie bowl','Lentil soup'];
+const MEAL_DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+function initNourish(){
+  if(!DB.nourish)DB.nourish={glasses:0,vitamins:{},meals:{breakfast:'',lunch:'',dinner:'',snack:''},vitaminList:[],recipes:[],foodPrepSchedule:{}};
+  if(!DB.nourish.foodPrepSchedule)DB.nourish.foodPrepSchedule={};
+  if(!DB.nourish.vitaminList)DB.nourish.vitaminList=[];
+  if(!DB.nourish.recipes)DB.nourish.recipes=[];
+}
+
+function renderNourish(){
+  initNourish();
+  const n=DB.nourish;
+  const glasses=n.glasses||0;
+  const todayMealDay=MEAL_DAYS[new Date().getDay()===0?6:new Date().getDay()-1];
+
+  const glassHtml=Array.from({length:8},(_,i)=>`
+    <div class="glass${i<glasses?' filled':''}" onclick="toggleGlass(${i})">
+      <div class="glass-fill"></div>
+    </div>`).join('');
+
+  const vitaminHtml=n.vitaminList.length
+    ?n.vitaminList.map((v,i)=>`
+      <div class="vitamin-row${n.vitamins[v]?' checked':''}">
+        <div style="display:flex;align-items:center;gap:10px;flex:1" onclick="toggleVitamin('${v.replace(/'/g,"\\'")}')">
+          <div class="vitamin-check">${n.vitamins[v]?'✓':''}</div>
+          <div class="vitamin-name">${esc(v)}</div>
+        </div>
+        <button onclick="removeVitamin(${i})" style="background:none;border:none;color:var(--ink4);cursor:pointer;font-size:14px;padding:4px 8px;touch-action:manipulation">✕</button>
+      </div>`).join('')
+    :`<div style="font-size:13px;color:var(--ink4);font-style:italic;padding:8px 0">No vitamins added yet</div>`;
+
+  const suggestHtml=MEAL_SUGGESTIONS.map(m=>`<button class="meal-chip" onclick="useMealSuggestion('${m}')">${m}</button>`).join('');
+
+  // Food prep schedule grid
+  const prepGrid=MEAL_DAYS.map(d=>{
+    const prep=n.foodPrepSchedule[d]||'';
+    const isToday=d===todayMealDay;
+    return`<div style="background:${isToday?'var(--purple-bg)':'var(--bg)'};border-radius:10px;padding:10px 12px;border:1.5px solid ${isToday?'var(--purple-mid)':'var(--border)'}">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:${isToday?'var(--purple)':'var(--ink3)'};margin-bottom:4px">${d}</div>
+      <input style="width:100%;font-size:12px;font-family:'Plus Jakarta Sans',sans-serif;border:none;background:transparent;color:var(--ink2);outline:none;padding:0" 
+        placeholder="What to prep…" value="${esc(prep)}" 
+        onchange="savePrepDay('${d}',this.value)">
+    </div>`;
+  }).join('');
+
+  const recipesHtml=(n.recipes||[]).length
+    ?`<div style="margin-bottom:12px">${n.recipes.map((r,i)=>`
+        <div style="background:var(--bg);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px">
+          <div style="flex:1">
+            <div style="font-size:14px;font-weight:600;color:var(--ink2);margin-bottom:3px">${esc(r.name)}</div>
+            ${r.notes?`<div style="font-size:12px;color:var(--ink3);line-height:1.5">${esc(r.notes)}</div>`:''}
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0">
+            <button onclick="addRecipeToMeal('${esc(r.name)}')" style="padding:5px 10px;font-size:11px;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;background:var(--purple);color:#fff;border:none;border-radius:7px;cursor:pointer;white-space:nowrap">+ Add to meal</button>
+            <button onclick="deleteRecipe(${i})" style="padding:5px 10px;font-size:11px;font-family:'Plus Jakarta Sans',sans-serif;background:none;border:1px solid var(--border2);border-radius:7px;cursor:pointer;color:var(--ink4)">Delete</button>
+          </div>
+        </div>`).join('')}</div>`
+    :`<div style="font-size:13px;color:var(--ink4);font-style:italic;padding:4px 0 10px">No recipes saved yet</div>`;
+
+  document.getElementById('viewBody').innerHTML=`
+    <div class="post">
+      <div class="post-header"><div class="post-avatar">💧</div>
+        <div><div class="post-title">Water intake</div><div class="post-sub">Tap each glass as you drink it</div></div>
+      </div>
+      <div class="post-body">
+        <div class="water-tracker">${glassHtml}</div>
+        <div class="water-count">${glasses} of 8 glasses · ${glasses*8} oz</div>
+      </div>
+    </div>
+    <div class="post">
+      <div class="post-header"><div class="post-avatar">💊</div>
+        <div><div class="post-title">Vitamins & supplements</div><div class="post-sub">Your daily checklist</div></div>
+      </div>
+      <div class="post-body">
+        <div class="vitamin-list">${vitaminHtml}</div>
+        <div class="add-win-row" style="margin-top:10px">
+          <input class="add-win-inp" id="vitaminInp" placeholder="Add a vitamin or supplement…" onkeydown="if(event.key==='Enter')addVitamin()">
+          <button class="add-win-btn" onclick="addVitamin()">+ Add</button>
+        </div>
+      </div>
+    </div>
+    <div class="post">
+      <div class="post-header"><div class="post-avatar">🌿</div>
+        <div><div class="post-title">Meals today</div><div class="post-sub">Log what you ate</div></div>
+      </div>
+      <div class="post-body">
+        <div class="meal-suggestions">${suggestHtml}</div>
+        <div class="meal-grid">
+          <div class="meal-slot"><div class="meal-slot-label">Breakfast</div><input class="meal-inp" id="meal_breakfast" placeholder="What did you have?" value="${esc(n.meals.breakfast||'')}"></div>
+          <div class="meal-slot"><div class="meal-slot-label">Lunch</div><input class="meal-inp" id="meal_lunch" placeholder="What did you have?" value="${esc(n.meals.lunch||'')}"></div>
+          <div class="meal-slot"><div class="meal-slot-label">Dinner</div><input class="meal-inp" id="meal_dinner" placeholder="What did you have?" value="${esc(n.meals.dinner||'')}"></div>
+          <div class="meal-slot"><div class="meal-slot-label">Snack</div><input class="meal-inp" id="meal_snack" placeholder="Any snacks?" value="${esc(n.meals.snack||'')}"></div>
+        </div>
+        <button class="primary-btn" onclick="saveMeals()">Save meals</button>
+        <div class="save-confirm" id="nourishConfirm" style="margin-top:8px">Saved ✦</div>
+      </div>
+    </div>
+    <div class="post">
+      <div class="post-header"><div class="post-avatar">📖</div>
+        <div><div class="post-title">Recipe box</div><div class="post-sub">Save your go-to meals</div></div>
+      </div>
+      <div class="post-body">
+        ${recipesHtml}
+        <div style="background:var(--purple-bg);border-radius:12px;padding:14px;margin-top:4px">
+          <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--purple);margin-bottom:10px">Add recipe</div>
+          <input class="ta" style="min-height:auto;padding:11px 13px;margin-bottom:8px" id="recipe_name" placeholder="Recipe name">
+          <textarea class="ta" id="recipe_notes" placeholder="Ingredients, steps, or notes…" rows="3"></textarea>
+          <button class="primary-btn" style="margin-top:10px;font-size:13px;padding:11px" onclick="saveRecipe()">Save recipe</button>
+          <div class="save-confirm" id="recipeConfirm" style="margin-top:6px">Recipe saved ✦</div>
+        </div>
+      </div>
+    </div>
+    <div class="post">
+      <div class="post-header"><div class="post-avatar">🥗</div>
+        <div><div class="post-title">Food prep schedule</div><div class="post-sub">Plan what to prep each day</div></div>
+      </div>
+      <div class="post-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">${prepGrid}</div>
+        <div class="save-confirm" id="prepConfirm" style="margin-top:4px;opacity:0">Saved ✦</div>
+      </div>
+    </div>`;
+}
+
+function savePrepDay(day,value){
+  initNourish();
+  DB.nourish.foodPrepSchedule[day]=value.trim();
+  saveDB('nourish',DB.nourish);
+  const conf=document.getElementById('prepConfirm');
+  if(conf){conf.style.opacity='1';setTimeout(()=>{conf.style.opacity='0';},1200);}
+}
+
+function saveRecipe(){
+  const name=(document.getElementById('recipe_name').value||'').trim();if(!name)return;
+  const notes=(document.getElementById('recipe_notes').value||'').trim();
+  initNourish();
+  DB.nourish.recipes.unshift({name,notes,id:Date.now().toString()});
+  saveDB('nourish',DB.nourish);
+  const conf=document.getElementById('recipeConfirm');
+  if(conf){conf.style.opacity='1';setTimeout(()=>{conf.style.opacity='0';renderNourish();},1200);}
+}
+
+function deleteRecipe(i){
+  initNourish();
+  DB.nourish.recipes.splice(i,1);
+  saveDB('nourish',DB.nourish);renderNourish();
+}
+
+function addRecipeToMeal(name){
+  const slots=['breakfast','lunch','dinner','snack'];
+  for(const s of slots){
+    const el=document.getElementById('meal_'+s);
+    if(el&&!el.value){el.value=name;break;}
+  }
+}
+
+function toggleGlass(i){
+  initNourish();
+  const current=DB.nourish.glasses||0;
+  DB.nourish.glasses=i<current?i:i+1;
+  saveDB('nourish',DB.nourish);renderNourish();
+}
+
+function toggleVitamin(name){
+  initNourish();
+  DB.nourish.vitamins[name]=!DB.nourish.vitamins[name];
+  saveDB('nourish',DB.nourish);renderNourish();
+}
+
+function addVitamin(){
+  const inp=document.getElementById('vitaminInp');
+  const val=(inp.value||'').trim();if(!val)return;
+  initNourish();
+  if(!DB.nourish.vitaminList.includes(val)){DB.nourish.vitaminList.push(val);saveDB('nourish',DB.nourish);}
+  inp.value='';renderNourish();
+}
+
+function removeVitamin(i){
+  initNourish();
+  const name=DB.nourish.vitaminList[i];
+  DB.nourish.vitaminList.splice(i,1);
+  delete DB.nourish.vitamins[name];
+  saveDB('nourish',DB.nourish);renderNourish();
+}
+
+function useMealSuggestion(meal){
+  const slots=['breakfast','lunch','dinner','snack'];
+  for(const s of slots){
+    const el=document.getElementById('meal_'+s);
+    if(el&&!el.value){el.value=meal;break;}
+  }
+}
+
+function saveMeals(){
+  initNourish();
+  DB.nourish.meals={
+    breakfast:(document.getElementById('meal_breakfast').value||'').trim(),
+    lunch:(document.getElementById('meal_lunch').value||'').trim(),
+    dinner:(document.getElementById('meal_dinner').value||'').trim(),
+    snack:(document.getElementById('meal_snack').value||'').trim(),
+  };
+  saveDB('nourish',DB.nourish);
+  const conf=document.getElementById('nourishConfirm');
+  conf.style.opacity='1';setTimeout(()=>{conf.style.opacity='0';},1400);
+}
+
+// ═══════════════ FINANCIAL ═══════════════
+const SPEND_CATS=['Food','Transport','Shopping','Health','Entertainment','Other'];
+
+function initFinancial(){
+  if(!DB.financial)DB.financial={savings:{goal:0,saved:0},desire:{item:'',cost:0,saved:0},spending:{}};
+  if(!DB.financial.savings)DB.financial.savings={goal:0,saved:0};
+  if(!DB.financial.desire)DB.financial.desire={item:'',cost:0,saved:0};
+  if(!DB.financial.spending)DB.financial.spending={};
+}
+
+function renderFinancial(){
+  initFinancial();
+  const f=DB.financial;
+  const savingsPct=f.savings.goal>0?Math.min(100,Math.round((f.savings.saved/f.savings.goal)*100)):0;
+  const desirePct=f.desire.cost>0?Math.min(100,Math.round((f.desire.saved/f.desire.cost)*100)):0;
+  const totalSpend=SPEND_CATS.reduce((sum,c)=>sum+(parseFloat(f.spending[c])||0),0);
+
+  const catHtml=SPEND_CATS.map(c=>`
+    <div class="cat-card">
+      <div class="cat-name">${c}</div>
+      <div class="cat-amount">$${(parseFloat(f.spending[c])||0).toFixed(0)}</div>
+      <div class="cat-add">
+        <input class="cat-add-inp" type="number" min="0" step="0.01" placeholder="+$" id="spend_${c}">
+        <button class="cat-add-btn" onclick="addSpend('${c}')">Add</button>
+      </div>
+    </div>`).join('');
+
+  document.getElementById('viewBody').innerHTML=`
+    <div class="post">
+      <div class="post-header"><div class="post-avatar">🏦</div>
+        <div><div class="post-title">Savings plan</div><div class="post-sub">Track your savings goal</div></div>
+      </div>
+      <div class="post-body">
+        <div class="savings-goal-card">
+          <div class="block-label">Savings goal</div>
+          <div class="savings-amounts" style="margin-bottom:6px">
+            <span>Saved: <strong>$${(parseFloat(f.savings.saved)||0).toLocaleString()}</strong></span>
+            <span>Goal: <strong>$${(parseFloat(f.savings.goal)||0).toLocaleString()}</strong></span>
+          </div>
+          <div class="savings-progress-bar"><div class="savings-progress-fill" style="width:${savingsPct}%"></div></div>
+          <div style="text-align:right;font-size:12px;color:var(--purple);font-weight:700;margin-bottom:14px">${savingsPct}%</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+            <div>
+              <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink3);margin-bottom:4px">Set goal</div>
+              <input class="cat-add-inp" style="width:100%" type="number" min="0" placeholder="$5,000" id="savings_goal" value="${parseFloat(f.savings.goal)||''}">
+            </div>
+            <div>
+              <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink3);margin-bottom:4px">Add amount</div>
+              <input class="cat-add-inp" style="width:100%" type="number" min="0" placeholder="$200" id="savings_add">
+            </div>
+          </div>
+          <button class="primary-btn" onclick="updateSavings()">Update savings</button>
+          <div class="save-confirm" id="savingsConfirm" style="margin-top:8px">Saved ✦</div>
+        </div>
+      </div>
+    </div>
+    <div class="post">
+      <div class="post-header"><div class="post-avatar">✨</div>
+        <div><div class="post-title">Desire goal</div><div class="post-sub">Something beautiful you're working toward</div></div>
+      </div>
+      <div class="post-body">
+        <div class="desire-card">
+          <div class="desire-label">I am saving for…</div>
+          <input class="cat-add-inp" style="width:100%;margin-bottom:12px" placeholder="e.g. dream vacation, new car…" id="desire_item" value="${esc(f.desire.item||'')}">
+          <div class="savings-amounts" style="margin-bottom:6px">
+            <span>Saved: <strong>$${(parseFloat(f.desire.saved)||0).toLocaleString()}</strong></span>
+            <span>Cost: <strong>$${(parseFloat(f.desire.cost)||0).toLocaleString()}</strong></span>
+          </div>
+          <div class="savings-progress-bar"><div class="savings-progress-fill" style="width:${desirePct}%"></div></div>
+          <div style="text-align:right;font-size:12px;color:var(--purple);font-weight:700;margin-bottom:14px">${desirePct}%</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+            <div>
+              <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink3);margin-bottom:4px">Total cost</div>
+              <input class="cat-add-inp" style="width:100%" type="number" min="0" placeholder="$2,000" id="desire_cost" value="${parseFloat(f.desire.cost)||''}">
+            </div>
+            <div>
+              <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink3);margin-bottom:4px">Add savings</div>
+              <input class="cat-add-inp" style="width:100%" type="number" min="0" placeholder="$50" id="desire_add">
+            </div>
+          </div>
+          <button class="primary-btn" onclick="updateDesire()">Update desire goal</button>
+          <div class="save-confirm" id="desireConfirm" style="margin-top:8px">Saved ✦</div>
+        </div>
+      </div>
+    </div>
+    <div class="post">
+      <div class="post-header"><div class="post-avatar">💸</div>
+        <div><div class="post-title">Daily spending</div><div class="post-sub">Track where your money goes</div></div>
+      </div>
+      <div class="post-body">
+        <div class="spend-total">Total: <span>$${totalSpend.toFixed(0)}</span></div>
+        <div class="category-grid">${catHtml}</div>
+        <button class="primary-btn" style="font-size:13px;padding:11px;background:var(--purple)" onclick="resetSpending()">Reset all spending</button>
+      </div>
+    </div>
+    <div class="post">
+      <div class="post-header"><div class="post-avatar">💭</div>
+        <div><div class="post-title">Money mindset</div><div class="post-sub">Your relationship with money</div></div>
+      </div>
+      <div class="post-body">
+        <div class="priority-block">
+          <div class="block-prompt">Money flows to me because I…</div>
+          <textarea class="ta" id="money_mindset" rows="2" placeholder="add value, show up consistently, think abundantly…">${esc(f.mindset||'')}</textarea>
+        </div>
+        <div style="height:8px"></div>
+        <button class="primary-btn" style="font-size:13px;padding:11px" onclick="saveMoneyMindset()">Save</button>
+        <div class="save-confirm" id="mindsetConfirm" style="margin-top:6px">Saved ✦</div>
+      </div>
+    </div>`;
+}
+
+function updateSavings(){
+  initFinancial();
+  const goal=parseFloat(document.getElementById('savings_goal').value)||DB.financial.savings.goal;
+  const add=parseFloat(document.getElementById('savings_add').value)||0;
+  DB.financial.savings.goal=goal;
+  DB.financial.savings.saved=Math.max(0,(DB.financial.savings.saved||0)+add);
+  saveDB('financial',DB.financial);
+  const conf=document.getElementById('savingsConfirm');
+  conf.style.opacity='1';setTimeout(()=>{conf.style.opacity='0';renderFinancial();},1200);
+}
+
+function updateDesire(){
+  initFinancial();
+  const item=(document.getElementById('desire_item').value||'').trim();
+  const cost=parseFloat(document.getElementById('desire_cost').value)||DB.financial.desire.cost;
+  const add=parseFloat(document.getElementById('desire_add').value)||0;
+  DB.financial.desire={item,cost,saved:Math.max(0,(DB.financial.desire.saved||0)+add)};
+  saveDB('financial',DB.financial);
+  const conf=document.getElementById('desireConfirm');
+  conf.style.opacity='1';setTimeout(()=>{conf.style.opacity='0';renderFinancial();},1200);
+}
+
+function addSpend(cat){
+  initFinancial();
+  const inp=document.getElementById('spend_'+cat);
+  const val=parseFloat(inp.value)||0;if(!val)return;
+  DB.financial.spending[cat]=(parseFloat(DB.financial.spending[cat])||0)+val;
+  saveDB('financial',DB.financial);inp.value='';renderFinancial();
+}
+
+function resetSpending(){
+  initFinancial();
+  DB.financial.spending={};
+  saveDB('financial',DB.financial);renderFinancial();
+}
+
+function saveMoneyMindset(){
+  initFinancial();
+  DB.financial.mindset=(document.getElementById('money_mindset').value||'').trim();
+  saveDB('financial',DB.financial);
+  const conf=document.getElementById('mindsetConfirm');
+  conf.style.opacity='1';setTimeout(()=>{conf.style.opacity='0';},1400);
+}
+
+// ═══════════════ EMOTIONAL ═══════════════
+let selectedMood=null;
+let emotionalEnergy=null;
+const MOODS=[
+  {label:'Grateful',emoji:'🙏'},{label:'Excited',emoji:'🤩'},{label:'Calm',emoji:'😌'},{label:'Confident',emoji:'💪'},
+  {label:'Anxious',emoji:'😰'},{label:'Tired',emoji:'😴'},{label:'Frustrated',emoji:'😤'},{label:'Sad',emoji:'😢'},
+];
+
+function renderEmotional(){
+  selectedMood=null;emotionalEnergy=null;
+  const entries=DB.emotional||[];
+  let html=`
+    <div class="post">
+      <div class="post-header"><div class="post-avatar">💜</div>
+        <div><div class="post-title">How are you feeling?</div><div class="post-sub">Check in with yourself</div></div>
+      </div>
+      <div class="post-body">
+        <div class="mood-grid">
+          ${MOODS.map(m=>`<div class="mood-btn" id="mood_${m.label}" onclick="selectMood('${m.label}','${m.emoji}')">
+            <div class="mood-emoji">${m.emoji}</div>
+            <div class="mood-label">${m.label}</div>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>
+    <div class="post">
+      <div class="post-header"><div class="post-avatar">⚡</div>
+        <div><div class="post-title">Energy level</div><div class="post-sub">Rate your energy today (1–10)</div></div>
+      </div>
+      <div class="post-body">
+        <div class="energy-dots" id="energyDots">${energyDotsHtml(null)}</div>
+      </div>
+    </div>
+    <div class="post">
+      <div class="post-header"><div class="post-avatar">✍️</div>
+        <div><div class="post-title">Check in</div><div class="post-sub">Process what's present for you today</div></div>
+      </div>
+      <div class="post-body">
+        <div style="margin-bottom:10px">
+          <div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin-bottom:6px">What's feeling heavy right now?</div>
+          <textarea class="ta" id="em_problem" placeholder="What's weighing on me…" rows="2"></textarea>
+        </div>
+        <div style="margin-bottom:10px">
+          <div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin-bottom:6px">What's the lesson or reframe?</div>
+          <textarea class="ta" id="em_lesson" placeholder="What I can learn from this…" rows="2"></textarea>
+        </div>
+        <div style="margin-bottom:10px">
+          <div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--purple);margin-bottom:6px">What am I excited about?</div>
+          <textarea class="ta" id="em_excited" placeholder="What's lighting me up…" rows="2"></textarea>
+        </div>
+        <div style="margin-bottom:12px">
+          <div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#6b8f6b;margin-bottom:6px">What do I need right now?</div>
+          <textarea class="ta" id="em_need" placeholder="Rest, connection, movement, permission to feel…" rows="2"></textarea>
+        </div>
+        <button class="primary-btn" onclick="saveEmotional()">Save check-in</button>
+        <div class="save-confirm" id="emConfirm" style="margin-top:8px">Saved ✦</div>
+      </div>
+    </div>`;
+
+  if(entries.length){
+    html+=`<div class="past-label">Past check-ins</div>`;
+    entries.slice(0,7).forEach(e=>{
+      html+=`<div class="log-entry">
+        <div class="log-date">${fmtShort(e.date)}${e.mood?' · '+e.moodEmoji+' '+e.mood:''} ${e.energy?' · ⚡'+e.energy+'/10':''}</div>
+        ${e.problem?`<div style="margin-bottom:6px"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--ink4);margin-bottom:2px">Heavy</div><div class="log-text">${esc(e.problem)}</div></div>`:''}
+        ${e.lesson?`<div style="margin-bottom:6px"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--ink4);margin-bottom:2px">Lesson</div><div class="log-text">${esc(e.lesson)}</div></div>`:''}
+        ${e.excited?`<div style="margin-bottom:6px"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--purple);margin-bottom:2px">Excited about</div><div class="log-text">${esc(e.excited)}</div></div>`:''}
+        ${e.need?`<div><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#6b8f6b;margin-bottom:2px">I need</div><div class="log-text">${esc(e.need)}</div></div>`:''}
+        <div class="log-foot"><button class="del-btn" onclick="deleteEmotional('${e.id}')">Delete</button></div>
+      </div>`;
+    });
+  }
+  document.getElementById('viewBody').innerHTML=html;
+}
+
+function energyDotsHtml(selected){
+  return Array.from({length:10},(_,i)=>i+1).map(n=>
+    `<div class="e-dot${selected===n?' e-dot-sel':''}" onclick="setEmotionalEnergy(${n})">${n}</div>`
+  ).join('');
+}
+
+function setEmotionalEnergy(val){
+  emotionalEnergy=val;
+  const el=document.getElementById('energyDots');
+  if(el)el.innerHTML=energyDotsHtml(val);
+}
+
+function selectMood(label,emoji){
+  selectedMood={label,emoji};
+  document.querySelectorAll('.mood-btn').forEach(b=>{
+    b.classList.toggle('mood-sel',b.id==='mood_'+label);
+  });
+}
+
+function saveEmotional(){
+  const problem=(document.getElementById('em_problem').value||'').trim();
+  const lesson=(document.getElementById('em_lesson').value||'').trim();
+  const excited=(document.getElementById('em_excited').value||'').trim();
+  const need=(document.getElementById('em_need').value||'').trim();
+  if(!problem&&!lesson&&!excited&&!need&&!selectedMood&&!emotionalEnergy)return;
+  if(!DB.emotional)DB.emotional=[];
+  DB.emotional.unshift({
+    id:Date.now().toString(),date:today(),
+    mood:selectedMood?selectedMood.label:'',
+    moodEmoji:selectedMood?selectedMood.emoji:'',
+    energy:emotionalEnergy||'',
+    problem,lesson,excited,need
+  });
+  saveDB('emotional',DB.emotional);
+  const conf=document.getElementById('emConfirm');
+  conf.style.opacity='1';setTimeout(()=>{conf.style.opacity='0';renderEmotional();},1400);
+}
+
+function deleteEmotional(id){
+  DB.emotional=(DB.emotional||[]).filter(e=>e.id!==id);
+  saveDB('emotional',DB.emotional);renderEmotional();
+}
+
+// ═══════════════ RELATIONSHIPS ═══════════════
+const COMM_TIPS=[
+  `Become genuinely curious about someone today. Ask a question you actually don't know the answer to — and then just listen.`,
+  `Before you respond, take a breath. The pause is where real connection lives.`,
+  `Say thank you for something specific. Not "thanks for everything" — but one real, particular thing.`,
+  `Send a voice note instead of a text today. It's 10x more personal and people feel it.`,
+  `Tell someone what you appreciate about them. Not what they did — who they are.`,
+  `Ask "how are you really doing?" and mean it. Most people are waiting for someone to ask.`,
+  `Listen to understand, not to respond. Notice when you're already formulating your reply before they finish.`,
+  `Let someone feel like the most important person in the room when you're with them. Put the phone away.`,
+  `Reach out to someone you've been meaning to contact. The thought doesn't count — the message does.`,
+  `Notice when someone needs to be heard vs. when they need advice. Ask first: "Do you want me to just listen, or do you want my thoughts?"`,
+  `People feel loved through different things. Think about what makes the people closest to you feel seen and do that today.`,
+  `Repair something. If there's tension with someone, be the one who reaches out first.`,
+  `Be honest about how you're actually doing with someone you trust. Vulnerability invites connection.`,
+  `Celebrate someone else's win like it's your own. Joy shared is joy doubled.`,
+  `Use someone's name when you talk to them. It's a simple way to make people feel real to you.`,
+];
+
+const REL_DAILY_Q=[
+  `Who in your life needs a little extra love this week?`,
+  `What relationship have you been neglecting that matters to you?`,
+  `How have you been showing up in your most important relationships lately?`,
+  `Who has shown up for you recently that you haven't thanked?`,
+  `What would it look like to be a 10/10 friend, partner, or family member this week?`,
+  `Who are you taking for granted right now?`,
+  `What conversation have you been avoiding that needs to happen?`,
+  `How can you love the people in your life better this week?`,
+  `Who makes you feel most like yourself? When did you last spend real time with them?`,
+  `What do the people closest to you need from you right now?`,
+  `Where are you holding back in a relationship out of fear?`,
+  `Who could you surprise with a kind gesture today?`,
+  `What's one thing you could do this week to deepen a relationship that matters?`,
+  `Are there any relationships in your life that are draining you? What would healthy boundaries look like?`,
+  `Who do you admire and want to be more like? Have you told them?`,
+];
+
+// Updated KIND_MESSAGES — more natural, Anna Goldstein voice
+const KIND_MESSAGES=[
+  {type:`Just thinking of you`,emoji:`💜`,text:`Hey — I was just thinking about you and wanted to say hi. Hope everything's going well. Miss you.`},
+  {type:`Checking in`,emoji:`☀️`,text:`Hey, just checking in. How are you actually doing? Not the Instagram version — like, how are you really? I've got time if you want to talk.`},
+  {type:`You came to mind`,emoji:`🌸`,text:`You crossed my mind today and I just smiled. That's the whole message. Hope your day is good.`},
+  {type:`Miss you`,emoji:`🫶`,text:`I miss you. Not in a dramatic way, just in a "can we please make plans and actually keep them this time" kind of way. Let's do it.`},
+  {type:`Random appreciation`,emoji:`🎉`,text:`Random thought: I'm really glad you're in my life. Okay that's it. You can go back to whatever you were doing.`},
+  {type:`Made me think of you`,emoji:`😂`,text:`I saw something and immediately thought of you. Which honestly says everything about our friendship. Hope it made you smile too.`},
+  {type:`No reason, just hey`,emoji:`👋`,text:`No reason for this text, no emergency. Just thought of you and wanted to say hey. So. Hey. Hope you're good.`},
+  {type:`You're doing amazing`,emoji:`🌟`,text:`I just want you to know — the growth I've seen in you lately is real. You might not see it from the inside, but from here? You're doing amazing. Keep going.`},
+  {type:`Rooting for you`,emoji:`🌱`,text:`Just wanted you to know I'm in your corner. Whatever you're working through, whatever you're working toward — I believe in you. Always.`},
+  {type:`You inspire me`,emoji:`✨`,text:`Can I tell you something? You genuinely inspire me. The way you show up and keep going even when it's hard — it makes me want to be better too. Thank you for that.`},
+  {type:`You've got this`,emoji:`⚡`,text:`Whatever you're in the middle of right now — you've got this. Not in a bumper sticker way. In a "I've genuinely seen what you're made of" kind of way.`},
+  {type:`Proud of you`,emoji:`🏆`,text:`I'm just really proud of you. I don't say it enough. The way you've been showing up lately — it's everything. Don't stop.`},
+  {type:`Thank you for being you`,emoji:`🙏`,text:`I've been meaning to say this — thank you. For showing up. For being real. For all the little things you do that nobody notices. I notice.`},
+  {type:`Keep going`,emoji:`🔥`,text:`Hey. The version of you that you're becoming is worth every hard moment. Just wanted to say that. Keep going.`},
+  {type:`Your courage is showing`,emoji:`🦁`,text:`I see you doing the hard thing. Choosing growth when it would be easier not to. I just want you to know — it's not going unnoticed.`},
+  {type:`You light up the room`,emoji:`💡`,text:`I was just thinking about how different any room feels when you're in it. Your energy is one of a kind. The world needs more of it.`},
+  {type:`Official notice 📋`,emoji:`📋`,text:`This is your official notification that you are appreciated. Please acknowledge receipt by having a great day. — HR (me)`},
+  {type:`Check in after hard time`,emoji:`💙`,text:`Hey. I've been thinking about you and just wanted to check in. No pressure to respond, just wanted you to know I'm here if you need anything.`},
+];
+
+// Rotate 6 messages per day (3 sets of 2) based on day of year
+function getTodaysMessages(){
+  const day=dayOfYear();
+  const total=KIND_MESSAGES.length;
+  const indices=[];
+  for(let i=0;i<6;i++){indices.push((day*6+i*Math.ceil(total/6))%total);}
+  return [...new Set(indices)].slice(0,6).map(i=>({...KIND_MESSAGES[i],origIndex:i}));
+}
+
+const REL_TYPES=['Friend','Family','Partner','Colleague'];
+
+function renderRelationships(){
+  if(!DB.relationships)DB.relationships={contacts:[],lastCheckins:{},connectionScores:{}};
+  const r=DB.relationships;
+  const contacts=r.contacts||[];
+  const day=dayOfYear();
+  const tip=COMM_TIPS[day%COMM_TIPS.length];
+  const dailyQ=REL_DAILY_Q[day%REL_DAILY_Q.length];
+
+  // Connection tracker
+  const connHtml=contacts.length?contacts.map((c,i)=>{
+    const ini=c.name.trim().split(/\s+/).map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    const score=(r.connectionScores||{})[c.name]||0;
+    const lastCheckin=(r.lastCheckins||{})[c.name];
+    const freqDays={Daily:1,Weekly:7,Biweekly:14,Monthly:30}[c.frequency]||7;
+    const daysSince=lastCheckin?Math.floor((new Date()-new Date(lastCheckin))/(864e5)):999;
+    const overdue=daysSince>=freqDays;
+    const statusHtml=lastCheckin
+      ?overdue?`<span class="contact-overdue">Overdue · ${daysSince}d ago</span>`
+              :`<span class="contact-ok">✓ ${daysSince===0?'Today':(daysSince+'d ago')}</span>`
+      :`<span class="contact-overdue">No check-in yet</span>`;
+    // Score bar
+    const scoreBar=`<div style="display:flex;align-items:center;gap:6px;margin-top:6px">
+      <div style="font-size:10px;color:var(--ink4);font-weight:600;flex-shrink:0">Connection</div>
+      <div style="flex:1;height:4px;background:var(--border2);border-radius:99px;overflow:hidden">
+        <div style="width:${score*10}%;height:100%;background:var(--purple);border-radius:99px;transition:width .3s"></div>
+      </div>
+      <div style="font-size:11px;font-weight:700;color:var(--purple);flex-shrink:0">${score}/10</div>
+      <div style="display:flex;gap:2px">
+        <button onclick="adjustScore('${esc(c.name)}',-1)" style="width:20px;height:20px;border-radius:50%;border:1px solid var(--border2);background:var(--bg);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation">−</button>
+        <button onclick="adjustScore('${esc(c.name)}',1)" style="width:20px;height:20px;border-radius:50%;border:1px solid var(--border2);background:var(--bg);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation">+</button>
+      </div>
+    </div>`;
+    return`<div class="contact-item">
+      <div class="contact-avatar">${ini}</div>
+      <div class="contact-info" style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:6px">
+          <div class="contact-name">${esc(c.name)}</div>
+          <div style="font-size:10px;font-weight:600;color:var(--ink4);background:var(--bg);padding:2px 6px;border-radius:99px;border:1px solid var(--border2)">${c.type||'Friend'}</div>
+        </div>
+        <div class="contact-freq">${c.frequency||'Weekly'}</div>
+        ${statusHtml}
+        ${scoreBar}
+      </div>
+      <div class="contact-actions" style="display:flex;flex-direction:column;gap:4px;flex-shrink:0">
+        <button class="contact-send-btn" onclick="openKindMessage('${esc(c.name)}')">💌 Send</button>
+        <button class="contact-checkin-btn" onclick="markCheckin('${esc(c.name)}')">✓ Seen</button>
+        <button onclick="deleteContact(${i})" style="padding:5px 8px;font-size:10px;font-family:'Plus Jakarta Sans',sans-serif;background:none;border:1px solid var(--border2);border-radius:7px;cursor:pointer;color:var(--ink4);touch-action:manipulation">✕</button>
+      </div>
+    </div>`;
+  }).join('')
+  :`<div style="font-size:13px;color:var(--ink4);font-style:italic;padding:8px 0">Add the people who matter most to you</div>`;
+
+  const todaysMsgs=getTodaysMessages();
+  const kindCards=todaysMsgs.map((m,idx)=>`
+    <div class="kind-msg-card">
+      <div class="kind-msg-type">${m.emoji} ${m.type}</div>
+      <div class="kind-msg-text">${esc(m.text)}</div>
+      <div class="kind-msg-actions">
+        <button class="kind-send-btn send-sms" onclick="sendKindByIndex('sms',${m.origIndex})">💬 Text</button>
+        <button class="kind-send-btn send-email" onclick="sendKindByIndex('email',${m.origIndex})">📧 Email</button>
+        <button class="kind-send-btn send-copy" onclick="sendKindByIndex('copy',${m.origIndex})">📋 Copy</button>
+      </div>
+    </div>`).join('');
+
+  document.getElementById('viewBody').innerHTML=`
+    <div class="post">
+      <div class="post-header"><div class="post-avatar">💡</div>
+        <div><div class="post-title">Today's relationship tip</div><div class="post-sub">One thing to practice today</div></div>
+      </div>
+      <div class="post-body">
+        <div class="comm-tip-card">
+          <div class="comm-tip-label">Today's tip</div>
+          <div class="comm-tip-text">${esc(tip)}</div>
+        </div>
+        <div style="margin-top:12px;background:var(--purple-bg);border-radius:12px;padding:14px">
+          <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--purple);margin-bottom:8px">Reflect on this</div>
+          <div style="font-size:14px;font-weight:500;color:var(--ink2);line-height:1.6;margin-bottom:10px">${esc(dailyQ)}</div>
+          <textarea class="ta" id="rel_q_journal" placeholder="Write your thoughts…" rows="2"></textarea>
+          <button class="primary-btn" style="font-size:13px;padding:11px;margin-top:8px" onclick="saveRelQ()">Save reflection</button>
+          <div class="save-confirm" id="relQConfirm" style="margin-top:6px">Saved ✦</div>
+        </div>
+      </div>
+    </div>
+    <div class="post">
+      <div class="post-header">
+        <div class="post-avatar">💛</div>
+        <div><div class="post-title">Connection tracker</div><div class="post-sub">Your most important people</div></div>
+      </div>
+      <div class="post-body">
+        <div style="margin-bottom:12px">${connHtml}</div>
+        <button class="primary-btn" style="font-size:13px;padding:11px" onclick="openAddContact()">+ Add person</button>
+      </div>
+    </div>
+    <div class="post">
+      <div class="post-header"><div class="post-avatar">💌</div>
+        <div><div class="post-title">Send something kind</div><div class="post-sub">Today's messages — refreshes daily</div></div>
+      </div>
+      <div class="post-body">${kindCards}</div>
+    </div>`;
+}
+
+function adjustScore(name,delta){
+  if(!DB.relationships.connectionScores)DB.relationships.connectionScores={};
+  const current=DB.relationships.connectionScores[name]||0;
+  DB.relationships.connectionScores[name]=Math.max(0,Math.min(10,current+delta));
+  saveDB('relationships',DB.relationships);renderRelationships();
+}
+
+function deleteContact(i){
+  if(!DB.relationships||!DB.relationships.contacts)return;
+  DB.relationships.contacts.splice(i,1);
+  saveDB('relationships',DB.relationships);renderRelationships();
+}
+
+function openAddContact(){
+  openModal(`<div class="modal-handle"></div>
+    <div class="modal-title">Add person</div>
+    <div class="fg"><label class="lbl">Name</label><input class="mi-ta" style="min-height:auto;padding:10px 13px" id="c_name" placeholder="e.g. Sarah, Mom, David…"></div>
+    <div class="fg"><label class="lbl">Relationship type</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px" id="typeSelector2">
+        ${REL_TYPES.map(t=>`<button onclick="selRelType(this,'${t}')" style="padding:8px 14px;font-size:12px;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;border:1.5px solid var(--border2);border-radius:99px;background:var(--bg);cursor:pointer;color:var(--ink2);touch-action:manipulation">${t}</button>`).join('')}
+      </div>
+    </div>
+    <div class="fg"><label class="lbl">How often to connect?</label>
+      <select class="mi-ta" id="c_freq" style="-webkit-appearance:none;min-height:auto;padding:10px 13px">
+        <option>Daily</option><option selected>Weekly</option><option>Biweekly</option><option>Monthly</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+      <button class="modal-save" onclick="saveContact()">Add</button>
+    </div>`);
+}
+
+function selRelType(btn,type){
+  document.querySelectorAll('#typeSelector2 button').forEach(b=>{
+    b.style.background=b===btn?'var(--purple-bg)':'var(--bg)';
+    b.style.borderColor=b===btn?'var(--purple)':'var(--border2)';
+    b.style.color=b===btn?'var(--purple)':'var(--ink2)';
+  });
+  btn.dataset.selected='true';
+}
+
+function saveContact(){
+  const name=(document.getElementById('c_name').value||'').trim();if(!name)return;
+  const frequency=document.getElementById('c_freq').value;
+  const typeBtn=document.querySelector('#typeSelector2 button[data-selected="true"]');
+  const type=typeBtn?typeBtn.textContent:'Friend';
+  if(!DB.relationships)DB.relationships={contacts:[],lastCheckins:{},connectionScores:{}};
+  DB.relationships.contacts.push({name,frequency,type});
+  saveDB('relationships',DB.relationships);closeModal();renderRelationships();
+}
+
+function markCheckin(name){
+  if(!DB.relationships)DB.relationships={contacts:[],lastCheckins:{},connectionScores:{}};
+  if(!DB.relationships.lastCheckins)DB.relationships.lastCheckins={};
+  DB.relationships.lastCheckins[name]=today();
+  saveDB('relationships',DB.relationships);renderRelationships();
+}
+
+function saveRelQ(){
+  const text=(document.getElementById('rel_q_journal').value||'').trim();if(!text)return;
+  if(!DB.relJournal)DB.relJournal=[];
+  DB.relJournal.unshift({id:Date.now().toString(),date:today(),text});
+  saveDB('relJournal',DB.relJournal);
+  const conf=document.getElementById('relQConfirm');
+  conf.style.opacity='1';setTimeout(()=>{conf.style.opacity='0';},1400);
+  document.getElementById('rel_q_journal').value='';
+}
+
+function openKindMessage(name){
+  const cards=KIND_MESSAGES.map((m,i)=>`
+    <div style="background:var(--bg);border-radius:10px;padding:12px;margin-bottom:8px">
+      <div style="font-size:11px;font-weight:700;color:var(--purple);margin-bottom:6px">${m.emoji} ${m.type}</div>
+      <div style="font-size:13px;color:var(--ink2);line-height:1.6;margin-bottom:8px">${esc(m.text)}</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="kind-send-btn send-sms" onclick="sendKindByIndex('sms',${i})">💬 Text</button>
+        <button class="kind-send-btn send-email" onclick="sendKindByIndex('email',${i})">📧 Email</button>
+        <button class="kind-send-btn send-copy" onclick="sendKindByIndex('copy',${i})">📋 Copy</button>
+      </div>
+    </div>`).join('');
+  openModal(`<div class="modal-handle"></div>
+    <div class="modal-title">Send to ${esc(name)}</div>
+    <div style="max-height:60vh;overflow-y:auto">${cards}</div>
+    <button class="modal-cancel" onclick="closeModal()" style="width:100%;margin-top:8px">Close</button>`);
+}
+
+function sendKindByIndex(method,index){
+  const m=KIND_MESSAGES[index];
+  if(!m)return;
+  sendMessage(method,m.text);
+}
+
+function sendMessage(method,text){
+  if(method==='sms'){
+    window.location.href='sms:&body='+encodeURIComponent(text);
+  } else if(method==='email'){
+    window.location.href='mailto:?subject='+encodeURIComponent('Thinking of you')+'&body='+encodeURIComponent(text);
+  } else {
+    if(navigator.clipboard&&window.isSecureContext){
+      navigator.clipboard.writeText(text).then(()=>showCopyToast()).catch(()=>fallbackCopy(text));
+    } else {
+      fallbackCopy(text);
+    }
+  }
+}
+
+function fallbackCopy(text){
+  const ta=document.createElement('textarea');
+  ta.value=text;ta.style.cssText='position:fixed;left:-9999px;top:50%;opacity:0';
+  document.body.appendChild(ta);ta.focus();ta.select();
+  try{document.execCommand('copy');showCopyToast();}catch(e){alert('Tap and hold to copy:\n\n'+text);}
+  document.body.removeChild(ta);
+}
+
+function showCopyToast(){
+  let t=document.getElementById('copyToast');
+  if(!t){
+    t=document.createElement('div');t.id='copyToast';
+    t.style.cssText='position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:10px 20px;border-radius:99px;font-size:13px;font-weight:600;z-index:9999;font-family:Plus Jakarta Sans,sans-serif;pointer-events:none;transition:opacity .3s;opacity:0';
+    t.textContent='Copied ✓';document.body.appendChild(t);
+  }
+  t.style.opacity='1';setTimeout(()=>{t.style.opacity='0';},2200);
+}
+
+// ═══════════════ JOURNAL ═══════════════
+// 4 sets of prompts, rotate weekly
+const PROMPT_SETS=[
+  ['Where do you see yourself one year from today?','Describe your ideal day in vivid detail.','What would you do if you knew you could not fail?','Who is the person you are becoming?','What does your future self want you to know today?'],
+  ['What are you most proud of right now, even if no one knows about it?','What would you do differently if you were completely unafraid?','What belief about yourself is ready to be released?','Who do you want to be in your closest relationships?','What does your version of success actually feel like — not look like?'],
+  ['What chapter of your life are you currently in? What is it teaching you?','Where are you playing small and why?','What would you start if you stopped waiting to feel ready?','What is your body trying to tell you right now?','What do you need to forgive yourself for?'],
+  ['What lights you up so much that time disappears?','If money and fear weren\'t factors, what would your life look like?','What is the version of you that you\'re growing into like?','What does love look like in your life right now?','What is already working that you\'re not giving yourself credit for?'],
+];
+
+function renderJournal(){
+  const entries=DB.journal||[];
+  const weekIdx=weekOfYear()%PROMPT_SETS.length;
+  const prompts=PROMPT_SETS[weekIdx];
+  let html=`
+    <div class="post">
+      <div class="post-header"><div class="post-avatar">📖</div>
+        <div><div class="post-title">Journal & Manifest</div><div class="post-sub">This week's prompts · write freely</div></div>
+      </div>
+      <div class="post-body">
+        <div class="prompts-scroll">
+          ${prompts.map(p=>`<button class="prompt-chip" onclick="usePrompt(this)">${p}</button>`).join('')}
+        </div>
+        <textarea class="ta" id="journal_inp" placeholder="Write freely… your thoughts, visions, intentions…" rows="5"></textarea>
+        <div style="height:10px"></div>
+        <button class="primary-btn" onclick="saveJournal()">Save entry</button>
+        <div class="save-confirm" id="journalConfirm" style="margin-top:8px">Entry saved ✦</div>
+      </div>
+    </div>`;
+  if(entries.length){
+    html+=`<div class="past-label">Past entries</div>`;
+    entries.forEach(e=>{
+      html+=`<div class="log-entry">
+        <div class="log-date">${fmtShort(e.date)}</div>
+        <div class="log-text">${esc(e.text).replace(/\n/g,'<br>')}</div>
+        <div class="log-foot"><button class="del-btn" onclick="deleteJournal('${e.id}')">Delete</button></div>
+      </div>`;
+    });
+  }
+  document.getElementById('viewBody').innerHTML=html;
+}
+
+function usePrompt(btn){
+  const ta=document.getElementById('journal_inp');if(!ta)return;
+  ta.value=ta.value?ta.value+'\n\n'+btn.textContent+'\n':btn.textContent+'\n';
+  ta.focus();ta.scrollTop=ta.scrollHeight;
+}
+
+function saveJournal(){
+  const text=(document.getElementById('journal_inp').value||'').trim();if(!text)return;
+  if(!DB.journal)DB.journal=[];
+  DB.journal.unshift({id:Date.now().toString(),date:today(),text});
+  saveDB('journal',DB.journal);
+  const conf=document.getElementById('journalConfirm');
+  conf.style.opacity='1';setTimeout(()=>{conf.style.opacity='0';renderJournal();},1200);
+}
+
+function deleteJournal(id){
+  DB.journal=(DB.journal||[]).filter(e=>e.id!==id);
+  saveDB('journal',DB.journal);renderJournal();
+}
+
+// ═══════════════ INSPIRE ═══════════════
+const FALLBACK=[
+  {text:`The secret of getting ahead is getting started.`,author:`Mark Twain`},
+  {text:`You are never too old to set another goal or to dream a new dream.`,author:`C.S. Lewis`},
+  {text:`Believe you can and you're halfway there.`,author:`Theodore Roosevelt`},
+  {text:`Everything you've ever wanted is on the other side of fear.`,author:`George Addair`},
+  {text:`The future belongs to those who believe in the beauty of their dreams.`,author:`Eleanor Roosevelt`},
+  {text:`Start where you are. Use what you have. Do what you can.`,author:`Arthur Ashe`},
+  {text:`The mind is everything. What you think you become.`,author:`Buddha`},
+  {text:`Your life does not get better by chance. It gets better by change.`,author:`Jim Rohn`},
+  {text:`She believed she could, so she did.`,author:`R.S. Grey`},
+  {text:`The comeback is always stronger than the setback.`,author:`Unknown`},
+  {text:`You didn't come this far to only come this far.`,author:`Unknown`},
+  {text:`Be the energy you want to attract.`,author:`Unknown`},
+  {text:`Do something today that your future self will thank you for.`,author:`Sean Patrick Flanery`},
+  {text:`Wake up with determination. Go to bed with satisfaction.`,author:`Unknown`},
+  {text:`Great things never come from comfort zones.`,author:`Unknown`},
+  {text:`You are enough. You have enough. You do enough.`,author:`Brené Brown`},
+  {text:`You were not made for a small life.`,author:`Unknown`},
+  {text:`Stop shrinking yourself to fit places you've outgrown.`,author:`Unknown`},
+  {text:`You are one decision away from a completely different life.`,author:`Mel Robbins`},
+  {text:`The version of you that you're becoming is worth every hard moment.`,author:`Unknown`},
+  {text:`Your habits are your future self in disguise.`,author:`Unknown`},
+  {text:`The best project you'll ever work on is yourself.`,author:`Unknown`},
+  {text:`Own your morning. Elevate your life.`,author:`Robin Sharma`},
+  {text:`Confidence is not "they will like me." Confidence is "I'll be fine if they don't."`,author:`Unknown`},
+  {text:`Gratitude turns what we have into enough.`,author:`Aesop`},
+  {text:`One day or day one. You decide.`,author:`Unknown`},
+  {text:`The most important relationship you'll ever have is the one you have with yourself.`,author:`Unknown`},
+  {text:`Protect your peace like it's your most valuable asset. Because it is.`,author:`Unknown`},
+  {text:`What you feed your mind determines your appetite.`,author:`Tom Ziglar`},
+  {text:`Dream big. Start small. Act now.`,author:`Robin Sharma`},
+];
+
+function renderInspire(){
+  if(!currentQuote){
+    currentQuote=FALLBACK[dayOfYear()%FALLBACK.length];
+  }
+  showQuote();
+  fetchQuote().then(()=>showQuote()).catch(()=>{});
+}
+
+async function fetchQuote(){
+  try{
+    const r=await fetch('https://api.quotable.io/random?tags=inspirational,motivational,success,life&maxLength=160');
+    if(r.ok){const d=await r.json();currentQuote={text:d.content,author:d.author};}
+    else throw new Error();
+  }catch(e){
+    currentQuote=FALLBACK[dayOfYear()%FALLBACK.length];
+  }
+}
+
+function showQuote(){
+  const el=document.getElementById('viewBody');
+  if(!el)return;
+  const q=currentQuote||FALLBACK[0];
+  el.innerHTML=`
+    <div class="quote-wrap">
+      <div class="quote-card">
+        <div class="quote-mark">"</div>
+        <div class="quote-text">${esc(q.text)}</div>
+        <div class="quote-author">— ${esc(q.author)}</div>
+      </div>
+      <button class="new-quote-btn" onclick="newQuote()" style="margin-bottom:12px">✦ New quote</button>
+      <div style="background:var(--white);border-radius:14px;padding:16px;border:1px solid var(--border);margin-top:4px">
+        <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--purple);margin-bottom:10px">Send this quote to someone</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="kind-send-btn send-sms" onclick="sendQuote('sms')" style="flex:1;padding:11px;font-size:13px">💬 Text it</button>
+          <button class="kind-send-btn send-email" onclick="sendQuote('email')" style="flex:1;padding:11px;font-size:13px">📧 Email it</button>
+          <button class="kind-send-btn send-copy" onclick="sendQuote('copy')" style="flex:1;padding:11px;font-size:13px">📋 Copy</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+async function newQuote(){
+  // Pick a random fallback immediately while fetching
+  const prev=currentQuote;
+  let rand;
+  do{rand=FALLBACK[Math.floor(Math.random()*FALLBACK.length)];}while(rand.text===prev?.text&&FALLBACK.length>1);
+  currentQuote=rand;
+  showQuote();
+  // Try to fetch fresh one
+  try{
+    const r=await fetch('https://api.quotable.io/random?tags=inspirational,motivational,success,life&maxLength=160');
+    if(r.ok){const d=await r.json();currentQuote={text:d.content,author:d.author};showQuote();}
+  }catch(e){}
+}
+
+function sendQuote(method){
+  const q=currentQuote||FALLBACK[0];
+  const text=`"${q.text}" — ${q.author}`;
+  sendMessage(method,text);
+}
+
+// ═══════════════ ENVIRONMENT ═══════════════
+const ENV_AREAS=[
+  {id:'bedroom',emoji:'🛏️',label:'Bedroom',prompts:['Clear the nightstand — keep only what you use every night','Remove clothes from the chair/floor','Check under the bed','Organize your closet — donate anything you haven\'t worn in 6 months','Make your bed every morning, it sets the tone for everything']},
+  {id:'bathroom',emoji:'🪥',label:'Bathroom',prompts:['Clear counters — only what you use daily stays out','Check expiry dates on products and toss what\'s old','Organize under the sink','Wipe down mirrors and surfaces','Restock anything running low']},
+  {id:'kitchen',emoji:'🍳',label:'Kitchen',prompts:['Clear the counter — only appliances you use weekly stay out','Check the fridge and toss anything old','Organize one cabinet or drawer','Wipe down stovetop and counters','Check pantry for expired items']},
+  {id:'living',emoji:'🛋️',label:'Living Room',prompts:['Clear all surfaces — nothing lives on tables that doesn\'t belong','Remove things that don\'t live in this room','Fluff pillows and fold blankets','Dust surfaces','Evaluate: does everything in this room add beauty or function?']},
+  {id:'workspace',emoji:'💻',label:'Workspace',prompts:['Clear your desk — only your computer and what you\'re working on today','File or toss any papers on the desk','Organize cables','Clean your screen','Check your digital desktop too — file or delete what doesn\'t need to be there']},
+  {id:'car',emoji:'🚗',label:'Car',prompts:['Remove any trash or items that don\'t live in the car','Clean out the center console','Wipe down the dashboard','Organize the trunk','Wash or vacuum if needed']},
+  {id:'digital',emoji:'📱',label:'Digital Space',prompts:['Delete apps you haven\'t used in 30 days','Unsubscribe from 5 email lists today','Clear your camera roll — back up and delete duplicates','Organize your desktop folders','Delete contacts you no longer need']},
+];
+
+const ENV_DAILY_PROMPTS=[
+  'What\'s one thing I can get rid of today that I\'ve been holding onto "just in case"?',
+  'What in my environment is causing low-level stress that I keep ignoring?',
+  'If a guest came over right now, what\'s the one thing I\'d want to clean first? Start there.',
+  'What space in my home makes me feel the most calm? How can I make more rooms feel that way?',
+  'What am I keeping out of guilt, obligation, or the past — not because I truly want it?',
+  'What does my ideal home environment feel like? What\'s one step closer to that today?',
+  'What area of my home do I avoid or feel embarrassed by? That\'s where to start.',
+  'What can I organize, clean, or release in the next 10 minutes?',
+  'What objects in my space represent a version of myself I\'ve outgrown?',
+  'What would a fresh start in one area of my home look like?',
+  'What\'s one habit I could build that would keep my space consistently clean?',
+  'Does my environment reflect who I\'m becoming, or who I used to be?',
+  'What single change to my physical space would have the biggest positive impact on my daily life?',
+  'What\'s been sitting in my "to deal with later" pile too long?',
+];
+
+function renderEnvironment(){
+  if(!DB.env)DB.env={checkedItems:{},completedAreas:{}};
+  const e=DB.env;
+  const day=dayOfYear();
+  const dailyQ=ENV_DAILY_PROMPTS[day%ENV_DAILY_PROMPTS.length];
+
+  const areaCards=ENV_AREAS.map(a=>{
+    const checked=(e.checkedItems||{})[a.id]||[];
+    const total=a.prompts.length;
+    const done=checked.length;
+    const pct=Math.round((done/total)*100);
+    const isOpen=DB.envOpenArea===a.id;
+    const promptsHtml=a.prompts.map((p,i)=>`
+      <div onclick="toggleEnvItem('${a.id}',${i})" style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;touch-action:manipulation">
+        <div style="width:20px;height:20px;border-radius:50%;border:1.5px solid ${checked.includes(i)?'var(--purple)':'var(--border2)'};background:${checked.includes(i)?'var(--purple)':'transparent'};display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;flex-shrink:0;margin-top:1px">${checked.includes(i)?'✓':''}</div>
+        <div style="font-size:13px;color:${checked.includes(i)?'var(--ink4)':'var(--ink2)'};line-height:1.5;text-decoration:${checked.includes(i)?'line-through':'none'}">${esc(p)}</div>
+      </div>`).join('');
+    return`<div style="background:var(--white);border:1px solid var(--border);border-radius:14px;margin-bottom:8px;overflow:hidden">
+      <div onclick="toggleEnvArea('${a.id}')" style="display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;touch-action:manipulation">
+        <div style="font-size:24px;flex-shrink:0">${a.emoji}</div>
+        <div style="flex:1">
+          <div style="font-size:15px;font-weight:700;color:var(--ink2)">${a.label}</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+            <div style="flex:1;height:4px;background:var(--border2);border-radius:99px;overflow:hidden">
+              <div style="width:${pct}%;height:100%;background:var(--purple);border-radius:99px"></div>
+            </div>
+            <div style="font-size:11px;font-weight:600;color:var(--ink3)">${done}/${total}</div>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--ink4)">${isOpen?'▲':'▼'}</div>
+      </div>
+      ${isOpen?`<div style="padding:0 16px 14px;border-top:1px solid var(--border)">${promptsHtml}</div>`:''}
+    </div>`;
+  }).join('');
+
+  document.getElementById('viewBody').innerHTML=`
+    <div class="post">
+      <div class="post-header"><div class="post-avatar">🧹</div>
+        <div><div class="post-title">Area checklists</div><div class="post-sub">Tap an area to see what to clean or clear</div></div>
+      </div>
+      <div class="post-body">${areaCards}</div>
+    </div>
+    <div class="post">
+      <div class="post-header"><div class="post-avatar">🗑️</div>
+        <div><div class="post-title">Declutter log</div><div class="post-sub">What did you let go of today?</div></div>
+      </div>
+      <div class="post-body">
+        <textarea class="ta" id="env_declutter" placeholder="I got rid of… I organized… I cleared out…" rows="3"></textarea>
+        <button class="primary-btn" style="font-size:13px;padding:11px;margin-top:8px" onclick="saveEnvDeclutter()">Log it</button>
+        <div class="save-confirm" id="envDeclutterConfirm" style="margin-top:6px">Logged ✦</div>
+        ${(DB.envLogs||[]).length?`<div style="margin-top:14px">${(DB.envLogs||[]).slice(0,5).map(l=>`
+          <div class="log-entry">
+            <div class="log-date">${fmtShort(l.date)}</div>
+            <div class="log-text">${esc(l.text)}</div>
+            <div class="log-foot"><button class="del-btn" onclick="deleteEnvLog('${l.id}')">Delete</button></div>
+          </div>`).join('')}</div>`:''}
+      </div>
+    </div>`;
+}
+
+function toggleEnvArea(id){
+  DB.envOpenArea=DB.envOpenArea===id?null:id;
+  renderEnvironment();
+}
+
+function toggleEnvItem(areaId,index){
+  if(!DB.env)DB.env={checkedItems:{},completedAreas:{}};
+  if(!DB.env.checkedItems[areaId])DB.env.checkedItems[areaId]=[];
+  const arr=DB.env.checkedItems[areaId];
+  const pos=arr.indexOf(index);
+  if(pos>=0)arr.splice(pos,1);else arr.push(index);
+  saveDB('env',DB.env);renderEnvironment();
+}
+
+function saveEnvJournal(){
+  const text=(document.getElementById('env_journal').value||'').trim();if(!text)return;
+  if(!DB.relJournal)DB.relJournal=[];
+  DB.relJournal.unshift({id:Date.now().toString(),date:today(),text:'[Environment] '+text});
+  saveDB('relJournal',DB.relJournal);
+  const conf=document.getElementById('envConfirm');
+  conf.style.opacity='1';setTimeout(()=>{conf.style.opacity='0';},1400);
+  document.getElementById('env_journal').value='';
+}
+
+function saveEnvDeclutter(){
+  const text=(document.getElementById('env_declutter').value||'').trim();if(!text)return;
+  if(!DB.envLogs)DB.envLogs=[];
+  DB.envLogs.unshift({id:Date.now().toString(),date:today(),text});
+  saveDB('envLogs',DB.envLogs);renderEnvironment();
+}
+
+function deleteEnvLog(id){
+  DB.envLogs=(DB.envLogs||[]).filter(l=>l.id!==id);
+  saveDB('envLogs',DB.envLogs);renderEnvironment();
+}
+
+// ═══════════════ MODAL ═══════════════
+function openModal(html){
+  let ov=document.getElementById('modal-overlay');
+  if(!ov){
+    ov=document.createElement('div');
+    ov.id='modal-overlay';
+    ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:300;display:flex;align-items:flex-end;justify-content:center';
+    ov.innerHTML='<div id="modal-box" style="background:#fff;border-radius:18px 18px 0 0;padding:24px 20px 40px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto"></div>';
+    ov.addEventListener('click',ev=>{if(ev.target===ov)closeModal()});
+    document.body.appendChild(ov);
+  }
+  document.getElementById('modal-box').innerHTML=html;
+  ov.style.display='flex';
+}
+function closeModal(){
+  const ov=document.getElementById('modal-overlay');
+  if(ov)ov.style.display='none';
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+
+// ── Init ──
+renderTab();
+
+// ── PWA icon + manifest ──
+(function(){
+  function makeIcon(size){
+    const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+      <rect width="${size}" height="${size}" fill="#ffffff"/>
+      <text x="50%" y="44%" dominant-baseline="middle" text-anchor="middle"
+        font-family="sans-serif" font-size="${Math.round(size*0.38)}px" font-weight="800" fill="#111111" letter-spacing="-2">daily</text>
+      <text x="${Math.round(size*0.86)}%" y="44%" dominant-baseline="middle" text-anchor="middle"
+        font-family="sans-serif" font-size="${Math.round(size*0.42)}px" font-weight="800" fill="#7c4dbe">.</text>
+      <text x="50%" y="68%" dominant-baseline="middle" text-anchor="middle"
+        font-family="sans-serif" font-size="${Math.round(size*0.12)}px" font-weight="400" fill="#737373" letter-spacing="1">live by design</text>
+    </svg>`;
+    return 'data:image/svg+xml;base64,'+btoa(svg);
+  }
+  document.getElementById('appIcon').href=makeIcon(180);
+  const manifest={name:'daily.',short_name:'daily.',description:'live by design.',start_url:'./',display:'standalone',background_color:'#ffffff',theme_color:'#ffffff',orientation:'portrait',icons:[{src:makeIcon(192),sizes:'192x192',type:'image/svg+xml'},{src:makeIcon(512),sizes:'512x512',type:'image/svg+xml'}]};
+  const blob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
+  document.getElementById('appManifest').href=URL.createObjectURL(blob);
+})();
+</script>
+</body>
+</html>
