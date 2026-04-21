@@ -424,8 +424,7 @@ async function sendMagicLink() {
   btn.disabled = true;
   btn.textContent = 'Sending…';
   try {
-    const { error } = await _sb.auth.signInWithOtp({ email, options: { shouldCreateUser: true } });
-    if (error) throw error;
+   const { error } = await _sb.auth.signInWithOtp({ email, options: { shouldCreateUser: true, emailRedirectTo: 'https://selfinthecity-ux.github.io/daily/' } });
     document.getElementById('magicMsg').textContent = '✓ Magic link sent! Check your inbox.';
     document.getElementById('magicMsg').className = 'auth-msg success';
     btn.textContent = 'Sent ✓';
