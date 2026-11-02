@@ -271,8 +271,8 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'Inter',
 // ╔══════════════════════════════════════════════════════════════╗
 // ║                  SUPABASE CONFIGURATION                      ║
 // ╚══════════════════════════════════════════════════════════════╝
-const SUPABASE_URL  = 'https://dkfupewqymuolhisdzmp.supabase.co';
-const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRrZnVwZXdxeW11b2xoaXNkem1wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1Nzc0OTYsImV4cCI6MjA5MTE1MzQ5Nn0.BPgWRXBFRoAJce-yT8k4VVI6_1B8XEyuFA0FiQBljCo';
+const SUPABASE_URL  = 'https://wjkwhzlospdpyyaycztl.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indqa3doemxvc3BkcHl5YXljenRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2NTA3OTgsImV4cCI6MjA5MDIyNjc5OH0.7Lbf2fSI0-FZcyTYAh2Jhg7KZRUQrbHBnblcxOo2Ano';
 
 // ── Supabase client ───────────────────────────────────────────
 const _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON, { auth: { persistSession: true } });
@@ -327,7 +327,7 @@ async function handleAuth(mode){
   try{
     let res;
     if(mode==='signin'){ res = await _sb.auth.signInWithPassword({email, password:pass}); }
-    else { res = await _sb.auth.signUp({email, password:pass}); }
+    else { res = await _sb.auth.signUp({email, password:pass, options:{emailRedirectTo: location.origin + location.pathname}}); }
     if(res.error) throw res.error;
     if(!res.data.session){ showErr('Account created — check your email to confirm, then sign in.'); return; }
     await afterLogin();
@@ -395,14 +395,27 @@ function setSyncStatus(s){
 // ── Core DB layer ─────────────────────────────────────────────────────
 const LEGACY_DB_KEY = 'daily_v2';
 let DB_KEY = LEGACY_DB_KEY;
+const OLD_SESSION_KEY = 'sb-dkfupewqymuolhisdzmp-auth-token'; // sign-in from the previous database
+let _carriedOver = false;
 function useAccountStorage(){
   if(!USER_ID) return;
   DB_KEY = 'daily_v2_' + USER_ID;
   try{
-    // The first account to sign in after this update adopts the old shared copy once, then it is removed.
-    const legacy = localStorage.getItem(LEGACY_DB_KEY);
-    if(legacy && !localStorage.getItem(DB_KEY)) localStorage.setItem(DB_KEY, legacy);
-    if(legacy) localStorage.removeItem(LEGACY_DB_KEY);
+    if(localStorage.getItem(DB_KEY)) return;
+    // Bring this person's entries across from the previous database, but only when they sign in
+    // with the same email they used there, so nobody else on a shared device can pick them up.
+    let old = null;
+    try{ const t = JSON.parse(localStorage.getItem(OLD_SESSION_KEY)||'null'); old = t && (t.user || (t.currentSession && t.currentSession.user)); }catch(e){}
+    let copy = null, oldKeys = [];
+    if(old && old.email && USER_EMAIL && old.email.toLowerCase() === USER_EMAIL.toLowerCase()){
+      oldKeys = ['daily_v2_' + old.id, LEGACY_DB_KEY, OLD_SESSION_KEY];
+      copy = localStorage.getItem('daily_v2_' + old.id) || localStorage.getItem(LEGACY_DB_KEY);
+    } else if(!old){
+      oldKeys = [LEGACY_DB_KEY];
+      copy = localStorage.getItem(LEGACY_DB_KEY);
+    }
+    if(copy){ localStorage.setItem(DB_KEY, copy); _carriedOver = true; }
+    if(copy || (old && oldKeys.length)) oldKeys.forEach(k => localStorage.removeItem(k));
   }catch(e){}
 }
 let DB = {};
@@ -494,6 +507,7 @@ async function loadDB(){
     const pulled = await pullFromSupabase();
     setSyncStatus(pulled ? 'saved' : 'idle');
     if(pulled) setTimeout(()=>setSyncStatus('idle'), 3000);
+    if(_carriedOver){ _carriedOver = false; pushToSupabase(); }
   }
   wins = DB.wins || [...DEFAULT_WINS];
   const t = todayResetKey();
