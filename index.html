@@ -344,27 +344,14 @@ async function afterLogin(){
   renderTab();
 }
 async function signOut(){
+  try{ clearTimeout(_syncTimer); await pushToSupabase(); }catch(e){}
+  try{ localStorage.removeItem(DB_KEY); localStorage.removeItem(LEGACY_DB_KEY); }catch(e){}
   try{ await _sb.auth.signOut(); }catch(e){}
   USER_ID=null; USER_EMAIL=null; AUTH_TOKEN=null; AUTH_TOKEN_TS=0;
   location.reload();
 }
-async function maybeMigrate(){
-  try{
-    const flag='migrated_'+USER_ID;
-    if(localStorage.getItem(flag)) return;
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/daily_data?select=data&user_id=eq.anna_main&limit=1`,
-      {headers:{'apikey':SUPABASE_ANON,'Authorization':'Bearer '+SUPABASE_ANON,'Accept':'application/json'}});
-    if(res.ok){
-      const rows = await res.json();
-      if(rows && rows.length && rows[0].data){
-        DB = deepMergeDB(DB, rows[0].data);
-        localStorage.setItem(DB_KEY, JSON.stringify(DB));
-        await pushToSupabase();
-      }
-    }
-  }catch(e){ console.warn('migration skipped:', e.message); }
-  try{ localStorage.setItem('migrated_'+USER_ID,'1'); }catch(e){}
-}
+// The one-time move of the original single-user data is finished; new accounts start empty.
+async function maybeMigrate(){ return; }
 function deepMergeDB(localD, staged){
   const out = {...localD};
   const ARR = ['emotional','journal','dailyLog','nightlyReflections','relJournal'];
@@ -406,7 +393,18 @@ function setSyncStatus(s){
 }
 
 // ── Core DB layer ─────────────────────────────────────────────────────
-const DB_KEY = 'daily_v2';
+const LEGACY_DB_KEY = 'daily_v2';
+let DB_KEY = LEGACY_DB_KEY;
+function useAccountStorage(){
+  if(!USER_ID) return;
+  DB_KEY = 'daily_v2_' + USER_ID;
+  try{
+    // The first account to sign in after this update adopts the old shared copy once, then it is removed.
+    const legacy = localStorage.getItem(LEGACY_DB_KEY);
+    if(legacy && !localStorage.getItem(DB_KEY)) localStorage.setItem(DB_KEY, legacy);
+    if(legacy) localStorage.removeItem(LEGACY_DB_KEY);
+  }catch(e){}
+}
 let DB = {};
 
 function saveDB(key, value){
@@ -489,6 +487,7 @@ function dayOfYear(){return Math.floor((new Date()-new Date(new Date().getFullYe
 function weekOfYear(){return Math.floor(dayOfYear()/7);}
 
 async function loadDB(){
+  useAccountStorage();
   try{ DB = JSON.parse(localStorage.getItem(DB_KEY)||'{}'); } catch(e){ DB={}; }
   if(_sb && USER_ID){
     setSyncStatus('saving');
