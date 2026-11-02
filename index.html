@@ -16,71 +16,75 @@
 <meta name="theme-color" content="#ffffff">
 <link rel="apple-touch-icon" id="appIcon">
 <link rel="manifest" id="appManifest">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
   --white:#ffffff;
-  --bg:#f9f9f9;
-  --border:#efefef;
-  --border2:#dbdbdb;
-  --ink:#111111;
-  --ink2:#262626;
-  --ink3:#737373;
-  --ink4:#a8a8a8;
-  --purple:#7c4dbe;
-  --purple-light:#e8dff7;
-  --purple-mid:#c4a8ee;
-  --purple-dark:#5b34a0;
-  --purple-bg:#f5f0ff;
+  --bg:#f7f6fa;
+  --border:#ebe9f3;
+  --border2:#d9d6e6;
+  --ink:#272264;
+  --ink2:#272264;
+  --ink3:#56517a;
+  --ink4:#8d88a8;
+  --purple:#272264;
+  --purple-light:#e9e7f3;
+  --purple-mid:#b9b5d6;
+  --purple-dark:#272264;
+  --purple-bg:#f3f2f9;
+  --yellow:#fec936;
+  --pink:#e3418a;
+  --orange:#f7873f;
+  --display:'Fraunces','Iowan Old Style',Georgia,serif;
 }
-html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;-webkit-font-smoothing:antialiased}
+html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,-apple-system,sans-serif;font-size:16px;-webkit-font-smoothing:antialiased}
 .app{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh;background:var(--white)}
 .header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--white);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:20}
-.header-logo{font-size:22px;font-weight:800;color:var(--ink);letter-spacing:-.03em}
-.header-logo span{color:var(--purple)}
+.header-logo{font-family:var(--display);font-size:24px;font-weight:600;color:var(--ink);letter-spacing:-.02em}
+.header-logo span{color:var(--pink)}
 .header-date{font-size:12px;color:var(--ink3);font-weight:400}
 .tab-bar{display:flex;background:var(--white);border-bottom:1px solid var(--border);overflow-x:auto;-webkit-overflow-scrolling:touch;flex-shrink:0;position:sticky;top:53px;z-index:19;scrollbar-width:none}
 .tab-bar::-webkit-scrollbar{display:none}
-.tab-btn{padding:13px 16px;font-size:12px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:500;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:var(--ink3);white-space:nowrap;flex-shrink:0;transition:all .15s;letter-spacing:.01em}
-.tab-btn.active{color:var(--purple);border-bottom-color:var(--purple);font-weight:700}
+.tab-btn{padding:13px 16px;font-size:12px;font-family:'Inter',system-ui,-apple-system,sans-serif;font-weight:500;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:var(--ink3);white-space:nowrap;flex-shrink:0;transition:all .15s;letter-spacing:.01em}
+.tab-btn.active{color:var(--purple);border-bottom-color:var(--yellow);border-bottom-width:3px;font-weight:700}
 .feed{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--bg)}
 .feed-inner{max-width:600px;margin:0 auto;padding:12px 0 60px}
 .post{background:var(--white);margin-bottom:8px;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
 .post-header{display:flex;align-items:center;gap:10px;padding:12px 16px}
-.post-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--purple-mid),var(--purple));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
-.post-title{font-size:14px;font-weight:700;color:var(--ink2)}
+.post-avatar{width:36px;height:36px;border-radius:50%;background:var(--purple-bg);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
+.post-title{font-family:var(--display);font-size:17px;font-weight:600;color:var(--ink2);letter-spacing:-.01em}
 .post-sub{font-size:12px;color:var(--ink3);margin-top:1px}
 .post-body{padding:0 16px 16px}
 .wins-list{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
 .win-row{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg);border-radius:12px;cursor:pointer;transition:background .12s;touch-action:manipulation}
 .win-row.checked{background:var(--purple-bg)}
 .win-circle{width:22px;height:22px;border-radius:50%;border:2px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;transition:all .2s}
-.win-row.checked .win-circle{background:var(--purple);border-color:var(--purple)}
+.win-row.checked .win-circle{background:var(--yellow);border-color:var(--yellow);color:var(--purple)}
 .win-text{font-size:14px;color:var(--ink2);font-weight:500;flex:1}
 .win-row.checked .win-text{color:var(--purple)}
 .add-win-row{display:flex;gap:8px;margin-top:4px}
-.add-win-inp{flex:1;padding:11px 14px;font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;border:1.5px solid var(--border2);border-radius:12px;background:var(--white);color:var(--ink);outline:none}
+.add-win-inp{flex:1;padding:11px 14px;font-size:14px;font-family:'Inter',system-ui,-apple-system,sans-serif;border:1.5px solid var(--border2);border-radius:12px;background:var(--white);color:var(--ink);outline:none}
 .add-win-inp:focus{border-color:var(--purple-mid)}
 .add-win-inp::placeholder{color:var(--ink4)}
-.add-win-btn{padding:11px 16px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;background:var(--purple);color:#fff;border:none;border-radius:12px;cursor:pointer;touch-action:manipulation}
+.add-win-btn{padding:11px 16px;font-size:13px;font-family:'Inter',system-ui,-apple-system,sans-serif;font-weight:700;background:var(--purple);color:#fff;border:none;border-radius:12px;cursor:pointer;touch-action:manipulation}
 .priority-block{background:var(--purple-bg);border-radius:14px;padding:16px;margin-bottom:8px}
 .block-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--purple);margin-bottom:6px}
 .block-prompt{font-size:14px;color:var(--ink3);margin-bottom:10px;line-height:1.5;font-weight:400}
-.ta{width:100%;padding:12px 14px;font-size:15px;font-family:'Plus Jakarta Sans',sans-serif;line-height:1.6;border:1.5px solid var(--border2);border-radius:12px;background:var(--white);color:var(--ink);outline:none;resize:none;transition:border-color .2s}
+.ta{width:100%;padding:12px 14px;font-size:15px;font-family:'Inter',system-ui,-apple-system,sans-serif;line-height:1.6;border:1.5px solid var(--border2);border-radius:12px;background:var(--white);color:var(--ink);outline:none;resize:none;transition:border-color .2s}
 .ta:focus{border-color:var(--purple-mid)}
 .ta::placeholder{color:var(--ink4)}
 .action-rows{display:flex;flex-direction:column;gap:8px}
 .action-row{display:flex;align-items:center;gap:10px}
 .action-num{width:28px;height:28px;border-radius:50%;background:var(--purple);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.action-inp{flex:1;padding:11px 14px;font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;border:1.5px solid var(--border2);border-radius:12px;background:var(--bg);color:var(--ink);outline:none;transition:border-color .2s;min-width:0}
+.action-inp{flex:1;padding:11px 14px;font-size:14px;font-family:'Inter',system-ui,-apple-system,sans-serif;border:1.5px solid var(--border2);border-radius:12px;background:var(--bg);color:var(--ink);outline:none;transition:border-color .2s;min-width:0}
 .action-inp:focus{border-color:var(--purple-mid);background:var(--white)}
 .action-inp::placeholder{color:var(--ink4)}
 .mindset-block{background:var(--bg);border-radius:14px;padding:16px;margin-bottom:10px}
 .mindset-prompt{font-size:15px;font-weight:700;color:var(--ink2);margin-bottom:4px}
 .mindset-prefix{font-size:13px;color:var(--ink3);margin-bottom:8px}
-.primary-btn{width:100%;padding:15px;font-size:15px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;background:var(--purple);color:#fff;border:none;border-radius:14px;cursor:pointer;touch-action:manipulation;margin-top:4px;letter-spacing:.01em}
+.primary-btn{width:100%;padding:15px;font-size:15px;font-family:'Inter',system-ui,-apple-system,sans-serif;font-weight:700;background:var(--purple);color:#fff;border:none;border-radius:14px;cursor:pointer;touch-action:manipulation;margin-top:4px;letter-spacing:.01em}
 .primary-btn:active{opacity:.85}
 .save-confirm{font-size:13px;color:var(--purple);text-align:center;opacity:0;transition:opacity .4s;margin-top:8px;font-weight:500}
 .contact-list{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
@@ -92,17 +96,17 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'Plus Ja
 .contact-freq{font-size:12px;color:var(--ink3);margin-top:2px}
 .contact-due{font-size:11px;font-weight:600;color:#d04040;margin-top:2px}
 .contact-actions{display:flex;gap:6px;flex-shrink:0}
-.contact-btn{padding:7px 12px;font-size:12px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;border:none;border-radius:8px;cursor:pointer;touch-action:manipulation;background:var(--purple);color:#fff}
-.contact-del-btn{background:none;border:1.5px solid var(--border2);color:var(--ink3);padding:7px 10px;font-size:12px;border-radius:8px;cursor:pointer;touch-action:manipulation;font-family:'Plus Jakarta Sans',sans-serif}
+.contact-btn{padding:7px 12px;font-size:12px;font-family:'Inter',system-ui,-apple-system,sans-serif;font-weight:600;border:none;border-radius:8px;cursor:pointer;touch-action:manipulation;background:var(--purple);color:#fff}
+.contact-del-btn{background:none;border:1.5px solid var(--border2);color:var(--ink3);padding:7px 10px;font-size:12px;border-radius:8px;cursor:pointer;touch-action:manipulation;font-family:'Inter',system-ui,-apple-system,sans-serif}
 .rel-prompts{display:flex;flex-direction:column;gap:8px;margin-bottom:4px}
 .rel-prompt{background:var(--purple-bg);border-radius:12px;padding:12px 14px;font-size:13px;color:var(--purple-dark);font-weight:500;line-height:1.5;font-style:italic}
 .kind-types{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
-.kind-type-btn{padding:11px 10px;font-size:12px;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;border:1.5px solid var(--border2);border-radius:10px;background:var(--bg);cursor:pointer;touch-action:manipulation;color:var(--ink2);text-align:center;transition:all .15s;line-height:1.3}
+.kind-type-btn{padding:11px 10px;font-size:12px;font-weight:600;font-family:'Inter',system-ui,-apple-system,sans-serif;border:1.5px solid var(--border2);border-radius:10px;background:var(--bg);cursor:pointer;touch-action:manipulation;color:var(--ink2);text-align:center;transition:all .15s;line-height:1.3}
 .kind-type-btn.kind-sel{background:var(--purple-bg);border-color:var(--purple);color:var(--purple)}
 .kind-preview{background:var(--purple-bg);border-radius:12px;padding:16px;font-size:14px;color:var(--ink2);line-height:1.7;font-style:italic;margin-bottom:12px;min-height:60px}
 .send-options{display:flex;gap:8px}
-.send-sms-btn{flex:1;padding:13px;font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;background:var(--purple);color:#fff;border:none;border-radius:12px;cursor:pointer;touch-action:manipulation}
-.send-email-btn{flex:1;padding:13px;font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;background:var(--ink2);color:#fff;border:none;border-radius:12px;cursor:pointer;touch-action:manipulation}
+.send-sms-btn{flex:1;padding:13px;font-size:14px;font-family:'Inter',system-ui,-apple-system,sans-serif;font-weight:700;background:var(--purple);color:#fff;border:none;border-radius:12px;cursor:pointer;touch-action:manipulation}
+.send-email-btn{flex:1;padding:13px;font-size:14px;font-family:'Inter',system-ui,-apple-system,sans-serif;font-weight:700;background:var(--ink2);color:#fff;border:none;border-radius:12px;cursor:pointer;touch-action:manipulation}
 .thinking-card{background:linear-gradient(135deg,var(--purple-bg),#f0f7f0);border-radius:14px;border:1.5px solid var(--purple-mid);padding:18px;margin-bottom:10px}
 .mood-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:4px}
 .mood-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;touch-action:manipulation;transition:all .15s}
@@ -122,46 +126,47 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'Plus Ja
 .plan-tag{font-size:12px;color:var(--ink3);margin-top:2px}
 .plan-chevron{font-size:11px;color:var(--ink4);flex-shrink:0}
 .plan-body{padding:0 16px 12px;font-size:13px;color:var(--ink2);line-height:1.8;white-space:pre-wrap;font-family:monospace;background:var(--white);border-top:1px solid var(--border)}
-.plan-use-btn{display:block;width:calc(100% - 32px);margin:0 16px 14px;padding:12px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;background:var(--purple);color:#fff;border:none;border-radius:10px;cursor:pointer;touch-action:manipulation}
+.plan-use-btn{display:block;width:calc(100% - 32px);margin:0 16px 14px;padding:12px;font-size:13px;font-family:'Inter',system-ui,-apple-system,sans-serif;font-weight:700;background:var(--purple);color:#fff;border:none;border-radius:10px;cursor:pointer;touch-action:manipulation}
 .week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:16px}
 .day-pill{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px;border-radius:10px;border:1.5px solid var(--border2);background:var(--bg);cursor:pointer;touch-action:manipulation;transition:all .15s}
 .day-pill.weights{background:var(--purple-bg);border-color:var(--purple-mid)}
-.day-pill.cardio{background:#e8f4ff;border-color:#90c4f0}
-.day-pill.stretch{background:#fff0f8;border-color:#f0a8d0}
+.day-pill.cardio{background:#fff6dc;border-color:#fec936}
+.day-pill.stretch{background:#fdeef5;border-color:#f0a8d0}
 .day-pill.rest{background:#f0f7f0;border-color:#a8d4a8}
 .day-pill.active-day{box-shadow:0 0 0 2px var(--purple)}
 .day-name{font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)}
 .day-type{font-size:9px;font-weight:600;color:var(--ink3)}
 .day-pill.weights .day-type{color:var(--purple)}
-.day-pill.cardio .day-type{color:#2196f3}
-.day-pill.stretch .day-type{color:#e91e8c}
+.day-pill.cardio .day-type{color:#272264}
+.day-pill.stretch .day-type{color:#b4235f}
 .day-pill.rest .day-type{color:#4caf50}
 .type-selector{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
-.type-opt{padding:7px 14px;font-size:12px;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;border:1.5px solid var(--border2);border-radius:99px;background:var(--bg);cursor:pointer;touch-action:manipulation;color:var(--ink3);transition:all .15s}
+.type-opt{padding:7px 14px;font-size:12px;font-weight:600;font-family:'Inter',system-ui,-apple-system,sans-serif;border:1.5px solid var(--border2);border-radius:99px;background:var(--bg);cursor:pointer;touch-action:manipulation;color:var(--ink3);transition:all .15s}
 .type-opt.sel-weights{background:var(--purple-bg);border-color:var(--purple);color:var(--purple)}
-.type-opt.sel-cardio{background:#e8f4ff;border-color:#2196f3;color:#2196f3}
-.type-opt.sel-stretch{background:#fff0f8;border-color:#e91e8c;color:#e91e8c}
+.type-opt.sel-cardio{background:#fff6dc;border-color:#fec936;color:#272264}
+.type-opt.sel-stretch{background:#fdeef5;border-color:#e3418a;color:#b4235f}
 .type-opt.sel-rest{background:#f0f7f0;border-color:#4caf50;color:#4caf50}
-.water-tracker{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
-.glass{width:38px;height:48px;border-radius:6px 6px 10px 10px;border:2px solid var(--border2);background:var(--bg);cursor:pointer;touch-action:manipulation;transition:all .2s;display:flex;align-items:flex-end;overflow:hidden;position:relative}
-.glass.filled{border-color:#2196f3}
-.glass-fill{width:100%;background:linear-gradient(180deg,#64b5f6,#1976d2);border-radius:0 0 8px 8px;transition:height .3s;height:0}
-.glass.filled .glass-fill{height:100%}
-.water-count{font-size:13px;font-weight:700;color:#2196f3;margin-top:8px;margin-bottom:4px}
+.water-tracker{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.glass{background:none;border:0;padding:3px;cursor:pointer;touch-action:manipulation;color:#9c97b8;line-height:0}
+.glass svg{width:28px;height:34px;display:block}
+.glass .fill{fill:var(--yellow);transform-origin:50% 100%;transform:scaleY(0);transition:transform .3s ease}
+.glass.filled{color:var(--purple)}
+.glass.filled .fill{transform:scaleY(1)}
+.water-count{font-size:13px;font-weight:700;color:var(--purple);margin-top:8px;margin-bottom:4px}
 .vitamin-list{display:flex;flex-direction:column;gap:6px;margin-bottom:4px}
 .vitamin-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border-radius:10px;cursor:pointer;touch-action:manipulation;transition:background .12s}
-.vitamin-row.checked{background:#f5f0ff}
+.vitamin-row.checked{background:#f3f2f9}
 .vitamin-check{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;transition:all .2s}
-.vitamin-row.checked .vitamin-check{background:var(--purple);border-color:var(--purple)}
+.vitamin-row.checked .vitamin-check{background:var(--yellow);border-color:var(--yellow);color:var(--purple)}
 .vitamin-name{font-size:14px;font-weight:500;color:var(--ink2)}
 .vitamin-row.checked .vitamin-name{color:var(--purple)}
 .meal-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
 .meal-slot{background:var(--bg);border-radius:10px;padding:10px 12px;border:1.5px solid var(--border)}
 .meal-slot-label{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin-bottom:4px}
-.meal-inp{width:100%;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;border:none;background:transparent;color:var(--ink2);outline:none;padding:0}
+.meal-inp{width:100%;font-size:13px;font-family:'Inter',system-ui,-apple-system,sans-serif;border:none;background:transparent;color:var(--ink2);outline:none;padding:0}
 .meal-inp::placeholder{color:var(--ink4)}
 .meal-suggestions{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
-.meal-chip{padding:6px 12px;font-size:12px;font-weight:500;font-family:'Plus Jakarta Sans',sans-serif;background:var(--purple-bg);border:none;border-radius:99px;color:var(--purple-dark);cursor:pointer;touch-action:manipulation}
+.meal-chip{padding:6px 12px;font-size:12px;font-weight:500;font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--purple-bg);border:none;border-radius:99px;color:var(--purple-dark);cursor:pointer;touch-action:manipulation}
 .savings-goal-card{background:#f5f5f5;border-radius:14px;padding:18px;margin-bottom:10px;border:1px solid #e0e0e0}
 .savings-progress-bar{height:8px;background:var(--purple-light);border-radius:99px;overflow:hidden;margin:10px 0 4px}
 .savings-progress-fill{height:100%;background:var(--purple);border-radius:99px;transition:width .4s}
@@ -173,26 +178,26 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'Plus Ja
 .log-date{font-size:11px;color:var(--ink4);font-weight:600;margin-bottom:6px;letter-spacing:.04em;text-transform:uppercase}
 .log-text{font-size:14px;color:var(--ink2);line-height:1.65}
 .log-foot{display:flex;justify-content:flex-end;margin-top:10px}
-.cat-add-inp{flex:1;padding:7px 10px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;border:1.5px solid var(--border2);border-radius:8px;background:var(--white);color:var(--ink);outline:none;min-width:0}
-.del-btn{background:none;border:none;font-size:12px;color:var(--ink4);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-weight:500;touch-action:manipulation}
+.cat-add-inp{flex:1;padding:7px 10px;font-size:13px;font-family:'Inter',system-ui,-apple-system,sans-serif;border:1.5px solid var(--border2);border-radius:8px;background:var(--white);color:var(--ink);outline:none;min-width:0}
+.del-btn{background:none;border:none;font-size:12px;color:var(--ink4);cursor:pointer;font-family:'Inter',system-ui,-apple-system,sans-serif;font-weight:500;touch-action:manipulation}
 .empty-state{text-align:center;padding:60px 24px}
 .empty-icon{font-size:40px;margin-bottom:14px}
 .empty-title{font-size:17px;font-weight:700;color:var(--ink2);margin-bottom:6px}
 .empty-sub{font-size:14px;color:var(--ink3);line-height:1.6}
 .prompts-scroll{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
-.prompt-chip{background:var(--purple-bg);border:none;border-radius:12px;padding:12px 14px;font-size:13px;color:var(--purple-dark);cursor:pointer;touch-action:manipulation;text-align:left;font-family:'Plus Jakarta Sans',sans-serif;font-weight:500;line-height:1.4;width:100%}
+.prompt-chip{background:var(--purple-bg);border:none;border-radius:12px;padding:12px 14px;font-size:13px;color:var(--purple-dark);cursor:pointer;touch-action:manipulation;text-align:left;font-family:'Inter',system-ui,-apple-system,sans-serif;font-weight:500;line-height:1.4;width:100%}
 .prompt-chip:active{background:var(--purple-light)}
 .quote-wrap{padding:24px 16px}
-.quote-card{background:var(--white);border-radius:20px;padding:32px 24px;text-align:center;border:1px solid var(--border);margin-bottom:20px;box-shadow:0 2px 20px rgba(124,77,190,.08)}
+.quote-card{background:var(--white);border-radius:20px;padding:32px 24px;text-align:center;border:1px solid var(--border);margin-bottom:20px;box-shadow:0 2px 20px rgba(39,34,100,.08)}
 .quote-mark{font-size:40px;color:var(--purple-mid);line-height:1;margin-bottom:12px}
-.quote-text{font-size:19px;font-weight:500;color:var(--ink2);line-height:1.6;margin-bottom:18px;letter-spacing:-.01em}
+.quote-text{font-family:var(--display);font-size:22px;font-weight:500;color:var(--ink2);line-height:1.6;margin-bottom:18px;letter-spacing:-.01em}
 .quote-author{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3)}
-.new-quote-btn{display:flex;align-items:center;justify-content:center;gap:8px;margin:0 auto;padding:13px 28px;font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;background:var(--purple);color:#fff;border:none;border-radius:99px;cursor:pointer;touch-action:manipulation}
-.modal-title{font-size:18px;font-weight:700;color:var(--ink);margin-bottom:16px}
+.new-quote-btn{display:flex;align-items:center;justify-content:center;gap:8px;margin:0 auto;padding:13px 28px;font-size:14px;font-family:'Inter',system-ui,-apple-system,sans-serif;font-weight:700;background:var(--purple);color:#fff;border:none;border-radius:99px;cursor:pointer;touch-action:manipulation}
+.modal-title{font-family:var(--display);font-size:20px;font-weight:600;color:var(--ink);margin-bottom:16px}
 .modal-footer{display:flex;gap:10px;margin-top:16px}
-.modal-cancel{flex:1;padding:13px;font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;background:none;border:1.5px solid var(--border2);border-radius:10px;cursor:pointer;color:var(--ink2)}
-.modal-save{flex:2;padding:13px;font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;background:var(--purple);color:#fff;border:none;border-radius:10px;cursor:pointer}
-.mi-ta{width:100%;padding:11px 13px;font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;line-height:1.6;border:1.5px solid var(--border2);border-radius:10px;background:#fff;color:var(--ink);outline:none;resize:vertical;min-height:80px}
+.modal-cancel{flex:1;padding:13px;font-size:14px;font-family:'Inter',system-ui,-apple-system,sans-serif;background:none;border:1.5px solid var(--border2);border-radius:10px;cursor:pointer;color:var(--ink2)}
+.modal-save{flex:2;padding:13px;font-size:14px;font-family:'Inter',system-ui,-apple-system,sans-serif;font-weight:700;background:var(--purple);color:#fff;border:none;border-radius:10px;cursor:pointer}
+.mi-ta{width:100%;padding:11px 13px;font-size:14px;font-family:'Inter',system-ui,-apple-system,sans-serif;line-height:1.6;border:1.5px solid var(--border2);border-radius:10px;background:#fff;color:var(--ink);outline:none;resize:vertical;min-height:80px}
 .fg{margin-bottom:12px}
 .lbl{display:block;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:6px}
 .modal-handle{width:36px;height:4px;background:var(--border2);border-radius:99px;margin:0 auto 18px}
@@ -201,30 +206,30 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'Plus Ja
 .contact-overdue{font-size:10px;font-weight:700;color:#e53935;background:#ffeaea;padding:2px 8px;border-radius:99px;margin-top:4px;display:inline-block}
 .contact-ok{font-size:10px;font-weight:700;color:#4caf50;background:#f0f7f0;padding:2px 8px;border-radius:99px;margin-top:4px;display:inline-block}
 .contact-actions{display:flex;flex-direction:column;gap:4px;flex-shrink:0}
-.contact-send-btn{padding:6px 12px;font-size:11px;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;background:var(--purple);color:#fff;border:none;border-radius:8px;cursor:pointer;touch-action:manipulation;white-space:nowrap}
-.contact-checkin-btn{padding:6px 12px;font-size:11px;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--ink3);border:1px solid var(--border2);border-radius:8px;cursor:pointer;touch-action:manipulation}
-.rel-prompt-chip{width:100%;padding:12px 14px;font-size:13px;font-weight:500;font-family:'Plus Jakarta Sans',sans-serif;background:var(--purple-bg);border:none;border-radius:12px;color:var(--purple-dark);cursor:pointer;touch-action:manipulation;text-align:left;line-height:1.4;margin-bottom:8px}
-.comm-tip-card{background:linear-gradient(135deg,var(--purple-bg),#f0f0ff);border-radius:14px;padding:18px;border:1px solid var(--purple-light)}
+.contact-send-btn{padding:6px 12px;font-size:11px;font-weight:700;font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--purple);color:#fff;border:none;border-radius:8px;cursor:pointer;touch-action:manipulation;white-space:nowrap}
+.contact-checkin-btn{padding:6px 12px;font-size:11px;font-weight:700;font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--ink3);border:1px solid var(--border2);border-radius:8px;cursor:pointer;touch-action:manipulation}
+.rel-prompt-chip{width:100%;padding:12px 14px;font-size:13px;font-weight:500;font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--purple-bg);border:none;border-radius:12px;color:var(--purple-dark);cursor:pointer;touch-action:manipulation;text-align:left;line-height:1.4;margin-bottom:8px}
+.comm-tip-card{background:linear-gradient(135deg,var(--purple-bg),#f3f2f9);border-radius:14px;padding:18px;border:1px solid var(--purple-light)}
 .comm-tip-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--purple);margin-bottom:8px}
 .comm-tip-text{font-size:15px;font-weight:500;color:var(--ink2);line-height:1.6}
 .kind-msg-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:8px}
 .kind-msg-type{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--purple);margin-bottom:6px}
 .kind-msg-text{font-size:14px;color:var(--ink2);line-height:1.6;margin-bottom:10px}
 .kind-msg-actions{display:flex;gap:6px;flex-wrap:wrap}
-.kind-send-btn{padding:7px 14px;font-size:12px;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;border:none;border-radius:8px;cursor:pointer;touch-action:manipulation}
+.kind-send-btn{padding:7px 14px;font-size:12px;font-weight:600;font-family:'Inter',system-ui,-apple-system,sans-serif;border:none;border-radius:8px;cursor:pointer;touch-action:manipulation}
 .send-sms{background:#4caf50;color:#fff}
-.send-email{background:#2196f3;color:#fff}
+.send-email{background:#272264;color:#fff}
 .send-copy{background:var(--bg);color:var(--ink3);border:1px solid var(--border2)}
 /* auth screen removed */
-.auth-logo{font-size:42px;font-weight:800;color:var(--ink);letter-spacing:-.04em;margin-bottom:6px}
+.auth-logo{font-family:var(--display);font-size:42px;font-weight:600;color:var(--ink);letter-spacing:-.02em;margin-bottom:6px}
 .auth-logo span{color:var(--purple)}
 .auth-tagline{font-size:14px;color:var(--ink3);font-weight:400;margin-bottom:48px;letter-spacing:.02em}
 .auth-card{width:100%;max-width:380px}
-.auth-heading{font-size:22px;font-weight:700;color:var(--ink);margin-bottom:6px}
+.auth-heading{font-family:var(--display);font-size:22px;font-weight:600;color:var(--ink);margin-bottom:6px}
 .auth-sub{font-size:14px;color:var(--ink3);margin-bottom:24px;line-height:1.5}
-.auth-inp{width:100%;padding:14px 16px;font-size:16px;font-family:'Plus Jakarta Sans',sans-serif;border:1.5px solid var(--border2);border-radius:14px;background:var(--white);color:var(--ink);outline:none;margin-bottom:12px;transition:border-color .2s}
+.auth-inp{width:100%;padding:14px 16px;font-size:16px;font-family:'Inter',system-ui,-apple-system,sans-serif;border:1.5px solid var(--border2);border-radius:14px;background:var(--white);color:var(--ink);outline:none;margin-bottom:12px;transition:border-color .2s}
 .auth-inp:focus{border-color:var(--purple)}
-.auth-btn{width:100%;padding:15px;font-size:15px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;background:var(--purple);color:#fff;border:none;border-radius:14px;cursor:pointer;touch-action:manipulation;transition:opacity .15s}
+.auth-btn{width:100%;padding:15px;font-size:15px;font-family:'Inter',system-ui,-apple-system,sans-serif;font-weight:700;background:var(--purple);color:#fff;border:none;border-radius:14px;cursor:pointer;touch-action:manipulation;transition:opacity .15s}
 .auth-btn:active{opacity:.85}
 .auth-btn:disabled{opacity:.5;cursor:default}
 .auth-msg{font-size:13px;text-align:center;margin-top:14px;line-height:1.6;min-height:20px}
@@ -300,7 +305,7 @@ function showAuthScreen(msg){
         '<div style="margin-bottom:14px"><label class="lbl">Password</label><input class="auth-inp" id="authPass" type="password" placeholder="password" autocomplete="current-password" style="width:100%"></div>' +
         '<div id="authError" style="display:none;font-size:13px;color:#dc2626;margin-bottom:10px;line-height:1.5"></div>' +
         '<button class="primary-btn" id="authSigninBtn" onclick="handleAuth(\'signin\')" style="margin-bottom:8px">Sign in</button>' +
-        '<button class="primary-btn" id="authSignupBtn" onclick="handleAuth(\'signup\')" style="background:#fff;color:#5b34a0;border:1.5px solid #e9e2f7">Create account</button>' +
+        '<button class="primary-btn" id="authSignupBtn" onclick="handleAuth(\'signup\')" style="background:#fff;color:#272264;border:1.5px solid #e9e7f3">Create account</button>' +
         '<div style="font-size:12px;color:#9ca3af;margin-top:12px;line-height:1.55">One account for your phone and computer. Your entries follow you automatically.</div>' +
       '</div>' +
     '</div>';
@@ -669,20 +674,21 @@ function toggleWin(i){
   renderWins();
 }
 
+let _tapX=null,_tapY=null;
+document.addEventListener('pointerdown',e=>{_tapX=e.clientX;_tapY=e.clientY;},true);
 function burstConfetti(){
-  const colors=['#7c4dbe','#c4a8ee','#e8dff7','#f5f0ff','#5b34a0','#ffffff','#a78bda'];
-  const count=60;
-  for(let k=0;k<count;k++){
-    const el=document.createElement('div');
-    const size=Math.random()*8+5;
-    const isCircle=Math.random()>.4;
-    el.style.cssText=`position:fixed;left:${Math.random()*100}vw;top:-10px;width:${size}px;height:${isCircle?size:size*0.4}px;background:${colors[Math.floor(Math.random()*colors.length)]};border-radius:${isCircle?'50%':'2px'};pointer-events:none;z-index:9999;opacity:1;transform:rotate(${Math.random()*360}deg);`;
-    document.body.appendChild(el);
-    const duration=900+Math.random()*700;
-    const drift=(Math.random()-0.5)*120;
-    const spin=Math.random()*720-360;
-    el.animate([{transform:`translateY(0) translateX(0) rotate(0deg)`,opacity:1},{transform:`translateY(${60+Math.random()*40}vh) translateX(${drift}px) rotate(${spin}deg)`,opacity:0}],{duration,easing:'cubic-bezier(.25,.46,.45,.94)',fill:'forwards'}).onfinish=()=>el.remove();
-  }
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  let cv=document.getElementById('confettiCanvas');
+  if(!cv){cv=document.createElement('canvas');cv.id='confettiCanvas';cv.style.cssText='position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:9999';document.body.appendChild(cv);}
+  const ctx=cv.getContext('2d'),dpr=window.devicePixelRatio||1;
+  cv.width=innerWidth*dpr;cv.height=innerHeight*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);
+  const x=_tapX??innerWidth/2,y=_tapY??innerHeight/3;
+  const cols=['#272264','#fec936','#e3418a','#f7873f'];
+  const ps=Array.from({length:42},()=>({x,y,vx:(Math.random()-.5)*9,vy:-Math.random()*8-2,s:Math.random()*5+4,c:cols[Math.random()*4|0],a:Math.random()*6,va:(Math.random()-.5)*.4}));
+  let f=0;
+  (function tick(){ctx.clearRect(0,0,innerWidth,innerHeight);
+    ps.forEach(p=>{p.vy+=.32;p.x+=p.vx;p.y+=p.vy;p.a+=p.va;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.a);ctx.globalAlpha=Math.max(0,1-f/70);ctx.fillStyle=p.c;ctx.fillRect(-p.s/2,-p.s/4,p.s,p.s/2);ctx.restore();});
+    if(++f<70)requestAnimationFrame(tick);else ctx.clearRect(0,0,innerWidth,innerHeight);})();
 }
 
 function deleteWin(i){
@@ -776,7 +782,7 @@ function renderExercise(){
   const typeSelHtml=WORKOUT_TYPES.map(t=>`<button class="type-opt today-type-btn${todayType===t?' sel-'+t:''}" data-type="${t}" onclick="setTodayType('${t}')">${t.charAt(0).toUpperCase()+t.slice(1)}</button>`).join('');
   document.getElementById('viewBody').innerHTML=`
     <div class="post"><div class="post-header"><div class="post-avatar">🗓️</div><div><div class="post-title">Weekly schedule</div><div class="post-sub">Tap a day to assign your workout</div></div></div><div class="post-body"><div class="week-grid">${dayPills}</div></div></div>
-    <div class="post"><div class="post-header"><div class="post-avatar">📋</div><div><div class="post-title">Workout plans</div><div class="post-sub">Tap to expand and use</div></div></div><div class="post-body"><div class="plans-list">${planCards}</div>${customPlanCards?`<div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin:14px 0 8px">My plans</div><div class="plans-list">${customPlanCards}</div>`:''}<div style="background:var(--purple-bg);border-radius:14px;padding:14px;margin-top:12px"><div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--purple);margin-bottom:10px">+ Save a custom plan</div><div style="display:flex;gap:8px;margin-bottom:8px"><input id="cp_emoji" placeholder="💪" style="width:52px;padding:9px 10px;font-size:16px;text-align:center;border:1.5px solid var(--border2);border-radius:10px;background:var(--white);outline:none"><input id="cp_title" placeholder="Plan name…" style="flex:1;padding:9px 12px;font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;border:1.5px solid var(--border2);border-radius:10px;background:var(--white);color:var(--ink);outline:none"></div><input id="cp_tag" placeholder="e.g. 30 min · 3x/week (optional)" style="width:100%;padding:9px 12px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;border:1.5px solid var(--border2);border-radius:10px;background:var(--white);color:var(--ink);outline:none;margin-bottom:8px"><textarea id="cp_content" placeholder="List your exercises, sets, reps…" rows="4" class="ta" style="margin-bottom:8px"></textarea><button class="primary-btn" style="font-size:13px;padding:11px" onclick="saveCustomPlan()">Save plan</button><div class="save-confirm" id="cpConfirm" style="margin-top:6px">Plan saved ✦</div></div></div></div>
+    <div class="post"><div class="post-header"><div class="post-avatar">📋</div><div><div class="post-title">Workout plans</div><div class="post-sub">Tap to expand and use</div></div></div><div class="post-body"><div class="plans-list">${planCards}</div>${customPlanCards?`<div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin:14px 0 8px">My plans</div><div class="plans-list">${customPlanCards}</div>`:''}<div style="background:var(--purple-bg);border-radius:14px;padding:14px;margin-top:12px"><div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--purple);margin-bottom:10px">+ Save a custom plan</div><div style="display:flex;gap:8px;margin-bottom:8px"><input id="cp_emoji" placeholder="💪" style="width:52px;padding:9px 10px;font-size:16px;text-align:center;border:1.5px solid var(--border2);border-radius:10px;background:var(--white);outline:none"><input id="cp_title" placeholder="Plan name…" style="flex:1;padding:9px 12px;font-size:14px;font-family:'Inter',system-ui,-apple-system,sans-serif;border:1.5px solid var(--border2);border-radius:10px;background:var(--white);color:var(--ink);outline:none"></div><input id="cp_tag" placeholder="e.g. 30 min · 3x/week (optional)" style="width:100%;padding:9px 12px;font-size:13px;font-family:'Inter',system-ui,-apple-system,sans-serif;border:1.5px solid var(--border2);border-radius:10px;background:var(--white);color:var(--ink);outline:none;margin-bottom:8px"><textarea id="cp_content" placeholder="List your exercises, sets, reps…" rows="4" class="ta" style="margin-bottom:8px"></textarea><button class="primary-btn" style="font-size:13px;padding:11px" onclick="saveCustomPlan()">Save plan</button><div class="save-confirm" id="cpConfirm" style="margin-top:6px">Plan saved ✦</div></div></div></div>
     <div class="post"><div class="post-header"><div class="post-avatar">💪</div><div><div class="post-title">Today's workout</div><div class="post-sub">${todayDay} · what did you do?</div></div></div><div class="post-body"><div style="margin-bottom:10px"><div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px">Workout type</div><div class="type-selector">${typeSelHtml}</div></div><textarea class="ta" id="ex_log" placeholder="Write your workout… sets, reps, how it felt." rows="4">${esc(todayWorkout)}</textarea><div style="height:10px"></div><button class="primary-btn" onclick="saveExercise()">Save workout</button><div class="save-confirm" id="exConfirm" style="margin-top:8px">Workout saved ✦</div></div></div>
     ${pastHtml}`;
 }
@@ -813,11 +819,11 @@ function renderNourish(){
   const n=DB.nourish;
   const glasses=n.glasses||0;
   const todayMealDay=MEAL_DAYS[new Date().getDay()===0?6:new Date().getDay()-1];
-  const glassHtml=Array.from({length:8},(_,i)=>`<div class="glass${i<glasses?' filled':''}" onclick="toggleGlass(${i})"><div class="glass-fill"></div></div>`).join('');
+  const glassHtml=Array.from({length:8},(_,i)=>`<button type="button" class="glass${i<glasses?' filled':''}" onclick="toggleGlass(${i})" aria-label="Glass ${i+1}"><svg viewBox="0 0 30 36" aria-hidden="true"><path class="fill" d="M7.2 14h15.6l-1.6 18H8.8z"/><path d="M5 3h20l-2.6 30H7.6z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></button>`).join('');
   const vitaminHtml=n.vitaminList.length?n.vitaminList.map((v,i)=>`<div class="vitamin-row${n.vitaminChecks[v]?' checked':''}"><div style="display:flex;align-items:center;gap:10px;flex:1" onclick="toggleVitamin('${v.replace(/'/g,"\\'")}')"><div class="vitamin-check">${n.vitaminChecks[v]?'✓':''}</div><div class="vitamin-name">${esc(v)}</div></div><button onclick="removeVitamin(${i})" style="background:none;border:none;color:var(--ink4);cursor:pointer;font-size:14px;padding:4px 8px;touch-action:manipulation">✕</button></div>`).join(''):`<div style="font-size:13px;color:var(--ink4);font-style:italic;padding:8px 0">No vitamins added yet</div>`;
   const suggestHtml=MEAL_SUGGESTIONS.map(m=>`<button class="meal-chip" onclick="useMealSuggestion('${m}')">${m}</button>`).join('');
-  const prepGrid=MEAL_DAYS.map(d=>{const prep=n.foodPrepSchedule[d]||'';const isToday=d===todayMealDay;return`<div style="background:${isToday?'var(--purple-bg)':'var(--bg)'};border-radius:10px;padding:10px 12px;border:1.5px solid ${isToday?'var(--purple-mid)':'var(--border)'}"><div style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:${isToday?'var(--purple)':'var(--ink3)'};margin-bottom:4px">${d}</div><input style="width:100%;font-size:12px;font-family:'Plus Jakarta Sans',sans-serif;border:none;background:transparent;color:var(--ink2);outline:none;padding:0" placeholder="What to prep…" value="${esc(prep)}" onchange="savePrepDay('${d}',this.value)"></div>`;}).join('');
-  const recipesHtml=(n.recipes||[]).length?`<div style="margin-bottom:12px">${n.recipes.map((r,i)=>`<div style="background:var(--bg);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px"><div style="flex:1"><div style="font-size:14px;font-weight:600;color:var(--ink2);margin-bottom:3px">${esc(r.name)}</div>${r.notes?`<div style="font-size:12px;color:var(--ink3);line-height:1.5">${esc(r.notes)}</div>`:''}</div><div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0"><button onclick="addRecipeToMeal('${esc(r.name)}')" style="padding:5px 10px;font-size:11px;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;background:var(--purple);color:#fff;border:none;border-radius:7px;cursor:pointer;white-space:nowrap">+ Add to meal</button><button onclick="deleteRecipe(${i})" style="padding:5px 10px;font-size:11px;font-family:'Plus Jakarta Sans',sans-serif;background:none;border:1px solid var(--border2);border-radius:7px;cursor:pointer;color:var(--ink4)">Delete</button></div></div>`).join('')}</div>`:` <div style="font-size:13px;color:var(--ink4);font-style:italic;padding:4px 0 10px">No recipes saved yet</div>`;
+  const prepGrid=MEAL_DAYS.map(d=>{const prep=n.foodPrepSchedule[d]||'';const isToday=d===todayMealDay;return`<div style="background:${isToday?'var(--purple-bg)':'var(--bg)'};border-radius:10px;padding:10px 12px;border:1.5px solid ${isToday?'var(--purple-mid)':'var(--border)'}"><div style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:${isToday?'var(--purple)':'var(--ink3)'};margin-bottom:4px">${d}</div><input style="width:100%;font-size:12px;font-family:'Inter',system-ui,-apple-system,sans-serif;border:none;background:transparent;color:var(--ink2);outline:none;padding:0" placeholder="What to prep…" value="${esc(prep)}" onchange="savePrepDay('${d}',this.value)"></div>`;}).join('');
+  const recipesHtml=(n.recipes||[]).length?`<div style="margin-bottom:12px">${n.recipes.map((r,i)=>`<div style="background:var(--bg);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px"><div style="flex:1"><div style="font-size:14px;font-weight:600;color:var(--ink2);margin-bottom:3px">${esc(r.name)}</div>${r.notes?`<div style="font-size:12px;color:var(--ink3);line-height:1.5">${esc(r.notes)}</div>`:''}</div><div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0"><button onclick="addRecipeToMeal('${esc(r.name)}')" style="padding:5px 10px;font-size:11px;font-weight:700;font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--purple);color:#fff;border:none;border-radius:7px;cursor:pointer;white-space:nowrap">+ Add to meal</button><button onclick="deleteRecipe(${i})" style="padding:5px 10px;font-size:11px;font-family:'Inter',system-ui,-apple-system,sans-serif;background:none;border:1px solid var(--border2);border-radius:7px;cursor:pointer;color:var(--ink4)">Delete</button></div></div>`).join('')}</div>`:` <div style="font-size:13px;color:var(--ink4);font-style:italic;padding:4px 0 10px">No recipes saved yet</div>`;
   document.getElementById('viewBody').innerHTML=`
     <div class="post"><div class="post-header"><div class="post-avatar">💧</div><div><div class="post-title">Water intake</div><div class="post-sub">Tap each glass as you drink it</div></div></div><div class="post-body"><div class="water-tracker">${glassHtml}</div><div class="water-count">${glasses} of 8 glasses · ${glasses*8} oz</div></div></div>
     <div class="post"><div class="post-header"><div class="post-avatar">💊</div><div><div class="post-title">Vitamins & supplements</div><div class="post-sub">Your daily checklist</div></div></div><div class="post-body"><div class="vitamin-list">${vitaminHtml}</div><div class="add-win-row" style="margin-top:10px"><input class="add-win-inp" id="vitaminInp" placeholder="Add a vitamin or supplement…" onkeydown="if(event.key==='Enter')addVitamin()"><button class="add-win-btn" onclick="addVitamin()">+ Add</button></div></div></div>
@@ -933,7 +939,7 @@ function renderRelationships(){
     const daysSince=lastCheckin?Math.floor((new Date()-new Date(lastCheckin))/(864e5)):999;
     const overdue=daysSince>=freqDays;
     const statusHtml=lastCheckin?(overdue?`<span class="contact-overdue">Overdue · ${daysSince}d ago</span>`:`<span class="contact-ok">✓ ${daysSince===0?'Today':(daysSince+'d ago')}</span>`):`<span class="contact-overdue">No check-in yet</span>`;
-    return`<div class="contact-item"><div class="contact-avatar">${ini}</div><div class="contact-info" style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><div class="contact-name">${esc(c.name)}</div><div style="font-size:10px;font-weight:600;color:var(--ink4);background:var(--bg);padding:2px 6px;border-radius:99px;border:1px solid var(--border2)">${c.type||'Friend'}</div></div><div style="display:flex;align-items:center;gap:4px;margin-top:6px">${Array.from({length:10},(_,j)=>j+1).map(n=>`<div onclick="setDailyScore('${esc(c.name)}',${n})" style="width:22px;height:22px;border-radius:50%;border:1.5px solid ${n<=score?'var(--purple)':'var(--border2)'};background:${n<=score?'var(--purple)':'var(--bg)'};cursor:pointer;touch-action:manipulation;flex-shrink:0"></div>`).join('')}<span style="font-size:11px;font-weight:700;color:var(--ink3);margin-left:4px">${score||'—'}/10</span></div>${statusHtml}</div><div class="contact-actions"><button class="contact-send-btn" onclick="openKindMessage('${esc(c.name)}')">💌 Send</button><button class="contact-checkin-btn" onclick="markCheckin('${esc(c.name)}')">✓ Seen</button><button onclick="deleteContact(${i})" style="padding:5px 8px;font-size:10px;font-family:'Plus Jakarta Sans',sans-serif;background:none;border:1px solid var(--border2);border-radius:7px;cursor:pointer;color:var(--ink4);touch-action:manipulation">✕</button></div></div>`;
+    return`<div class="contact-item"><div class="contact-avatar">${ini}</div><div class="contact-info" style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><div class="contact-name">${esc(c.name)}</div><div style="font-size:10px;font-weight:600;color:var(--ink4);background:var(--bg);padding:2px 6px;border-radius:99px;border:1px solid var(--border2)">${c.type||'Friend'}</div></div><div style="display:flex;align-items:center;gap:4px;margin-top:6px">${Array.from({length:10},(_,j)=>j+1).map(n=>`<div onclick="setDailyScore('${esc(c.name)}',${n})" style="width:22px;height:22px;border-radius:50%;border:1.5px solid ${n<=score?'var(--purple)':'var(--border2)'};background:${n<=score?'var(--purple)':'var(--bg)'};cursor:pointer;touch-action:manipulation;flex-shrink:0"></div>`).join('')}<span style="font-size:11px;font-weight:700;color:var(--ink3);margin-left:4px">${score||'—'}/10</span></div>${statusHtml}</div><div class="contact-actions"><button class="contact-send-btn" onclick="openKindMessage('${esc(c.name)}')">💌 Send</button><button class="contact-checkin-btn" onclick="markCheckin('${esc(c.name)}')">✓ Seen</button><button onclick="deleteContact(${i})" style="padding:5px 8px;font-size:10px;font-family:'Inter',system-ui,-apple-system,sans-serif;background:none;border:1px solid var(--border2);border-radius:7px;cursor:pointer;color:var(--ink4);touch-action:manipulation">✕</button></div></div>`;
   }).join(''):`<div style="font-size:13px;color:var(--ink4);font-style:italic;padding:8px 0">Add the people who matter most to you</div>`;
 
   const todaysMsgs=getTodaysMessages();
@@ -947,7 +953,7 @@ function renderRelationships(){
 
 function setDailyScore(name,score){if(!DB.relationships)return;if(!DB.relationships.dailyScores)DB.relationships.dailyScores={};if(!DB.relationships.dailyScores[today()])DB.relationships.dailyScores[today()]={};DB.relationships.dailyScores[today()][name]=score;saveDB('relationships',DB.relationships);renderRelationships();}
 function deleteContact(i){if(!DB.relationships||!DB.relationships.contacts)return;DB.relationships.contacts.splice(i,1);saveDB('relationships',DB.relationships);renderRelationships();}
-function openAddContact(){openModal(`<div class="modal-handle"></div><div class="modal-title">Add person</div><div class="fg"><label class="lbl">Name</label><input class="mi-ta" style="min-height:auto;padding:10px 13px" id="c_name" placeholder="e.g. Sarah, Mom, David…"></div><div class="fg"><label class="lbl">Relationship type</label><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px" id="typeSelector2">${REL_TYPES.map(t=>`<button onclick="selRelType(this,'${t}')" style="padding:8px 14px;font-size:12px;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;border:1.5px solid var(--border2);border-radius:99px;background:var(--bg);cursor:pointer;color:var(--ink2);touch-action:manipulation">${t}</button>`).join('')}</div></div><div class="fg"><label class="lbl">How connected do you feel? (1–10)</label><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px" id="connScoreSelector">${Array.from({length:10},(_,i)=>i+1).map(n=>`<button onclick="selConnScore(this,${n})" style="width:36px;height:36px;border-radius:50%;border:1.5px solid var(--border2);background:var(--bg);font-size:13px;font-weight:700;color:var(--ink3);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;touch-action:manipulation">${n}</button>`).join('')}</div></div><div class="modal-footer"><button class="modal-cancel" onclick="closeModal()">Cancel</button><button class="modal-save" onclick="saveContact()">Add</button></div>`);}
+function openAddContact(){openModal(`<div class="modal-handle"></div><div class="modal-title">Add person</div><div class="fg"><label class="lbl">Name</label><input class="mi-ta" style="min-height:auto;padding:10px 13px" id="c_name" placeholder="e.g. Sarah, Mom, David…"></div><div class="fg"><label class="lbl">Relationship type</label><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px" id="typeSelector2">${REL_TYPES.map(t=>`<button onclick="selRelType(this,'${t}')" style="padding:8px 14px;font-size:12px;font-weight:600;font-family:'Inter',system-ui,-apple-system,sans-serif;border:1.5px solid var(--border2);border-radius:99px;background:var(--bg);cursor:pointer;color:var(--ink2);touch-action:manipulation">${t}</button>`).join('')}</div></div><div class="fg"><label class="lbl">How connected do you feel? (1–10)</label><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px" id="connScoreSelector">${Array.from({length:10},(_,i)=>i+1).map(n=>`<button onclick="selConnScore(this,${n})" style="width:36px;height:36px;border-radius:50%;border:1.5px solid var(--border2);background:var(--bg);font-size:13px;font-weight:700;color:var(--ink3);cursor:pointer;font-family:'Inter',system-ui,-apple-system,sans-serif;touch-action:manipulation">${n}</button>`).join('')}</div></div><div class="modal-footer"><button class="modal-cancel" onclick="closeModal()">Cancel</button><button class="modal-save" onclick="saveContact()">Add</button></div>`);}
 function selRelType(btn,type){document.querySelectorAll('#typeSelector2 button').forEach(b=>{b.style.background=b===btn?'var(--purple-bg)':'var(--bg)';b.style.borderColor=b===btn?'var(--purple)':'var(--border2)';b.style.color=b===btn?'var(--purple)':'var(--ink2)';});btn.dataset.selected='true';}
 function selConnScore(btn,score){document.querySelectorAll('#connScoreSelector button').forEach(b=>{b.style.background=b===btn?'var(--purple)':'var(--bg)';b.style.borderColor=b===btn?'var(--purple)':'var(--border2)';b.style.color=b===btn?'#fff':'var(--ink3)';});btn.dataset.selected='true';btn.dataset.score=score;}
 function saveContact(){const name=(document.getElementById('c_name').value||'').trim();if(!name)return;const typeBtn=document.querySelector('#typeSelector2 button[data-selected="true"]');const type=typeBtn?typeBtn.textContent:'Friend';const scoreBtn=document.querySelector('#connScoreSelector button[data-selected="true"]');const score=scoreBtn?parseInt(scoreBtn.dataset.score)||5:5;if(!DB.relationships)DB.relationships={contacts:[],lastCheckins:{},connectionScores:{},dailyScores:{}};DB.relationships.contacts.push({name,type});if(!DB.relationships.dailyScores)DB.relationships.dailyScores={};if(!DB.relationships.dailyScores[today()])DB.relationships.dailyScores[today()]={};DB.relationships.dailyScores[today()][name]=score;saveDB('relationships',DB.relationships);closeModal();renderRelationships();}
@@ -957,7 +963,7 @@ function openKindMessage(name){const cards=KIND_MESSAGES.map((m,i)=>`<div style=
 function sendKindByIndex(method,index){const m=KIND_MESSAGES[index];if(!m)return;sendMessage(method,m.text);}
 function sendMessage(method,text){if(method==='sms'){window.location.href='sms:&body='+encodeURIComponent(text);}else if(method==='email'){window.location.href='mailto:?subject='+encodeURIComponent('Thinking of you')+'&body='+encodeURIComponent(text);}else{if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(text).then(()=>showCopyToast()).catch(()=>fallbackCopy(text));}else{fallbackCopy(text);}}}
 function fallbackCopy(text){const ta=document.createElement('textarea');ta.value=text;ta.style.cssText='position:fixed;left:-9999px;top:50%;opacity:0';document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand('copy');showCopyToast();}catch(e){alert('Tap and hold to copy:\n\n'+text);}document.body.removeChild(ta);}
-function showCopyToast(){let t=document.getElementById('copyToast');if(!t){t=document.createElement('div');t.id='copyToast';t.style.cssText='position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:10px 20px;border-radius:99px;font-size:13px;font-weight:600;z-index:9999;font-family:Plus Jakarta Sans,sans-serif;pointer-events:none;transition:opacity .3s;opacity:0';t.textContent='Copied ✓';document.body.appendChild(t);}t.style.opacity='1';setTimeout(()=>{t.style.opacity='0';},2200);}
+function showCopyToast(){let t=document.getElementById('copyToast');if(!t){t=document.createElement('div');t.id='copyToast';t.style.cssText='position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#272264;color:#fff;padding:10px 20px;border-radius:99px;font-size:13px;font-weight:600;z-index:9999;font-family:Inter,system-ui,sans-serif;pointer-events:none;transition:opacity .3s;opacity:0';t.textContent='Copied ✓';document.body.appendChild(t);}t.style.opacity='1';setTimeout(()=>{t.style.opacity='0';},2200);}
 
 // ═══════════════ JOURNAL ═══════════════
 const PROMPT_SETS=[[`Where do you see yourself one year from today?`,`Describe your ideal day in vivid detail.`,`What would you do if you knew you could not fail?`,`Who is the person you are becoming?`,`What does your future self want you to know today?`],[`What are you most proud of right now, even if no one knows about it?`,`What would you do differently if you were completely unafraid?`,`What belief about yourself is ready to be released?`,`Who do you want to be in your closest relationships?`,`What does your version of success actually feel like — not look like?`],[`What chapter of your life are you currently in? What is it teaching you?`,`Where are you playing small and why?`,`What would you start if you stopped waiting to feel ready?`,`What is your body trying to tell you right now?`,`What do you need to forgive yourself for?`],[`What lights you up so much that time disappears?`,`If money and fear weren't factors, what would your life look like?`,`What is the version of you that you're growing into like?`,`What does love look like in your life right now?`,`What is already working that you're not giving yourself credit for?`],];
@@ -1026,7 +1032,7 @@ const PATTERN_QUESTIONS = [
   "What would you do differently if you trusted what you see here?"
 ];
 const TONE_STYLE = {
-  gentle:    {bg:'#f5f0ff', fg:'#5b34a0', label:'gentle'},
+  gentle:    {bg:'#f3f2f9', fg:'#272264', label:'gentle'},
   curious:   {bg:'#fff4e5', fg:'#9a5b00', label:'curious'},
   affirming: {bg:'#e9f7ef', fg:'#1e7e46', label:'affirming'}
 };
@@ -1414,8 +1420,8 @@ function renderProfile() {
         <div><div class="post-title">Account</div><div class="post-sub">Settings & sign out</div></div>
       </div>
       <div class="post-body">
-        <button onclick="confirmSignOut()" style="width:100%;padding:14px;font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;background:none;border:1.5px solid var(--border2);border-radius:14px;cursor:pointer;color:var(--ink2);margin-bottom:10px">Sign out</button>
-        <button onclick="confirmDeleteData()" style="width:100%;padding:14px;font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;background:none;border:1.5px solid #fca5a5;border-radius:14px;cursor:pointer;color:#dc2626">Clear all local data</button>
+        <button onclick="confirmSignOut()" style="width:100%;padding:14px;font-size:14px;font-family:'Inter',system-ui,-apple-system,sans-serif;font-weight:600;background:none;border:1.5px solid var(--border2);border-radius:14px;cursor:pointer;color:var(--ink2);margin-bottom:10px">Sign out</button>
+        <button onclick="confirmDeleteData()" style="width:100%;padding:14px;font-size:14px;font-family:'Inter',system-ui,-apple-system,sans-serif;font-weight:600;background:none;border:1.5px solid #fca5a5;border-radius:14px;cursor:pointer;color:#dc2626">Clear all local data</button>
       </div>
     </div>`;
 }
@@ -1479,7 +1485,7 @@ _sb.auth.onAuthStateChange((event)=>{ if(event==='SIGNED_OUT'){ showAuthScreen()
 
 // ── PWA icon + manifest ───────────────────────────────────────
 (function(){
-  function makeIcon(size){const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><rect width="${size}" height="${size}" fill="#ffffff"/><text x="50%" y="44%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="${Math.round(size*0.38)}px" font-weight="800" fill="#111111" letter-spacing="-2">daily</text><text x="${Math.round(size*0.86)}%" y="44%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="${Math.round(size*0.42)}px" font-weight="800" fill="#7c4dbe">.</text><text x="50%" y="68%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="${Math.round(size*0.12)}px" font-weight="400" fill="#737373" letter-spacing="1">live by design</text></svg>`;return 'data:image/svg+xml;base64,'+btoa(svg);}
+  function makeIcon(size){const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><rect width="${size}" height="${size}" fill="#ffffff"/><text x="50%" y="44%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="${Math.round(size*0.38)}px" font-weight="800" fill="#272264" letter-spacing="-2">daily</text><text x="${Math.round(size*0.86)}%" y="44%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="${Math.round(size*0.42)}px" font-weight="800" fill="#272264">.</text><text x="50%" y="68%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="${Math.round(size*0.12)}px" font-weight="400" fill="#737373" letter-spacing="1">live by design</text></svg>`;return 'data:image/svg+xml;base64,'+btoa(svg);}
   document.getElementById('appIcon').href=makeIcon(180);
   const manifest={name:'daily.',short_name:'daily.',description:'live by design.',start_url:'./',display:'standalone',background_color:'#ffffff',theme_color:'#ffffff',orientation:'portrait',icons:[{src:makeIcon(192),sizes:'192x192',type:'image/svg+xml'},{src:makeIcon(512),sizes:'512x512',type:'image/svg+xml'}]};
   const blob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
