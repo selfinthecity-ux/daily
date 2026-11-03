@@ -136,6 +136,7 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'Inter',
 .day-pill.active-day{box-shadow:0 0 0 2px var(--purple)}
 .day-name{font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)}
 .day-type{font-size:9px;font-weight:600;color:var(--ink3)}
+.day-date{font-size:15px;font-weight:700;color:var(--ink);line-height:1}
 .day-pill.weights .day-type{color:var(--purple)}
 .day-pill.cardio .day-type{color:#272264}
 .day-pill.stretch .day-type{color:#b4235f}
@@ -487,13 +488,23 @@ let actions=['','',''];
 let currentQuote=null;
 
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-function today(){return new Date().toISOString().slice(0,10)}
-function todayResetKey(){
-  const now=new Date();
-  const noon=new Date(now);noon.setHours(12,0,0,0);
-  if(now<noon){const yesterday=new Date(now);yesterday.setDate(yesterday.getDate()-1);return yesterday.toISOString().slice(0,10);}
-  return now.toISOString().slice(0,10);
+function isoLocal(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function today(){return isoLocal(new Date())}
+// New day starts at local midnight
+function todayResetKey(){return today()}
+// Week runs Sunday–Saturday; new week starts Sunday at 12am
+function weekStartKey(){const d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()-d.getDay());return isoLocal(d)}
+function rollWeek(){
+  const ws=weekStartKey();
+  if(!DB.scheduleWeek){DB.scheduleWeek=ws;return false;}
+  if(DB.scheduleWeek===ws)return false;
+  const prev=DB.exerciseSchedule||{};
+  if(Object.keys(prev).some(k=>prev[k])){if(!DB.exerciseWeeks)DB.exerciseWeeks={};DB.exerciseWeeks[DB.scheduleWeek]=prev;}
+  DB.exerciseSchedule={};DB.scheduleWeek=ws;
+  return true;
 }
+const KEEP_DAYS=730;
+function keepRecent(obj){const o={};Object.keys(obj||{}).sort().reverse().slice(0,KEEP_DAYS).forEach(k=>o[k]=obj[k]);return o;}
 function fmtFull(iso){if(!iso)return'';const d=new Date(iso+'T12:00:00');return d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})}
 function fmtShort(iso){if(!iso)return'';const d=new Date(iso+'T12:00:00');return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}).toUpperCase()}
 function dayOfYear(){return Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/(864e5));}
@@ -511,7 +522,10 @@ async function loadDB(){
   }
   wins = DB.wins || [...DEFAULT_WINS];
   const t = todayResetKey();
+  if(DB.resetMode !== 'midnight'){ DB.resetMode='midnight'; DB.lastDate=t; }
   if(DB.lastDate !== t){ archiveDay(DB.lastDate); resetDailyFields(t); }
+  rollWeek();
+  saveDB('lastDate', DB.lastDate);
   checkedWins = new Set(DB.todayCheckedWins||[]);
   actions = (DB.todayActions||['','','']).concat(['','','']).slice(0,3);
   document.getElementById('headerDate').textContent = fmtFull(today());
@@ -523,32 +537,35 @@ function archiveDay(dateStr){
   if(DB.nourish){
     if(!DB.nourishHistory)DB.nourishHistory={};
     DB.nourishHistory[dateStr]={glasses:DB.nourish.glasses||0,vitamins:{...DB.nourish.vitamins},meals:{...DB.nourish.meals}};
-    const nKeys=Object.keys(DB.nourishHistory).sort().reverse().slice(0,30);
-    const trimmed={};nKeys.forEach(k=>trimmed[k]=DB.nourishHistory[k]);
-    DB.nourishHistory=trimmed;
+    DB.nourishHistory=keepRecent(DB.nourishHistory);
   }
   if(DB.todayMood||DB.todayEnergy!=null){
     if(!DB.moodHistory)DB.moodHistory={};
     DB.moodHistory[dateStr]={mood:DB.todayMood,energy:DB.todayEnergy};
-    const mKeys=Object.keys(DB.moodHistory).sort().reverse().slice(0,30);
-    const mt={};mKeys.forEach(k=>mt[k]=DB.moodHistory[k]);
-    DB.moodHistory=mt;
-  }
-  if(!DB.dailySaved||!DB.dailySaved[dateStr]){
-    const winsChecked=Array.from(checkedWins).map(i=>wins[i]).filter(Boolean);
-    const actionList=(DB.todayActions||[]).filter(a=>a.trim());
-    if(winsChecked.length||actionList.length){
-      if(!DB.dailySaved)DB.dailySaved={};
-      DB.dailySaved[dateStr]={wins:winsChecked,actions:actionList,autoArchived:true};
+    DB.moodHistory=keepRecent(DB.moodHistory);
+    // Make sure the day's mood/energy counts in Patterns even without tapping Save
+    if(!DB.emotional)DB.emotional=[];
+    const m=DB.todayMood;
+    if(!DB.emotional.some(e=>e.date===dateStr)){
+      DB.emotional.unshift({id:'auto_'+dateStr,date:dateStr,mood:m?m.label:'',moodEmoji:m?m.emoji:'',energy:DB.todayEnergy!=null?DB.todayEnergy:'',auto:true});
     }
   }
+  const winsChecked=(DB.todayCheckedWins||[]).map(i=>wins[i]).filter(Boolean);
+  const actionList=(DB.todayActions||[]).filter(a=>a&&a.trim());
+  const prev=(DB.dailySaved||{})[dateStr]||{};
+  if(winsChecked.length||actionList.length||Object.keys(prev).length){
+    if(!DB.dailySaved)DB.dailySaved={};
+    DB.dailySaved[dateStr]={...prev,wins:winsChecked.length?winsChecked:(prev.wins||[]),actions:actionList.length?actionList:(prev.actions||[]),archivedAt:Date.now()};
+    DB.dailySaved=keepRecent(DB.dailySaved);
+  }
+  if(DB.todayWorkoutType){if(!DB.workoutTypeHistory)DB.workoutTypeHistory={};DB.workoutTypeHistory[dateStr]=DB.todayWorkoutType;}
 }
 
 function resetDailyFields(t){
   DB.lastDate=t;
   checkedWins=new Set(); actions=['','',''];
   DB.todayCheckedWins=[]; DB.todayActions=['','',''];
-  DB.todayMood=null; DB.todayEnergy=null;
+  DB.todayMood=null; DB.todayEnergy=null; DB.todayWorkoutType='';
   if(DB.nourish){
     DB.nourish.glasses=0; DB.nourish.vitaminChecks={};
     DB.nourish.vitaminChecksDate=t;
@@ -557,15 +574,21 @@ function resetDailyFields(t){
   localStorage.setItem(DB_KEY,JSON.stringify(DB));
 }
 
-// Noon auto-reset
-setInterval(()=>{
+// Midnight auto-reset (daily) + Sunday 12am reset (weekly schedule)
+function checkRollover(){
+  if(!DB.lastDate)return;
   const t=todayResetKey();
-  if(DB.lastDate&&DB.lastDate!==t){
-    archiveDay(DB.lastDate); resetDailyFields(t);
+  let changed=false;
+  if(DB.lastDate!==t){ archiveDay(DB.lastDate); resetDailyFields(t); changed=true; }
+  if(rollWeek()) changed=true;
+  if(changed){
+    saveDB('lastDate',DB.lastDate);
     document.getElementById('headerDate').textContent=fmtFull(today());
     renderTab();
   }
-},60000);
+}
+setInterval(checkRollover,30000);
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden) checkRollover(); });
 
 function switchTab(tab,btn){
   curTab=tab;
@@ -622,7 +645,7 @@ function renderDaily(){
       <div class="post-body">
         <div class="priority-block">
           <div class="block-prompt">The one thing I've been avoiding that will move me forward the most…</div>
-          <textarea class="ta" id="inp_priority" placeholder="Be honest with yourself…" rows="2">${esc(todaySaved.priority||'')}</textarea>
+          <textarea class="ta" id="inp_priority" oninput="autoSaveDaily()" placeholder="Be honest with yourself…" rows="2">${esc(todaySaved.priority||'')}</textarea>
         </div>
       </div>
     </div>
@@ -650,13 +673,13 @@ function renderDaily(){
         <div class="mindset-block">
           <div class="mindset-prompt">How do I want to show up today?</div>
           <div class="mindset-prefix">I want to be someone who…</div>
-          <textarea class="ta" id="inp_showup" placeholder="…shows up fully, leads with love, moves with intention" rows="2">${esc(todaySaved.showup||'')}</textarea>
+          <textarea class="ta" id="inp_showup" oninput="autoSaveDaily()" placeholder="…shows up fully, leads with love, moves with intention" rows="2">${esc(todaySaved.showup||'')}</textarea>
         </div>
         <div style="height:10px"></div>
         <div class="mindset-block">
           <div class="mindset-prompt">How can I add more value to others?</div>
           <div class="mindset-prefix">Today I will…</div>
-          <textarea class="ta" id="inp_value" placeholder="…listen deeply, encourage someone, share what I know" rows="2">${esc(todaySaved.value||'')}</textarea>
+          <textarea class="ta" id="inp_value" oninput="autoSaveDaily()" placeholder="…listen deeply, encourage someone, share what I know" rows="2">${esc(todaySaved.value||'')}</textarea>
         </div>
         <div style="height:4px"></div>
         <button class="primary-btn" onclick="saveDaily()">Save today's entry</button>
@@ -724,12 +747,15 @@ function renderActions(){
   el.innerHTML=actions.map((a,i)=>`
     <div class="action-row">
       <div class="action-num">${i+1}</div>
-      <input class="action-inp" type="text" value="${esc(a)}" placeholder="Action ${i+1}…" oninput="actions[${i}]=this.value;saveDB('todayActions',[...actions])">
+      <input class="action-inp" type="text" value="${esc(a)}" placeholder="Action ${i+1}…" oninput="actions[${i}]=this.value;saveDB('todayActions',[...actions]);autoSaveDaily()">
     </div>`).join('');
 }
 
-function saveDaily(){
+let _dailyTimer=null;
+function autoSaveDaily(){clearTimeout(_dailyTimer);_dailyTimer=setTimeout(()=>saveDaily(true),800);}
+function saveDaily(silent){
   const t=today();
+  if(!document.getElementById('inp_priority'))return;
   const priority=(document.getElementById('inp_priority').value||'').trim();
   const showup=(document.getElementById('inp_showup').value||'').trim();
   const value=(document.getElementById('inp_value').value||'').trim();
@@ -738,20 +764,19 @@ function saveDaily(){
   if(!priority&&!showup&&!value&&!actionList.length&&!winsChecked.length)return;
   if(!DB.dailySaved)DB.dailySaved={};
   DB.dailySaved[t]={priority,showup,value,actions:actionList,wins:winsChecked,savedAt:Date.now()};
-  const keys=Object.keys(DB.dailySaved).sort().reverse().slice(0,30);
-  const trimmed={};keys.forEach(k=>trimmed[k]=DB.dailySaved[k]);
-  DB.dailySaved=trimmed;
+  DB.dailySaved=keepRecent(DB.dailySaved);
   saveDB('dailySaved',DB.dailySaved);
   if(!DB.dailyLog)DB.dailyLog=[];
   DB.dailyLog=DB.dailyLog.filter(e=>e.date!==t);
   DB.dailyLog.unshift({id:Date.now().toString(),date:t,wins:winsChecked,priority,actions:actionList,showup,value});
   saveDB('dailyLog',DB.dailyLog);
+  if(silent===true)return;
   const conf=document.getElementById('saveConfirm');
   conf.style.opacity='1';setTimeout(()=>{conf.style.opacity='0';},2600);
 }
 
 // ═══════════════ EXERCISE ═══════════════
-const DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const WORKOUT_TYPES=['weights','cardio','stretch','rest','off'];
 const WORKOUT_PLANS=[
   {id:'full_body_weights',emoji:'🔥',title:'Full Body Weights',tag:'30–40 min · 3–4x/week',type:'weights',content:`🔥 Full Body Workout (30–40 min)\n\n• Goblet Squats 3×12\n• Romanian Deadlifts 3×10\n• Shoulder Press 3×10\n• Bent Over Rows 3×10\n• KB Swings 3×15\n• Plank 3×45 sec\n\nRest 30–60 sec between sets.`},
@@ -765,14 +790,18 @@ let expandedPlan=null;
 function renderExercise(){
   const schedule=DB.exerciseSchedule||{};
   const todayStr=today();
-  const todayDay=DAYS[new Date().getDay()===0?6:new Date().getDay()-1];
+  const todayDay=DAYS[new Date().getDay()];
   const todayWorkout=(DB.exerciseLogs||{})[todayStr]||'';
-  const dayPills=DAYS.map(d=>{
+  const wsDate=new Date(weekStartKey()+'T12:00:00');
+  const weekEnd=new Date(wsDate);weekEnd.setDate(wsDate.getDate()+6);
+  const weekLabel=wsDate.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' – '+weekEnd.toLocaleDateString('en-US',{month:wsDate.getMonth()===weekEnd.getMonth()?undefined:'short',day:'numeric'});
+  const dayPills=DAYS.map((d,di)=>{
+    const dd=new Date(wsDate);dd.setDate(wsDate.getDate()+di);
     const type=schedule[d]||'';
     const isToday=d===todayDay;
     const TYPE_LABELS={weights:'Wts',cardio:'Crd',rest:'Rest',off:'Off'};
     const label=type?(TYPE_LABELS[type]||type.charAt(0).toUpperCase()+type.slice(1,3)):'—';
-    return`<div class="day-pill${type?' '+type:''}${isToday?' active-day':''}" onclick="editDaySchedule('${d}')"><div class="day-name">${d}</div><div class="day-type">${label}</div></div>`;
+    return`<div class="day-pill${type?' '+type:''}${isToday?' active-day':''}" onclick="editDaySchedule('${d}')"><div class="day-name">${d}</div><div class="day-date">${dd.getDate()}</div><div class="day-type">${label}</div></div>`;
   }).join('');
   const planCards=WORKOUT_PLANS.map(p=>{
     const isOpen=expandedPlan===p.id;
@@ -794,14 +823,14 @@ function renderExercise(){
   const todayType=DB.todayWorkoutType||'';
   const typeSelHtml=WORKOUT_TYPES.map(t=>`<button class="type-opt today-type-btn${todayType===t?' sel-'+t:''}" data-type="${t}" onclick="setTodayType('${t}')">${t.charAt(0).toUpperCase()+t.slice(1)}</button>`).join('');
   document.getElementById('viewBody').innerHTML=`
-    <div class="post"><div class="post-header"><div class="post-avatar">🗓️</div><div><div class="post-title">Weekly schedule</div><div class="post-sub">Tap a day to assign your workout</div></div></div><div class="post-body"><div class="week-grid">${dayPills}</div></div></div>
+    <div class="post"><div class="post-header"><div class="post-avatar">🗓️</div><div><div class="post-title">Weekly schedule</div><div class="post-sub">Week of ${weekLabel} · starts fresh Sunday at 12am</div></div></div><div class="post-body"><div class="week-grid">${dayPills}</div></div></div>
     <div class="post"><div class="post-header"><div class="post-avatar">📋</div><div><div class="post-title">Workout plans</div><div class="post-sub">Tap to expand and use</div></div></div><div class="post-body"><div class="plans-list">${planCards}</div>${customPlanCards?`<div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin:14px 0 8px">My plans</div><div class="plans-list">${customPlanCards}</div>`:''}<div style="background:var(--purple-bg);border-radius:14px;padding:14px;margin-top:12px"><div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--purple);margin-bottom:10px">+ Save a custom plan</div><div style="display:flex;gap:8px;margin-bottom:8px"><input id="cp_emoji" placeholder="💪" style="width:52px;padding:9px 10px;font-size:16px;text-align:center;border:1.5px solid var(--border2);border-radius:10px;background:var(--white);outline:none"><input id="cp_title" placeholder="Plan name…" style="flex:1;padding:9px 12px;font-size:14px;font-family:'Inter',system-ui,-apple-system,sans-serif;border:1.5px solid var(--border2);border-radius:10px;background:var(--white);color:var(--ink);outline:none"></div><input id="cp_tag" placeholder="e.g. 30 min · 3x/week (optional)" style="width:100%;padding:9px 12px;font-size:13px;font-family:'Inter',system-ui,-apple-system,sans-serif;border:1.5px solid var(--border2);border-radius:10px;background:var(--white);color:var(--ink);outline:none;margin-bottom:8px"><textarea id="cp_content" placeholder="List your exercises, sets, reps…" rows="4" class="ta" style="margin-bottom:8px"></textarea><button class="primary-btn" style="font-size:13px;padding:11px" onclick="saveCustomPlan()">Save plan</button><div class="save-confirm" id="cpConfirm" style="margin-top:6px">Plan saved ✦</div></div></div></div>
     <div class="post"><div class="post-header"><div class="post-avatar">💪</div><div><div class="post-title">Today's workout</div><div class="post-sub">${todayDay} · what did you do?</div></div></div><div class="post-body"><div style="margin-bottom:10px"><div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px">Workout type</div><div class="type-selector">${typeSelHtml}</div></div><textarea class="ta" id="ex_log" placeholder="Write your workout… sets, reps, how it felt." rows="4">${esc(todayWorkout)}</textarea><div style="height:10px"></div><button class="primary-btn" onclick="saveExercise()">Save workout</button><div class="save-confirm" id="exConfirm" style="margin-top:8px">Workout saved ✦</div></div></div>
     ${pastHtml}`;
 }
 
 function togglePlan(id){expandedPlan=expandedPlan===id?null:id;renderExercise();setTimeout(()=>{const el=document.querySelector('.plan-open');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});},50);}
-function setTodayType(type){DB.todayWorkoutType=type;saveDB('todayWorkoutType',type);document.querySelectorAll('.today-type-btn').forEach(b=>{const t=b.dataset.type;b.className='type-opt today-type-btn'+(t===type?' sel-'+t:'');});const todayDay=DAYS[new Date().getDay()===0?6:new Date().getDay()-1];const TYPE_LABELS={weights:'Wts',cardio:'Crd',rest:'Rest',off:'Off'};document.querySelectorAll('.day-pill').forEach((pill,i)=>{if(DAYS[i]===todayDay){const typeEl=pill.querySelector('.day-type');if(typeEl)typeEl.textContent=TYPE_LABELS[type]||type;pill.className='day-pill '+type+' active-day';}});}
+function setTodayType(type){DB.todayWorkoutType=type;saveDB('todayWorkoutType',type);document.querySelectorAll('.today-type-btn').forEach(b=>{const t=b.dataset.type;b.className='type-opt today-type-btn'+(t===type?' sel-'+t:'');});const todayDay=DAYS[new Date().getDay()];const TYPE_LABELS={weights:'Wts',cardio:'Crd',rest:'Rest',off:'Off'};document.querySelectorAll('.day-pill').forEach((pill,i)=>{if(DAYS[i]===todayDay){const typeEl=pill.querySelector('.day-type');if(typeEl)typeEl.textContent=TYPE_LABELS[type]||type;pill.className='day-pill '+type+' active-day';}});}
 function saveCustomPlan(){const title=(document.getElementById('cp_title').value||'').trim();if(!title)return;const emoji=(document.getElementById('cp_emoji').value||'').trim()||'⚡';const tag=(document.getElementById('cp_tag').value||'').trim();const content=(document.getElementById('cp_content').value||'').trim();if(!DB.customWorkoutPlans)DB.customWorkoutPlans=[];DB.customWorkoutPlans.unshift({title,emoji,tag,content});saveDB('customWorkoutPlans',DB.customWorkoutPlans);const conf=document.getElementById('cpConfirm');conf.style.opacity='1';setTimeout(()=>{conf.style.opacity='0';renderExercise();},1200);}
 function deleteCustomPlan(i){if(!DB.customWorkoutPlans)return;DB.customWorkoutPlans.splice(i,1);saveDB('customWorkoutPlans',DB.customWorkoutPlans);expandedPlan=null;renderExercise();}
 function useCustomPlan(i){const plan=(DB.customWorkoutPlans||[])[i];if(!plan)return;const ta=document.getElementById('ex_log');if(ta){ta.value=plan.content;ta.scrollIntoView({behavior:'smooth'});}}
@@ -810,7 +839,7 @@ function editDaySchedule(day){const schedule=DB.exerciseSchedule||{};const curre
 function setDayPlan(day,planId,btn){document.querySelectorAll('#planSelector .type-opt').forEach(b=>b.classList.remove('sel-weights'));btn.classList.add('sel-weights');document.querySelectorAll('#typeSelector .type-opt').forEach(b=>b.className='type-opt');btn.dataset.planId=planId;}
 function setDayType(day,type){document.querySelectorAll('#typeSelector .type-opt').forEach(b=>{b.className='type-opt'+(b.textContent.toLowerCase()===type?' sel-'+type:'');});document.querySelectorAll('#planSelector .type-opt').forEach(b=>b.classList.remove('sel-weights'));}
 function saveDaySchedule(day){if(!DB.exerciseSchedule)DB.exerciseSchedule={};const selectedPlan=document.querySelector('#planSelector .sel-weights');const selectedType=document.querySelector('#typeSelector .type-opt[class*="sel-"]');if(selectedPlan){DB.exerciseSchedule[day]=selectedPlan.querySelector('[data-plan-id]')?.dataset.planId||selectedType?.textContent.toLowerCase()||'';}else if(selectedType){DB.exerciseSchedule[day]=selectedType.textContent.toLowerCase();}DB.exerciseSchedule[day+'_notes']=(document.getElementById('day_notes').value||'').trim();saveDB('exerciseSchedule',DB.exerciseSchedule);closeModal();renderExercise();}
-function saveExercise(){const log=(document.getElementById('ex_log').value||'').trim();if(!log)return;const todayStr=today();const todayDay=DAYS[new Date().getDay()===0?6:new Date().getDay()-1];if(!DB.exerciseLogs)DB.exerciseLogs={};DB.exerciseLogs[todayStr]=log;const keys=Object.keys(DB.exerciseLogs).sort().reverse().slice(0,30);const trimmed={};keys.forEach(k=>trimmed[k]=DB.exerciseLogs[k]);DB.exerciseLogs=trimmed;saveDB('exerciseLogs',DB.exerciseLogs);const selectedType=DB.todayWorkoutType||'';if(selectedType){if(!DB.exerciseSchedule)DB.exerciseSchedule={};DB.exerciseSchedule[todayDay]=selectedType;saveDB('exerciseSchedule',DB.exerciseSchedule);}if(!DB.exercise)DB.exercise=[];const type=selectedType||(DB.exerciseSchedule||{})[todayDay]||'';DB.exercise=DB.exercise.filter(e=>e.date!==todayStr);DB.exercise.unshift({id:Date.now().toString(),date:todayStr,type,log});saveDB('exercise',DB.exercise);renderExercise();const conf=document.getElementById('exConfirm');conf.style.opacity='1';setTimeout(()=>{conf.style.opacity='0';},1400);}
+function saveExercise(){const log=(document.getElementById('ex_log').value||'').trim();if(!log)return;const todayStr=today();const todayDay=DAYS[new Date().getDay()];if(!DB.exerciseLogs)DB.exerciseLogs={};DB.exerciseLogs[todayStr]=log;DB.exerciseLogs=keepRecent(DB.exerciseLogs);saveDB('exerciseLogs',DB.exerciseLogs);const selectedType=DB.todayWorkoutType||'';if(selectedType){if(!DB.exerciseSchedule)DB.exerciseSchedule={};DB.exerciseSchedule[todayDay]=selectedType;saveDB('exerciseSchedule',DB.exerciseSchedule);}if(!DB.exercise)DB.exercise=[];const type=selectedType||(DB.exerciseSchedule||{})[todayDay]||'';DB.exercise=DB.exercise.filter(e=>e.date!==todayStr);DB.exercise.unshift({id:Date.now().toString(),date:todayStr,type,log});saveDB('exercise',DB.exercise);renderExercise();const conf=document.getElementById('exConfirm');conf.style.opacity='1';setTimeout(()=>{conf.style.opacity='0';},1400);}
 function deleteExercise(id){DB.exercise=(DB.exercise||[]).filter(e=>e.id!==id);saveDB('exercise',DB.exercise);renderExercise();}
 
 // ═══════════════ NOURISHMENT ═══════════════
@@ -922,8 +951,9 @@ function renderEmotional(){
 }
 
 function energyDotsHtml(selected){return Array.from({length:10},(_,i)=>i+1).map(n=>`<div class="e-dot${selected===n?' e-dot-sel':''}" onclick="setEmotionalEnergy(${n})">${n}</div>`).join('');}
-function setEmotionalEnergy(val){emotionalEnergy=val;saveDB('todayEnergy',val);const el=document.getElementById('energyDots');if(el)el.innerHTML=energyDotsHtml(val);}
-function selectMood(label,emoji){selectedMood={label,emoji};saveDB('todayMood',selectedMood);document.querySelectorAll('.mood-btn').forEach(b=>b.classList.toggle('mood-sel',b.id==='mood_'+label));}
+function syncTodayEmotion(){const e=(DB.emotional||[]).find(x=>x.date===today());if(!e)return;if(selectedMood){e.mood=selectedMood.label;e.moodEmoji=selectedMood.emoji;}if(emotionalEnergy!=null)e.energy=emotionalEnergy;saveDB('emotional',DB.emotional);}
+function setEmotionalEnergy(val){emotionalEnergy=val;saveDB('todayEnergy',val);syncTodayEmotion();const el=document.getElementById('energyDots');if(el)el.innerHTML=energyDotsHtml(val);}
+function selectMood(label,emoji){selectedMood={label,emoji};saveDB('todayMood',selectedMood);syncTodayEmotion();document.querySelectorAll('.mood-btn').forEach(b=>b.classList.toggle('mood-sel',b.id==='mood_'+label));}
 function saveEmotional(){const problem=(document.getElementById('em_problem').value||'').trim();const lesson=(document.getElementById('em_lesson').value||'').trim();const excited=(document.getElementById('em_excited').value||'').trim();const excitedAbout=(document.getElementById('em_excitedabout').value||'').trim();const need=(document.getElementById('em_need').value||'').trim();if(!problem&&!lesson&&!excited&&!excitedAbout&&!need&&!selectedMood&&!emotionalEnergy)return;if(!DB.emotional)DB.emotional=[];DB.emotional.unshift({id:Date.now().toString(),date:today(),mood:selectedMood?selectedMood.label:'',moodEmoji:selectedMood?selectedMood.emoji:'',energy:emotionalEnergy||'',problem,lesson,excited,excitedAbout,need});saveDB('emotional',DB.emotional);const conf=document.getElementById('emConfirm');conf.style.opacity='1';setTimeout(()=>{conf.style.opacity='0';renderEmotional();},1400);}
 function deleteEmotional(id){DB.emotional=(DB.emotional||[]).filter(e=>e.id!==id);saveDB('emotional',DB.emotional);renderEmotional();}
 
@@ -1052,7 +1082,7 @@ const TONE_STYLE = {
 
 function patternLastNDates(n){
   const out = []; const d = new Date();
-  for(let i=0;i<n;i++){ out.push(d.toISOString().slice(0,10)); d.setDate(d.getDate()-1); }
+  for(let i=0;i<n;i++){ out.push(isoLocal(d)); d.setDate(d.getDate()-1); }
   return out;
 }
 function patternAvg(a){ return a.length ? a.reduce((s,v)=>s+v,0)/a.length : 0; }
@@ -1217,7 +1247,7 @@ function renderPatterns(){
   window.scrollTo(0,0);
 }
 
-function saveNightReflection(){const gratitude=(document.getElementById('night_gratitude').value||'').trim();const release=(document.getElementById('night_release').value||'').trim();const tomorrow_setup=(document.getElementById('night_tomorrow').value||'').trim();if(!gratitude&&!release&&!tomorrow_setup)return;if(!DB.nightlyReflections)DB.nightlyReflections={};DB.nightlyReflections[today()]={gratitude,release,tomorrow_setup,savedAt:Date.now()};const keys=Object.keys(DB.nightlyReflections).sort().reverse().slice(0,30);const trimmed={};keys.forEach(k=>trimmed[k]=DB.nightlyReflections[k]);DB.nightlyReflections=trimmed;saveDB('nightlyReflections',DB.nightlyReflections);const conf=document.getElementById('nightConfirm');conf.style.opacity='1';setTimeout(()=>{conf.style.opacity='0';},2000);}
+function saveNightReflection(){const gratitude=(document.getElementById('night_gratitude').value||'').trim();const release=(document.getElementById('night_release').value||'').trim();const tomorrow_setup=(document.getElementById('night_tomorrow').value||'').trim();if(!gratitude&&!release&&!tomorrow_setup)return;if(!DB.nightlyReflections)DB.nightlyReflections={};DB.nightlyReflections[today()]={gratitude,release,tomorrow_setup,savedAt:Date.now()};DB.nightlyReflections=keepRecent(DB.nightlyReflections);saveDB('nightlyReflections',DB.nightlyReflections);const conf=document.getElementById('nightConfirm');conf.style.opacity='1';setTimeout(()=>{conf.style.opacity='0';},2000);}
 function deleteNightReflection(dateStr){if(DB.nightlyReflections)delete DB.nightlyReflections[dateStr];saveDB('nightlyReflections',DB.nightlyReflections);renderNight();}
 
 // ═══════════════════════════════════════════════════════════════
