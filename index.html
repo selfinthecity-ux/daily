@@ -503,7 +503,7 @@ function deepMergeDB(localD, staged){
 
 
 // ── Update check: GitHub Pages and browsers hold on to old copies of the app ──
-const APP_VERSION='20261103140835';
+const APP_VERSION='20261103141830';
 if(/[?&]v=\d+/.test(location.search)) history.replaceState(null,'',location.pathname+location.hash);
 async function checkForUpdate(){
   try{
@@ -859,9 +859,10 @@ function renderDaily(){
         </div>
         <div style="height:10px"></div>
         <div class="mindset-block">
-          <div class="mindset-prompt">How can I add more value to others?</div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--pink);margin-bottom:6px">♡ Kindness practice</div>
+          <div class="mindset-prompt">How can I make someone's day a little better?</div>
           <div class="mindset-prefix">Today I will…</div>
-          <textarea class="ta" id="inp_value" oninput="autoSaveDaily()" placeholder="…listen deeply, encourage someone, share what I know" rows="2">${esc(todaySaved.value||'')}</textarea>
+          <textarea class="ta" id="inp_value" oninput="autoSaveDaily()" placeholder="Listen with patience, offer encouragement, help someone, or show compassion." rows="2">${esc(todaySaved.value||'')}</textarea>
         </div>
         <div style="height:4px"></div>
         <button class="primary-btn" onclick="saveDaily()">Save today's entry</button>
