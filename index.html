@@ -35,7 +35,8 @@
   --purple-dark:#272264;
   --purple-bg:#f3f2f9;
   --yellow:#fec936;
-  --wt:#272264;--wt-bg:#272264;--wt-ink:#fff;
+  --wt:#2563eb;--wt-bg:#2563eb;--wt-ink:#fff;
+  --wk:#f28c3a;--wk-bg:#f28c3a;--wk-ink:#272264;
   --cd:#fec936;--cd-bg:#fec936;--cd-ink:#272264;
   --st:#3f8f74;--st-bg:#3f8f74;--st-ink:#fff;
   --pink:#e3418a;
@@ -135,6 +136,8 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'Inter',
 .day-pill.weights{background:var(--wt-bg);border-color:var(--wt)}
 .day-pill.cardio{background:var(--cd-bg);border-color:var(--cd)}
 .day-pill.stretch{background:var(--st-bg);border-color:var(--st)}
+.day-pill.walking{background:var(--wk-bg);border-color:var(--wk)}
+.day-pill.walking .day-name,.day-pill.walking .day-date,.day-pill.walking .day-type{color:var(--wk-ink)}
 .day-pill.rest{background:var(--bg);border-color:var(--border2);border-style:dashed}
 .day-pill.weights .day-name,.day-pill.weights .day-date,.day-pill.weights .day-type{color:var(--wt-ink)}
 .day-pill.cardio .day-name,.day-pill.cardio .day-date,.day-pill.cardio .day-type{color:var(--cd-ink)}
@@ -147,16 +150,17 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'Inter',
 .ex-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;font-weight:600;color:var(--ink2);margin-top:-6px}
 .ex-legend span{display:inline-flex;align-items:center;gap:6px}
 .ex-dot{width:12px;height:12px;border-radius:50%;display:inline-block}
-.ex-dot.weights{background:var(--wt)}.ex-dot.cardio{background:var(--cd)}.ex-dot.stretch{background:var(--st)}
+.ex-dot.weights{background:var(--wt)}.ex-dot.cardio{background:var(--cd)}.ex-dot.stretch{background:var(--st)}.ex-dot.walking{background:var(--wk)}
 .ex-tag{display:inline-block;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-left:6px;vertical-align:1px}
-.ex-tag.weights{background:var(--wt-bg);color:var(--wt-ink)}.ex-tag.cardio{background:var(--cd-bg);color:var(--cd-ink)}.ex-tag.stretch{background:var(--st-bg);color:var(--st-ink)}.ex-tag.rest,.ex-tag.off{background:var(--bg);color:var(--ink3);border:1px solid var(--border2)}
-.plan-card.t-weights{border-left:5px solid var(--wt)}.plan-card.t-cardio{border-left:5px solid var(--cd)}.plan-card.t-stretch{border-left:5px solid var(--st)}
+.ex-tag.weights{background:var(--wt-bg);color:var(--wt-ink)}.ex-tag.cardio{background:var(--cd-bg);color:var(--cd-ink)}.ex-tag.stretch{background:var(--st-bg);color:var(--st-ink)}.ex-tag.walking{background:var(--wk-bg);color:var(--wk-ink)}.ex-tag.rest,.ex-tag.off{background:var(--bg);color:var(--ink3);border:1px solid var(--border2)}
+.plan-card.t-weights{border-left:5px solid var(--wt)}.plan-card.t-cardio{border-left:5px solid var(--cd)}.plan-card.t-stretch{border-left:5px solid var(--st)}.plan-card.t-walking{border-left:5px solid var(--wk)}
 .type-opt.plan-picked{border-color:var(--purple);box-shadow:0 0 0 1px var(--purple);color:var(--ink)}
 .type-selector{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
 .type-opt{padding:7px 14px;font-size:12px;font-weight:600;font-family:'Inter',system-ui,-apple-system,sans-serif;border:1.5px solid var(--border2);border-radius:99px;background:var(--bg);cursor:pointer;touch-action:manipulation;color:var(--ink3);transition:all .15s}
 .type-opt.sel-weights{background:var(--wt-bg);border-color:var(--wt);color:var(--wt-ink)}
 .type-opt.sel-cardio{background:var(--cd-bg);border-color:var(--cd);color:var(--cd-ink)}
 .type-opt.sel-stretch{background:var(--st-bg);border-color:var(--st);color:var(--st-ink)}
+.type-opt.sel-walking{background:var(--wk-bg);border-color:var(--wk);color:var(--wk-ink)}
 .type-opt.sel-rest,.type-opt.sel-off{background:var(--white);border-color:var(--ink3);color:var(--ink2)}
 .water-tracker{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
 .glass{background:none;border:0;padding:3px;cursor:pointer;touch-action:manipulation;color:#9c97b8;line-height:0}
@@ -788,17 +792,17 @@ function saveDaily(silent){
 
 // ═══════════════ EXERCISE ═══════════════
 const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-const WORKOUT_TYPES=['weights','cardio','stretch','rest','off'];
+const WORKOUT_TYPES=['weights','cardio','walking','stretch','rest','off'];
 const WORKOUT_PLANS=[
   {id:'full_body_weights',emoji:'🔥',title:'Full Body Weights',tag:'30–40 min · 3–4x/week',type:'weights',content:`🔥 Full Body Workout (30–40 min)\n\n• Goblet Squats 3×12\n• Romanian Deadlifts 3×10\n• Shoulder Press 3×10\n• Bent Over Rows 3×10\n• KB Swings 3×15\n• Plank 3×45 sec\n\nRest 30–60 sec between sets.`},
   {id:'cardio_hiit',emoji:'⚡',title:'HIIT Cardio',tag:'20–25 min · 3x/week',type:'cardio',content:`⚡ HIIT Cardio (20–25 min)\n\n40 sec on · 20 sec rest · 4 rounds:\n• Jump squats\n• High knees\n• Burpees\n• Mountain climbers\n• Jump rope\n\nRest 90 sec between rounds.`},
   {id:'upper_body',emoji:'💪',title:'Upper Body',tag:'30 min · 2x/week',type:'weights',content:`💪 Upper Body (30 min)\n\n• Push-ups/Chest Press 3×12\n• Dumbbell Rows 3×10\n• Lateral Raises 3×12\n• Bicep Curls 2×12\n• Tricep Dips 2×12`},
-  {id:'walk_stretch',emoji:'🌿',title:'Walk + Stretch',tag:'30–45 min · Recovery',type:'cardio',content:`🌿 Active Recovery\n\nWalk 20–30 min outside, no phone.\n\nStretch:\n• Hip flexors 60 sec each\n• Hamstrings 60 sec each\n• Chest opener 60 sec\n• Spinal twist 60 sec each side\n• Child's pose 90 sec`},
+  {id:'walk_stretch',emoji:'🌿',title:'Walk + Stretch',tag:'30–45 min · Recovery',type:'walking',content:`🌿 Active Recovery\n\nWalk 20–30 min outside, no phone.\n\nStretch:\n• Hip flexors 60 sec each\n• Hamstrings 60 sec each\n• Chest opener 60 sec\n• Spinal twist 60 sec each side\n• Child's pose 90 sec`},
   {id:'stretch_only',emoji:'🧘',title:'Stretch & Mobility',tag:'15–20 min · Daily',type:'stretch',content:`🧘 Stretch & Mobility (15–20 min)\n\nHold each for 30–60 sec:\n• Neck rolls\n• Shoulder cross-body stretch\n• Chest opener\n• Seated forward fold\n• Pigeon pose\n• Figure-4 glute stretch\n• Hip flexor lunge stretch\n• Cat/cow — 10 slow reps\n• Supine spinal twist\n• Child's pose — 90 sec`},
 ];
 let expandedPlan=null;
 function exType(v){if(!v)return'';if(WORKOUT_TYPES.includes(v))return v;const p=WORKOUT_PLANS.find(x=>x.id===v);return p?p.type:v;}
-const EX_LEGEND='<div class="ex-legend"><span><i class="ex-dot weights"></i>Weights</span><span><i class="ex-dot cardio"></i>Cardio</span><span><i class="ex-dot stretch"></i>Stretch</span></div>';
+const EX_LEGEND='<div class="ex-legend"><span><i class="ex-dot weights"></i>Weights</span><span><i class="ex-dot cardio"></i>Cardio</span><span><i class="ex-dot walking"></i>Walking</span><span><i class="ex-dot stretch"></i>Stretch</span></div>';
 
 function renderExercise(){
   const schedule=DB.exerciseSchedule||{};
@@ -812,7 +816,7 @@ function renderExercise(){
     const dd=new Date(wsDate);dd.setDate(wsDate.getDate()+di);
     const type=exType(schedule[d]||'');
     const isToday=d===todayDay;
-    const TYPE_LABELS={weights:'Wts',cardio:'Crd',stretch:'Str',rest:'Rest',off:'Off'};
+    const TYPE_LABELS={weights:'Wts',cardio:'Crd',walking:'Walk',stretch:'Str',rest:'Rest',off:'Off'};
     const label=type?(TYPE_LABELS[type]||type.charAt(0).toUpperCase()+type.slice(1,3)):'—';
     return`<div class="day-pill${type?' '+type:''}${isToday?' active-day':''}" onclick="editDaySchedule('${d}')"><div class="day-name">${d}</div><div class="day-date">${dd.getDate()}</div><div class="day-type">${label}</div></div>`;
   }).join('');
@@ -843,7 +847,7 @@ function renderExercise(){
 }
 
 function togglePlan(id){expandedPlan=expandedPlan===id?null:id;renderExercise();setTimeout(()=>{const el=document.querySelector('.plan-open');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});},50);}
-function setTodayType(type){DB.todayWorkoutType=type;saveDB('todayWorkoutType',type);document.querySelectorAll('.today-type-btn').forEach(b=>{const t=b.dataset.type;b.className='type-opt today-type-btn'+(t===type?' sel-'+t:'');});const todayDay=DAYS[new Date().getDay()];const TYPE_LABELS={weights:'Wts',cardio:'Crd',stretch:'Str',rest:'Rest',off:'Off'};document.querySelectorAll('.day-pill').forEach((pill,i)=>{if(DAYS[i]===todayDay){const typeEl=pill.querySelector('.day-type');if(typeEl)typeEl.textContent=TYPE_LABELS[type]||type;pill.className='day-pill '+type+' active-day';}});}
+function setTodayType(type){DB.todayWorkoutType=type;saveDB('todayWorkoutType',type);document.querySelectorAll('.today-type-btn').forEach(b=>{const t=b.dataset.type;b.className='type-opt today-type-btn'+(t===type?' sel-'+t:'');});const todayDay=DAYS[new Date().getDay()];const TYPE_LABELS={weights:'Wts',cardio:'Crd',walking:'Walk',stretch:'Str',rest:'Rest',off:'Off'};document.querySelectorAll('.day-pill').forEach((pill,i)=>{if(DAYS[i]===todayDay){const typeEl=pill.querySelector('.day-type');if(typeEl)typeEl.textContent=TYPE_LABELS[type]||type;pill.className='day-pill '+type+' active-day';}});}
 function saveCustomPlan(){const title=(document.getElementById('cp_title').value||'').trim();if(!title)return;const emoji=(document.getElementById('cp_emoji').value||'').trim()||'⚡';const tag=(document.getElementById('cp_tag').value||'').trim();const content=(document.getElementById('cp_content').value||'').trim();if(!DB.customWorkoutPlans)DB.customWorkoutPlans=[];DB.customWorkoutPlans.unshift({title,emoji,tag,content});saveDB('customWorkoutPlans',DB.customWorkoutPlans);const conf=document.getElementById('cpConfirm');conf.style.opacity='1';setTimeout(()=>{conf.style.opacity='0';renderExercise();},1200);}
 function deleteCustomPlan(i){if(!DB.customWorkoutPlans)return;DB.customWorkoutPlans.splice(i,1);saveDB('customWorkoutPlans',DB.customWorkoutPlans);expandedPlan=null;renderExercise();}
 function useCustomPlan(i){const plan=(DB.customWorkoutPlans||[])[i];if(!plan)return;const ta=document.getElementById('ex_log');if(ta){ta.value=plan.content;ta.scrollIntoView({behavior:'smooth'});}}
