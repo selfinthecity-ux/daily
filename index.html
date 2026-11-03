@@ -35,10 +35,10 @@
   --purple-dark:#272264;
   --purple-bg:#f3f2f9;
   --yellow:#fec936;
-  --wt:#2563eb;--wt-bg:#2563eb;--wt-ink:#fff;
-  --wk:#f28c3a;--wk-bg:#f28c3a;--wk-ink:#272264;
-  --cd:#fec936;--cd-bg:#fec936;--cd-ink:#272264;
-  --st:#3f8f74;--st-bg:#3f8f74;--st-ink:#fff;
+  --wt:#1f51ff;--wt-bg:#1f51ff;--wt-ink:#fff;
+  --wk:#ff6a00;--wk-bg:#ff6a00;--wk-ink:#fff;
+  --cd:#e8ff00;--cd-bg:#e8ff00;--cd-ink:#1a1a1a;
+  --st:#39ff14;--st-bg:#39ff14;--st-ink:#0b3d00;
   --pink:#e3418a;
   --orange:#f7873f;
   --display:'Fraunces','Iowan Old Style',Georgia,serif;
@@ -152,6 +152,11 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'Inter',
 .day-type{font-size:9px;font-weight:600;color:var(--ink3)}
 .day-date{font-size:15px;font-weight:700;color:var(--ink);line-height:1}
 .day-pill.rest .day-type{color:var(--ink3)}
+.day-pill.weights,.day-pill.cardio,.day-pill.walking,.day-pill.stretch{border-width:0;padding:9.5px 5.5px}
+.day-pill.weights{box-shadow:0 0 12px rgba(31,81,255,.55)}.day-pill.cardio{box-shadow:0 0 12px rgba(232,255,0,.75)}
+.day-pill.walking{box-shadow:0 0 12px rgba(255,106,0,.55)}.day-pill.stretch{box-shadow:0 0 12px rgba(57,255,20,.6)}
+.day-pill.active-day{box-shadow:0 0 0 2px var(--white),0 0 0 4px var(--purple)!important}
+
 .ex-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;font-weight:600;color:var(--ink2);margin-top:-6px}
 .ex-legend span{display:inline-flex;align-items:center;gap:6px}
 .ex-dot{width:12px;height:12px;border-radius:50%;display:inline-block}
