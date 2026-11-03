@@ -503,6 +503,29 @@ function deepMergeDB(localD, staged){
 }
 
 
+// ── Update check: GitHub Pages and browsers hold on to old copies of the app ──
+const APP_VERSION='20261103124712';
+if(/[?&]v=\d+/.test(location.search)) history.replaceState(null,'',location.pathname+location.hash);
+async function checkForUpdate(){
+  try{
+    const r=await fetch(location.pathname+'?v='+Date.now(),{cache:'no-store'});
+    if(!r.ok) return;
+    const m=(await r.text()).match(/const APP_VERSION='([^']+)'/);
+    if(m && m[1]!==APP_VERSION && !m[1].startsWith('__')) showUpdateBar();
+  }catch(e){}
+}
+function showUpdateBar(){
+  if(document.getElementById('updateBar')) return;
+  const b=document.createElement('div'); b.id='updateBar';
+  b.style.cssText='position:fixed;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:1000;background:#272264;color:#fff;border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 8px 24px rgba(0,0,0,.2);font-family:Inter,system-ui,sans-serif;max-width:480px;margin:0 auto';
+  b.innerHTML='<div style="flex:1;font-size:14px;font-weight:600">A new version of daily. is ready</div><button style="background:#fec936;color:#272264;border:none;border-radius:10px;padding:9px 14px;font-weight:700;font-size:14px;font-family:inherit;cursor:pointer">Update</button>';
+  b.querySelector('button').onclick=async()=>{ try{ clearTimeout(_syncTimer); if(typeof pushToSupabase==='function' && USER_ID) await pushToSupabase(); }catch(e){} location.replace(location.pathname+'?v='+Date.now()); };
+  document.body.appendChild(b);
+}
+setTimeout(checkForUpdate,4000);
+setInterval(checkForUpdate,10*60*1000);
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden) checkForUpdate(); });
+
 // ── Device identity — no login needed ────────────────────────
 let _currentUser = null;
 let USER_ID = null; // set from the signed-in account at boot (getToken)
