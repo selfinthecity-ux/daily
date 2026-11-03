@@ -502,7 +502,7 @@ function deepMergeDB(localD, staged){
 
 
 // ── Update check: GitHub Pages and browsers hold on to old copies of the app ──
-const APP_VERSION='20261103131736';
+const APP_VERSION='20261103132011';
 if(/[?&]v=\d+/.test(location.search)) history.replaceState(null,'',location.pathname+location.hash);
 async function checkForUpdate(){
   try{
@@ -1622,7 +1622,6 @@ function renderProfile() {
         <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:24px">
           <div id="avatarDisplay" onclick="document.getElementById('avatarInput').click()" style="width:88px;height:88px;border-radius:50%;background:${avatarUrl ? 'transparent' : 'var(--purple)'};display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:800;color:#fff;cursor:pointer;overflow:hidden;border:3px solid var(--purple-light);position:relative;margin-bottom:10px">
             ${avatarUrl ? `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : initials}
-            <div style="position:absolute;bottom:0;right:0;width:26px;height:26px;background:var(--btn);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;border:2px solid #fff">📷</div>
           </div>
           <input id="avatarInput" type="file" accept="image/*" style="display:none" onchange="if(this.files[0])uploadAvatar(this.files[0])">
           <div style="font-size:12px;color:var(--ink4)">Tap photo to change</div>
