@@ -35,6 +35,9 @@
   --purple-dark:#272264;
   --purple-bg:#f3f2f9;
   --yellow:#fec936;
+  --wt:#272264;--wt-bg:#272264;--wt-ink:#fff;
+  --cd:#fec936;--cd-bg:#fec936;--cd-ink:#272264;
+  --st:#3f8f74;--st-bg:#3f8f74;--st-ink:#fff;
   --pink:#e3418a;
   --orange:#f7873f;
   --display:'Fraunces','Iowan Old Style',Georgia,serif;
@@ -129,24 +132,32 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'Inter',
 .plan-use-btn{display:block;width:calc(100% - 32px);margin:0 16px 14px;padding:12px;font-size:13px;font-family:'Inter',system-ui,-apple-system,sans-serif;font-weight:700;background:var(--purple);color:#fff;border:none;border-radius:10px;cursor:pointer;touch-action:manipulation}
 .week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:16px}
 .day-pill{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px;border-radius:10px;border:1.5px solid var(--border2);background:var(--bg);cursor:pointer;touch-action:manipulation;transition:all .15s}
-.day-pill.weights{background:var(--purple-bg);border-color:var(--purple-mid)}
-.day-pill.cardio{background:#fff6dc;border-color:#fec936}
-.day-pill.stretch{background:#fdeef5;border-color:#f0a8d0}
-.day-pill.rest{background:#f0f7f0;border-color:#a8d4a8}
-.day-pill.active-day{box-shadow:0 0 0 2px var(--purple)}
+.day-pill.weights{background:var(--wt-bg);border-color:var(--wt)}
+.day-pill.cardio{background:var(--cd-bg);border-color:var(--cd)}
+.day-pill.stretch{background:var(--st-bg);border-color:var(--st)}
+.day-pill.rest{background:var(--bg);border-color:var(--border2);border-style:dashed}
+.day-pill.weights .day-name,.day-pill.weights .day-date,.day-pill.weights .day-type{color:var(--wt-ink)}
+.day-pill.cardio .day-name,.day-pill.cardio .day-date,.day-pill.cardio .day-type{color:var(--cd-ink)}
+.day-pill.stretch .day-name,.day-pill.stretch .day-date,.day-pill.stretch .day-type{color:var(--st-ink)}
+.day-pill.active-day{box-shadow:0 0 0 2px var(--white),0 0 0 4px var(--purple)}
 .day-name{font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)}
 .day-type{font-size:9px;font-weight:600;color:var(--ink3)}
 .day-date{font-size:15px;font-weight:700;color:var(--ink);line-height:1}
-.day-pill.weights .day-type{color:var(--purple)}
-.day-pill.cardio .day-type{color:#272264}
-.day-pill.stretch .day-type{color:#b4235f}
-.day-pill.rest .day-type{color:#4caf50}
+.day-pill.rest .day-type{color:var(--ink3)}
+.ex-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;font-weight:600;color:var(--ink2);margin-top:-6px}
+.ex-legend span{display:inline-flex;align-items:center;gap:6px}
+.ex-dot{width:12px;height:12px;border-radius:50%;display:inline-block}
+.ex-dot.weights{background:var(--wt)}.ex-dot.cardio{background:var(--cd)}.ex-dot.stretch{background:var(--st)}
+.ex-tag{display:inline-block;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-left:6px;vertical-align:1px}
+.ex-tag.weights{background:var(--wt-bg);color:var(--wt-ink)}.ex-tag.cardio{background:var(--cd-bg);color:var(--cd-ink)}.ex-tag.stretch{background:var(--st-bg);color:var(--st-ink)}.ex-tag.rest,.ex-tag.off{background:var(--bg);color:var(--ink3);border:1px solid var(--border2)}
+.plan-card.t-weights{border-left:5px solid var(--wt)}.plan-card.t-cardio{border-left:5px solid var(--cd)}.plan-card.t-stretch{border-left:5px solid var(--st)}
+.type-opt.plan-picked{border-color:var(--purple);box-shadow:0 0 0 1px var(--purple);color:var(--ink)}
 .type-selector{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
 .type-opt{padding:7px 14px;font-size:12px;font-weight:600;font-family:'Inter',system-ui,-apple-system,sans-serif;border:1.5px solid var(--border2);border-radius:99px;background:var(--bg);cursor:pointer;touch-action:manipulation;color:var(--ink3);transition:all .15s}
-.type-opt.sel-weights{background:var(--purple-bg);border-color:var(--purple);color:var(--purple)}
-.type-opt.sel-cardio{background:#fff6dc;border-color:#fec936;color:#272264}
-.type-opt.sel-stretch{background:#fdeef5;border-color:#e3418a;color:#b4235f}
-.type-opt.sel-rest{background:#f0f7f0;border-color:#4caf50;color:#4caf50}
+.type-opt.sel-weights{background:var(--wt-bg);border-color:var(--wt);color:var(--wt-ink)}
+.type-opt.sel-cardio{background:var(--cd-bg);border-color:var(--cd);color:var(--cd-ink)}
+.type-opt.sel-stretch{background:var(--st-bg);border-color:var(--st);color:var(--st-ink)}
+.type-opt.sel-rest,.type-opt.sel-off{background:var(--white);border-color:var(--ink3);color:var(--ink2)}
 .water-tracker{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
 .glass{background:none;border:0;padding:3px;cursor:pointer;touch-action:manipulation;color:#9c97b8;line-height:0}
 .glass svg{width:28px;height:34px;display:block}
@@ -783,9 +794,11 @@ const WORKOUT_PLANS=[
   {id:'cardio_hiit',emoji:'⚡',title:'HIIT Cardio',tag:'20–25 min · 3x/week',type:'cardio',content:`⚡ HIIT Cardio (20–25 min)\n\n40 sec on · 20 sec rest · 4 rounds:\n• Jump squats\n• High knees\n• Burpees\n• Mountain climbers\n• Jump rope\n\nRest 90 sec between rounds.`},
   {id:'upper_body',emoji:'💪',title:'Upper Body',tag:'30 min · 2x/week',type:'weights',content:`💪 Upper Body (30 min)\n\n• Push-ups/Chest Press 3×12\n• Dumbbell Rows 3×10\n• Lateral Raises 3×12\n• Bicep Curls 2×12\n• Tricep Dips 2×12`},
   {id:'walk_stretch',emoji:'🌿',title:'Walk + Stretch',tag:'30–45 min · Recovery',type:'cardio',content:`🌿 Active Recovery\n\nWalk 20–30 min outside, no phone.\n\nStretch:\n• Hip flexors 60 sec each\n• Hamstrings 60 sec each\n• Chest opener 60 sec\n• Spinal twist 60 sec each side\n• Child's pose 90 sec`},
-  {id:'stretch_only',emoji:'🧘',title:'Stretch & Mobility',tag:'15–20 min · Daily',type:'rest',content:`🧘 Stretch & Mobility (15–20 min)\n\nHold each for 30–60 sec:\n• Neck rolls\n• Shoulder cross-body stretch\n• Chest opener\n• Seated forward fold\n• Pigeon pose\n• Figure-4 glute stretch\n• Hip flexor lunge stretch\n• Cat/cow — 10 slow reps\n• Supine spinal twist\n• Child's pose — 90 sec`},
+  {id:'stretch_only',emoji:'🧘',title:'Stretch & Mobility',tag:'15–20 min · Daily',type:'stretch',content:`🧘 Stretch & Mobility (15–20 min)\n\nHold each for 30–60 sec:\n• Neck rolls\n• Shoulder cross-body stretch\n• Chest opener\n• Seated forward fold\n• Pigeon pose\n• Figure-4 glute stretch\n• Hip flexor lunge stretch\n• Cat/cow — 10 slow reps\n• Supine spinal twist\n• Child's pose — 90 sec`},
 ];
 let expandedPlan=null;
+function exType(v){if(!v)return'';if(WORKOUT_TYPES.includes(v))return v;const p=WORKOUT_PLANS.find(x=>x.id===v);return p?p.type:v;}
+const EX_LEGEND='<div class="ex-legend"><span><i class="ex-dot weights"></i>Weights</span><span><i class="ex-dot cardio"></i>Cardio</span><span><i class="ex-dot stretch"></i>Stretch</span></div>';
 
 function renderExercise(){
   const schedule=DB.exerciseSchedule||{};
@@ -797,22 +810,22 @@ function renderExercise(){
   const weekLabel=wsDate.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' – '+weekEnd.toLocaleDateString('en-US',{month:wsDate.getMonth()===weekEnd.getMonth()?undefined:'short',day:'numeric'});
   const dayPills=DAYS.map((d,di)=>{
     const dd=new Date(wsDate);dd.setDate(wsDate.getDate()+di);
-    const type=schedule[d]||'';
+    const type=exType(schedule[d]||'');
     const isToday=d===todayDay;
-    const TYPE_LABELS={weights:'Wts',cardio:'Crd',rest:'Rest',off:'Off'};
+    const TYPE_LABELS={weights:'Wts',cardio:'Crd',stretch:'Str',rest:'Rest',off:'Off'};
     const label=type?(TYPE_LABELS[type]||type.charAt(0).toUpperCase()+type.slice(1,3)):'—';
     return`<div class="day-pill${type?' '+type:''}${isToday?' active-day':''}" onclick="editDaySchedule('${d}')"><div class="day-name">${d}</div><div class="day-date">${dd.getDate()}</div><div class="day-type">${label}</div></div>`;
   }).join('');
   const planCards=WORKOUT_PLANS.map(p=>{
     const isOpen=expandedPlan===p.id;
-    return`<div class="plan-card${isOpen?' plan-open':''}" onclick="togglePlan('${p.id}')"><div class="plan-card-head"><div class="plan-emoji">${p.emoji}</div><div style="flex:1"><div class="plan-title">${p.title}</div><div class="plan-tag">${p.tag}</div></div><div class="plan-chevron">${isOpen?'▲':'▼'}</div></div>${isOpen?`<div class="plan-body">${esc(p.content).replace(/\n/g,'<br>')}</div><button class="plan-use-btn" onclick="event.stopPropagation();usePlan('${p.id}')">Use this plan today ↓</button>`:''}</div>`;
+    return`<div class="plan-card t-${p.type}${isOpen?' plan-open':''}" onclick="togglePlan('${p.id}')"><div class="plan-card-head"><div class="plan-emoji">${p.emoji}</div><div style="flex:1"><div class="plan-title">${p.title}</div><div class="plan-tag">${p.tag}</div></div><div class="plan-chevron">${isOpen?'▲':'▼'}</div></div>${isOpen?`<div class="plan-body">${esc(p.content).replace(/\n/g,'<br>')}</div><button class="plan-use-btn" onclick="event.stopPropagation();usePlan('${p.id}')">Use this plan today ↓</button>`:''}</div>`;
   }).join('');
   const logs=DB.exercise||[];
   let pastHtml='';
   if(logs.length){
     pastHtml=`<div class="past-label">Past workouts</div>`;
     logs.slice(0,10).forEach(e=>{
-      pastHtml+=`<div class="log-entry"><div class="log-date">${fmtShort(e.date)}${e.type?' · '+e.type:''}</div>${e.plan?`<div class="log-text" style="color:var(--purple);font-size:12px;font-weight:600;margin-bottom:4px">${e.plan}</div>`:''}<div class="log-text">${esc(e.log||'').replace(/\n/g,'<br>')}</div><div class="log-foot"><button class="del-btn" onclick="deleteExercise('${e.id}')">Delete</button></div></div>`;
+      pastHtml+=`<div class="log-entry"><div class="log-date">${fmtShort(e.date)}${e.type?`<span class="ex-tag ${exType(e.type)}">${exType(e.type)}</span>`:''}</div>${e.plan?`<div class="log-text" style="color:var(--purple);font-size:12px;font-weight:600;margin-bottom:4px">${e.plan}</div>`:''}<div class="log-text">${esc(e.log||'').replace(/\n/g,'<br>')}</div><div class="log-foot"><button class="del-btn" onclick="deleteExercise('${e.id}')">Delete</button></div></div>`;
     });
   }
   const customPlans=DB.customWorkoutPlans||[];
@@ -823,22 +836,22 @@ function renderExercise(){
   const todayType=DB.todayWorkoutType||'';
   const typeSelHtml=WORKOUT_TYPES.map(t=>`<button class="type-opt today-type-btn${todayType===t?' sel-'+t:''}" data-type="${t}" onclick="setTodayType('${t}')">${t.charAt(0).toUpperCase()+t.slice(1)}</button>`).join('');
   document.getElementById('viewBody').innerHTML=`
-    <div class="post"><div class="post-header"><div class="post-avatar">🗓️</div><div><div class="post-title">Weekly schedule</div><div class="post-sub">Week of ${weekLabel} · starts fresh Sunday at 12am</div></div></div><div class="post-body"><div class="week-grid">${dayPills}</div></div></div>
+    <div class="post"><div class="post-header"><div class="post-avatar">🗓️</div><div><div class="post-title">Weekly schedule</div><div class="post-sub">Week of ${weekLabel} · starts fresh Sunday at 12am</div></div></div><div class="post-body"><div class="week-grid">${dayPills}</div>${EX_LEGEND}</div></div>
     <div class="post"><div class="post-header"><div class="post-avatar">📋</div><div><div class="post-title">Workout plans</div><div class="post-sub">Tap to expand and use</div></div></div><div class="post-body"><div class="plans-list">${planCards}</div>${customPlanCards?`<div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin:14px 0 8px">My plans</div><div class="plans-list">${customPlanCards}</div>`:''}<div style="background:var(--purple-bg);border-radius:14px;padding:14px;margin-top:12px"><div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--purple);margin-bottom:10px">+ Save a custom plan</div><div style="display:flex;gap:8px;margin-bottom:8px"><input id="cp_emoji" placeholder="💪" style="width:52px;padding:9px 10px;font-size:16px;text-align:center;border:1.5px solid var(--border2);border-radius:10px;background:var(--white);outline:none"><input id="cp_title" placeholder="Plan name…" style="flex:1;padding:9px 12px;font-size:14px;font-family:'Inter',system-ui,-apple-system,sans-serif;border:1.5px solid var(--border2);border-radius:10px;background:var(--white);color:var(--ink);outline:none"></div><input id="cp_tag" placeholder="e.g. 30 min · 3x/week (optional)" style="width:100%;padding:9px 12px;font-size:13px;font-family:'Inter',system-ui,-apple-system,sans-serif;border:1.5px solid var(--border2);border-radius:10px;background:var(--white);color:var(--ink);outline:none;margin-bottom:8px"><textarea id="cp_content" placeholder="List your exercises, sets, reps…" rows="4" class="ta" style="margin-bottom:8px"></textarea><button class="primary-btn" style="font-size:13px;padding:11px" onclick="saveCustomPlan()">Save plan</button><div class="save-confirm" id="cpConfirm" style="margin-top:6px">Plan saved ✦</div></div></div></div>
     <div class="post"><div class="post-header"><div class="post-avatar">💪</div><div><div class="post-title">Today's workout</div><div class="post-sub">${todayDay} · what did you do?</div></div></div><div class="post-body"><div style="margin-bottom:10px"><div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px">Workout type</div><div class="type-selector">${typeSelHtml}</div></div><textarea class="ta" id="ex_log" placeholder="Write your workout… sets, reps, how it felt." rows="4">${esc(todayWorkout)}</textarea><div style="height:10px"></div><button class="primary-btn" onclick="saveExercise()">Save workout</button><div class="save-confirm" id="exConfirm" style="margin-top:8px">Workout saved ✦</div></div></div>
     ${pastHtml}`;
 }
 
 function togglePlan(id){expandedPlan=expandedPlan===id?null:id;renderExercise();setTimeout(()=>{const el=document.querySelector('.plan-open');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});},50);}
-function setTodayType(type){DB.todayWorkoutType=type;saveDB('todayWorkoutType',type);document.querySelectorAll('.today-type-btn').forEach(b=>{const t=b.dataset.type;b.className='type-opt today-type-btn'+(t===type?' sel-'+t:'');});const todayDay=DAYS[new Date().getDay()];const TYPE_LABELS={weights:'Wts',cardio:'Crd',rest:'Rest',off:'Off'};document.querySelectorAll('.day-pill').forEach((pill,i)=>{if(DAYS[i]===todayDay){const typeEl=pill.querySelector('.day-type');if(typeEl)typeEl.textContent=TYPE_LABELS[type]||type;pill.className='day-pill '+type+' active-day';}});}
+function setTodayType(type){DB.todayWorkoutType=type;saveDB('todayWorkoutType',type);document.querySelectorAll('.today-type-btn').forEach(b=>{const t=b.dataset.type;b.className='type-opt today-type-btn'+(t===type?' sel-'+t:'');});const todayDay=DAYS[new Date().getDay()];const TYPE_LABELS={weights:'Wts',cardio:'Crd',stretch:'Str',rest:'Rest',off:'Off'};document.querySelectorAll('.day-pill').forEach((pill,i)=>{if(DAYS[i]===todayDay){const typeEl=pill.querySelector('.day-type');if(typeEl)typeEl.textContent=TYPE_LABELS[type]||type;pill.className='day-pill '+type+' active-day';}});}
 function saveCustomPlan(){const title=(document.getElementById('cp_title').value||'').trim();if(!title)return;const emoji=(document.getElementById('cp_emoji').value||'').trim()||'⚡';const tag=(document.getElementById('cp_tag').value||'').trim();const content=(document.getElementById('cp_content').value||'').trim();if(!DB.customWorkoutPlans)DB.customWorkoutPlans=[];DB.customWorkoutPlans.unshift({title,emoji,tag,content});saveDB('customWorkoutPlans',DB.customWorkoutPlans);const conf=document.getElementById('cpConfirm');conf.style.opacity='1';setTimeout(()=>{conf.style.opacity='0';renderExercise();},1200);}
 function deleteCustomPlan(i){if(!DB.customWorkoutPlans)return;DB.customWorkoutPlans.splice(i,1);saveDB('customWorkoutPlans',DB.customWorkoutPlans);expandedPlan=null;renderExercise();}
 function useCustomPlan(i){const plan=(DB.customWorkoutPlans||[])[i];if(!plan)return;const ta=document.getElementById('ex_log');if(ta){ta.value=plan.content;ta.scrollIntoView({behavior:'smooth'});}}
 function usePlan(id){const plan=WORKOUT_PLANS.find(p=>p.id===id);if(!plan)return;const ta=document.getElementById('ex_log');if(ta){ta.value=plan.content;ta.scrollIntoView({behavior:'smooth'});}}
-function editDaySchedule(day){const schedule=DB.exerciseSchedule||{};const current=schedule[day]||'';const planOpts=WORKOUT_PLANS.map(p=>`<button class="type-opt${current===p.id?' sel-weights':''}" onclick="setDayPlan('${day}','${p.id}',this)" style="display:flex;align-items:center;gap:6px;width:100%;margin-bottom:6px;padding:10px 14px;border-radius:10px;font-size:13px"><span>${p.emoji}</span><span>${p.title}</span></button>`).join('');const typeOpts=WORKOUT_TYPES.map(t=>`<button class="type-opt${current===t?' sel-'+t:''}" onclick="setDayType('${day}','${t}')">${t.charAt(0).toUpperCase()+t.slice(1)}</button>`).join('');openModal(`<div class="modal-handle"></div><div class="modal-title">${day} — assign workout</div><div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px">Quick type</div><div class="type-selector" id="typeSelector" style="margin-bottom:16px">${typeOpts}</div><div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px">Assign a plan</div><div id="planSelector">${planOpts}</div><div class="fg" style="margin-top:12px"><label class="lbl">Custom notes</label><textarea class="mi-ta" id="day_notes" placeholder="e.g. Push day — chest, shoulders, triceps">${esc(schedule[day+'_notes']||'')}</textarea></div><div class="modal-footer"><button class="modal-cancel" onclick="closeModal()">Cancel</button><button class="modal-save" onclick="saveDaySchedule('${day}')">Save</button></div>`);}
-function setDayPlan(day,planId,btn){document.querySelectorAll('#planSelector .type-opt').forEach(b=>b.classList.remove('sel-weights'));btn.classList.add('sel-weights');document.querySelectorAll('#typeSelector .type-opt').forEach(b=>b.className='type-opt');btn.dataset.planId=planId;}
-function setDayType(day,type){document.querySelectorAll('#typeSelector .type-opt').forEach(b=>{b.className='type-opt'+(b.textContent.toLowerCase()===type?' sel-'+type:'');});document.querySelectorAll('#planSelector .type-opt').forEach(b=>b.classList.remove('sel-weights'));}
-function saveDaySchedule(day){if(!DB.exerciseSchedule)DB.exerciseSchedule={};const selectedPlan=document.querySelector('#planSelector .sel-weights');const selectedType=document.querySelector('#typeSelector .type-opt[class*="sel-"]');if(selectedPlan){DB.exerciseSchedule[day]=selectedPlan.querySelector('[data-plan-id]')?.dataset.planId||selectedType?.textContent.toLowerCase()||'';}else if(selectedType){DB.exerciseSchedule[day]=selectedType.textContent.toLowerCase();}DB.exerciseSchedule[day+'_notes']=(document.getElementById('day_notes').value||'').trim();saveDB('exerciseSchedule',DB.exerciseSchedule);closeModal();renderExercise();}
+function editDaySchedule(day){const schedule=DB.exerciseSchedule||{};const current=exType(schedule[day]||'');const curPlan=schedule[day+'_plan']||schedule[day]||'';const planOpts=WORKOUT_PLANS.map(p=>`<button class="type-opt${curPlan===p.id?' plan-picked':''}" data-plan-id="${p.id}" onclick="setDayPlan('${day}','${p.id}',this)" style="display:flex;align-items:center;gap:6px;width:100%;margin-bottom:6px;padding:10px 14px;border-radius:10px;font-size:13px"><span>${p.emoji}</span><span>${p.title}</span></button>`).join('');const typeOpts=WORKOUT_TYPES.map(t=>`<button class="type-opt${current===t?' sel-'+t:''}" onclick="setDayType('${day}','${t}')">${t.charAt(0).toUpperCase()+t.slice(1)}</button>`).join('');openModal(`<div class="modal-handle"></div><div class="modal-title">${day} — assign workout</div><div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px">Quick type</div><div class="type-selector" id="typeSelector" style="margin-bottom:16px">${typeOpts}</div><div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px">Assign a plan</div><div id="planSelector">${planOpts}</div><div class="fg" style="margin-top:12px"><label class="lbl">Custom notes</label><textarea class="mi-ta" id="day_notes" placeholder="e.g. Push day — chest, shoulders, triceps">${esc(schedule[day+'_notes']||'')}</textarea></div><div class="modal-footer"><button class="modal-cancel" onclick="closeModal()">Cancel</button><button class="modal-save" onclick="saveDaySchedule('${day}')">Save</button></div>`);}
+function setDayPlan(day,planId,btn){document.querySelectorAll('#planSelector .type-opt').forEach(b=>b.classList.remove('plan-picked'));btn.classList.add('plan-picked');btn.dataset.planId=planId;const t=exType(planId);document.querySelectorAll('#typeSelector .type-opt').forEach(b=>{b.className='type-opt'+(b.textContent.toLowerCase()===t?' sel-'+t:'');});}
+function setDayType(day,type){document.querySelectorAll('#typeSelector .type-opt').forEach(b=>{b.className='type-opt'+(b.textContent.toLowerCase()===type?' sel-'+type:'');});document.querySelectorAll('#planSelector .type-opt').forEach(b=>b.classList.remove('plan-picked'));}
+function saveDaySchedule(day){if(!DB.exerciseSchedule)DB.exerciseSchedule={};const selectedPlan=document.querySelector('#planSelector .plan-picked');const selectedType=document.querySelector('#typeSelector .type-opt[class*="sel-"]');if(selectedPlan&&selectedPlan.dataset.planId){DB.exerciseSchedule[day]=exType(selectedPlan.dataset.planId);DB.exerciseSchedule[day+'_plan']=selectedPlan.dataset.planId;}else if(selectedType){DB.exerciseSchedule[day]=selectedType.textContent.toLowerCase();delete DB.exerciseSchedule[day+'_plan'];}DB.exerciseSchedule[day+'_notes']=(document.getElementById('day_notes').value||'').trim();saveDB('exerciseSchedule',DB.exerciseSchedule);closeModal();renderExercise();}
 function saveExercise(){const log=(document.getElementById('ex_log').value||'').trim();if(!log)return;const todayStr=today();const todayDay=DAYS[new Date().getDay()];if(!DB.exerciseLogs)DB.exerciseLogs={};DB.exerciseLogs[todayStr]=log;DB.exerciseLogs=keepRecent(DB.exerciseLogs);saveDB('exerciseLogs',DB.exerciseLogs);const selectedType=DB.todayWorkoutType||'';if(selectedType){if(!DB.exerciseSchedule)DB.exerciseSchedule={};DB.exerciseSchedule[todayDay]=selectedType;saveDB('exerciseSchedule',DB.exerciseSchedule);}if(!DB.exercise)DB.exercise=[];const type=selectedType||(DB.exerciseSchedule||{})[todayDay]||'';DB.exercise=DB.exercise.filter(e=>e.date!==todayStr);DB.exercise.unshift({id:Date.now().toString(),date:todayStr,type,log});saveDB('exercise',DB.exercise);renderExercise();const conf=document.getElementById('exConfirm');conf.style.opacity='1';setTimeout(()=>{conf.style.opacity='0';},1400);}
 function deleteExercise(id){DB.exercise=(DB.exercise||[]).filter(e=>e.id!==id);saveDB('exercise',DB.exercise);renderExercise();}
 
