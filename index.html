@@ -502,7 +502,7 @@ function deepMergeDB(localD, staged){
 
 
 // ── Update check: GitHub Pages and browsers hold on to old copies of the app ──
-const APP_VERSION='20261103134255';
+const APP_VERSION='20261103134514';
 if(/[?&]v=\d+/.test(location.search)) history.replaceState(null,'',location.pathname+location.hash);
 async function checkForUpdate(){
   try{
@@ -1122,37 +1122,46 @@ function initFinancial(){
   if(!DB.financial.spending)DB.financial.spending={};
   if(!Array.isArray(DB.financial.goals)){
     const g=[];const sv=DB.financial.savings||{},de=DB.financial.desire||{};
-    if(sv.name||parseFloat(sv.goal)||parseFloat(sv.saved)) g.push({id:'g1',name:sv.name||'Savings',goal:parseFloat(sv.goal)||0,saved:parseFloat(sv.saved)||0,type:'need',log:sv.log||[]});
-    if(de.item||parseFloat(de.cost)||parseFloat(de.saved)) g.push({id:'g2',name:de.item||'Something I want',goal:parseFloat(de.cost)||0,saved:parseFloat(de.saved)||0,type:'want',log:[]});
+    if(sv.name||parseFloat(sv.goal)||parseFloat(sv.saved)) g.push({id:'g1',name:sv.name||'Savings',goal:parseFloat(sv.goal)||0,saved:parseFloat(sv.saved)||0,type:'save',log:sv.log||[]});
+    if(de.item||parseFloat(de.cost)||parseFloat(de.saved)) g.push({id:'g2',name:de.item||'Something I want',goal:parseFloat(de.cost)||0,saved:parseFloat(de.saved)||0,type:'spend',log:[]});
     DB.financial.goals=g;
   }
+  (DB.financial.goals||[]).forEach(g=>{ if(g.type==='need')g.type='save'; if(g.type==='want')g.type='spend'; });
 }
 function isoMonth(dateStr){return dateStr.slice(0,7);}
 const SPEND_CATS=['Food','Transport','Shopping','Health','Entertainment','Other'];
 function getMonthSpend(cat){const m=isoMonth(today());const entries=(DB.financial.spending[cat]||[]).filter(e=>e.date.startsWith(m));return entries.reduce((s,e)=>s+(parseFloat(e.amt)||0),0);}
 function getTotalMonthSpend(){return SPEND_CATS.reduce((s,c)=>s+getMonthSpend(c),0);}
 
-// ═══════════════ SAVINGS GOALS (several, each Savings or Splurge) ═══════════════
+// ═══════════════ MONEY BUCKETS — goals sorted into Spend / Save / Give / Invest ═══════════════
+const BUCKETS=[
+  {id:'spend', label:'Spend', c:'#E3418A', bg:'#FBE3EE', on:'#fff',    hint:'Things to enjoy'},
+  {id:'save',  label:'Save',  c:'#272264', bg:'#E9E7F3', on:'#fff',    hint:'Security and plans'},
+  {id:'give',  label:'Give',  c:'#F7873F', bg:'#FDE8DA', on:'#272264', hint:'Gifts and causes'},
+  {id:'invest',label:'Invest',c:'#FEC936', bg:'#FFF4D1', on:'#272264', hint:'Growing your money'}];
+function bucketOf(t){const m={need:'save',want:'spend'};t=m[t]||t;return BUCKETS.find(x=>x.id===t)||BUCKETS[1];}
 let openGoalId=null;
 function goalPct(g){return g.goal>0?Math.min(100,Math.round((g.saved/g.goal)*100)):0;}
 function money(n){return '$'+(Math.round((parseFloat(n)||0)*100)/100).toLocaleString();}
+function bucketButtons(sel,onclickFn){return `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">${BUCKETS.map(k=>`<button data-b="${k.id}" onclick="${onclickFn}('${k.id}',this)" style="padding:10px;font-family:inherit;font-size:13px;font-weight:700;border-radius:10px;cursor:pointer;border:1.5px solid ${k.c};background:${sel===k.id?k.c:'var(--white)'};color:${sel===k.id?k.on:'#272264'}">${k.label}</button>`).join('')}</div>`;}
 function renderGoalsPost(){
   const goals=DB.financial.goals||[];
-  const tag=t=>`<span style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:99px;${t==='want'?'background:#FBE3EE;color:#272264;border:1px solid #E3418A':'background:#E9E7F3;color:#272264;border:1px solid #272264'}">${t==='want'?'Splurge':'Savings'}</span>`;
   const L='font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink3);margin-bottom:4px';
-  const cards=goals.map(g=>{
-    const open=openGoalId===g.id, pct=goalPct(g);
-    return `<div class="savings-goal-card" style="margin-bottom:10px">
+  const totals=BUCKETS.map(k=>({k,sum:goals.filter(g=>bucketOf(g.type).id===k.id).reduce((a,g)=>a+(parseFloat(g.saved)||0),0)}));
+  const tiles=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">${totals.map(({k,sum})=>`<div style="background:${k.bg};border-left:5px solid ${k.c};border-radius:12px;padding:10px 12px"><div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#272264">${k.label}</div><div style="font-size:17px;font-weight:700;color:#272264">${money(sum)}</div><div style="font-size:11px;color:var(--ink3)">${k.hint}</div></div>`).join('')}</div>`;
+  const card=g=>{
+    const open=openGoalId===g.id, pct=goalPct(g), k=bucketOf(g.type);
+    return `<div class="savings-goal-card" style="margin-bottom:10px;border-left:5px solid ${k.c}">
       <div onclick="toggleGoal('${g.id}')" style="cursor:pointer">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><div style="font-size:16px;font-weight:700;color:var(--ink);flex:1;min-width:0;overflow-wrap:anywhere">${esc(g.name)}</div>${tag(g.type)}<span style="color:var(--ink3);font-size:12px">${open?'▲':'▼'}</span></div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><div style="font-size:16px;font-weight:700;color:var(--ink);flex:1;min-width:0;overflow-wrap:anywhere">${esc(g.name)}</div><span style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:99px;background:${k.c};color:${k.on}">${k.label}</span><span style="color:var(--ink3);font-size:12px">${open?'▲':'▼'}</span></div>
         <div class="savings-amounts" style="margin-bottom:6px"><span>Saved: <strong>${money(g.saved)}</strong></span><span>Goal: <strong>${money(g.goal)}</strong></span></div>
-        <div class="savings-progress-bar"><div class="savings-progress-fill" style="width:${pct}%;${g.type==='want'?'background:#E3418A':''}"></div></div>
+        <div class="savings-progress-bar"><div class="savings-progress-fill" style="width:${pct}%;background:${k.c}"></div></div>
         <div style="text-align:right;font-size:12px;color:var(--purple);font-weight:700">${pct}%</div>
       </div>
       ${open?`<div style="margin-top:10px">
-        <div style="margin-bottom:8px"><div style="${L}">What are you saving for?</div><input class="cat-add-inp" style="width:100%" id="gname_${g.id}" value="${esc(g.name)}"></div>
+        <div style="margin-bottom:8px"><div style="${L}">What is this for?</div><input class="cat-add-inp" style="width:100%" id="gname_${g.id}" value="${esc(g.name)}"></div>
         <div style="margin-bottom:8px"><div style="${L}">Goal amount</div><input class="cat-add-inp" style="width:100%" type="number" min="0" inputmode="decimal" id="ggoal_${g.id}" value="${parseFloat(g.goal)||''}"></div>
-        <div style="margin-bottom:10px"><div style="${L}">Savings or splurge?</div><div style="display:flex;gap:8px">${['need','want'].map(t=>`<button onclick="setGoalType('${g.id}','${t}')" style="flex:1;padding:9px;font-family:inherit;font-size:13px;font-weight:700;border-radius:10px;cursor:pointer;border:1.5px solid ${t==='want'?'#E3418A':'#272264'};background:${g.type===t?(t==='want'?'#E3418A':'#272264'):'var(--white)'};color:${g.type===t?'#fff':'#272264'}">${t==='want'?'Splurge':'Savings'}</button>`).join('')}</div></div>
+        <div style="margin-bottom:10px"><div style="${L}">Bucket</div>${bucketButtons(k.id,'setGoalBucket_'+g.id.replace(/[^a-z0-9]/gi,''))}</div>
         <div style="font-size:12px;font-weight:700;color:var(--ink2);margin-bottom:6px">Add or take out money</div>
         <div style="display:flex;gap:8px;margin-bottom:6px"><input class="cat-add-inp" style="flex:1;min-width:0" type="number" min="0" inputmode="decimal" placeholder="$200" id="gamt_${g.id}">
           <button class="add-win-btn" style="white-space:nowrap" onclick="changeGoal('${g.id}',1)">+ Add</button>
@@ -1161,21 +1170,25 @@ function renderGoalsPost(){
         ${(g.log||[]).length?`<div style="margin-top:12px">${g.log.slice(0,5).map(e=>`<div style="display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px solid var(--border);color:var(--ink2)"><span>${fmtShort(e.date)}</span><span style="font-weight:700;color:${e.amt<0?'#c2306f':'var(--purple)'}">${e.amt<0?'−':'+'}${money(Math.abs(e.amt))}</span></div>`).join('')}</div>`:''}
         <button onclick="confirmDeleteGoal('${g.id}')" style="margin-top:10px;background:none;border:none;font-family:inherit;font-size:12px;font-weight:600;color:var(--ink3);text-decoration:underline;cursor:pointer;padding:4px 0">Delete this goal</button>
       </div>`:''}
-    </div>`;}).join('');
-  const need=goals.filter(g=>g.type!=='want').reduce((a,g)=>a+(parseFloat(g.saved)||0),0), want=goals.filter(g=>g.type==='want').reduce((a,g)=>a+(parseFloat(g.saved)||0),0);
-  return `<div class="post"><div class="post-header"><div class="post-avatar">🏦</div><div><div class="post-title">Savings goals</div><div class="post-sub">What you're saving for, savings and splurges</div></div></div><div class="post-body">
-    ${goals.length>1&&(need||want)?`<div style="display:flex;gap:8px;margin-bottom:12px"><div style="flex:1;background:#E9E7F3;border-radius:12px;padding:10px 12px"><div style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#272264">Savings</div><div style="font-size:16px;font-weight:700;color:#272264">${money(need)}</div></div><div style="flex:1;background:#FBE3EE;border-radius:12px;padding:10px 12px"><div style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#272264">Splurge</div><div style="font-size:16px;font-weight:700;color:#272264">${money(want)}</div></div></div>`:''}
-    ${cards||'<div style="font-size:13px;color:var(--ink4);font-style:italic;padding:4px 0 10px">Add your first goal: an emergency fund, a trip, something you love.</div>'}
+    </div>`;};
+  // each goal's bucket buttons call a tiny per-goal handler
+  goals.forEach(g=>{window['setGoalBucket_'+g.id.replace(/[^a-z0-9]/gi,'')]=(b)=>setGoalBucket(g.id,b);});
+  const grouped=BUCKETS.map(k=>{const gs=goals.filter(g=>bucketOf(g.type).id===k.id);return gs.length?`<div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin:6px 0 8px">${k.label}</div>${gs.map(card).join('')}`:'';}).join('');
+  return `<div class="post"><div class="post-header"><div class="post-avatar">🪣</div><div><div class="post-title">Money buckets</div><div class="post-sub">Spend, save, give, invest</div></div></div><div class="post-body">
+    ${tiles}
+    ${grouped||'<div style="font-size:13px;color:var(--ink4);font-style:italic;padding:4px 0 10px">Add your first goal and pick its bucket.</div>'}
     <button class="primary-btn" onclick="openNewGoal()">+ New goal</button>
   </div></div>`;
 }
 function toggleGoal(id){openGoalId=openGoalId===id?null:id;renderFinancial();}
 function findGoal(id){initFinancial();return (DB.financial.goals||[]).find(g=>g.id===id);}
-function setGoalType(id,t){const g=findGoal(id);if(!g)return;g.type=t;saveDB('financial',DB.financial);renderFinancial();}
+function setGoalBucket(id,b){const g=findGoal(id);if(!g)return;g.type=b;saveDB('financial',DB.financial);renderFinancial();}
 function saveGoal(id){const g=findGoal(id);if(!g)return;const n=(document.getElementById('gname_'+id).value||'').trim();const v=parseFloat(document.getElementById('ggoal_'+id).value);if(n)g.name=n;if(!isNaN(v)&&v>=0)g.goal=v;saveDB('financial',DB.financial);openGoalId=null;renderFinancial();}
 function changeGoal(id,sign){const g=findGoal(id);if(!g)return;const amt=Math.abs(parseFloat(document.getElementById('gamt_'+id).value)||0);if(!amt)return;const cur=parseFloat(g.saved)||0;const delta=sign>0?amt:-Math.min(amt,cur);if(!delta)return;g.saved=Math.round((cur+delta)*100)/100;g.log=[{date:today(),amt:delta},...(g.log||[])].slice(0,100);saveDB('financial',DB.financial);if(sign>0)burstConfetti();renderFinancial();}
-function openNewGoal(){openModal(`<div class="modal-handle"></div><div class="modal-title">New savings goal</div><div class="fg"><label class="lbl">What are you saving for?</label><input class="mi-ta" style="min-height:auto;padding:10px 13px" id="ng_name" placeholder="Emergency fund, trip to Italy, new car…"></div><div class="fg"><label class="lbl">Goal amount</label><input class="mi-ta" style="min-height:auto;padding:10px 13px" type="number" min="0" inputmode="decimal" id="ng_goal" placeholder="$5,000"></div><div class="fg"><label class="lbl">Savings or splurge?</label><div style="display:flex;gap:8px;margin-top:6px" id="ng_type">${['need','want'].map(t=>`<button data-t="${t}" onclick="document.querySelectorAll('#ng_type button').forEach(b=>{const on=b===this;b.dataset.on=on?'1':'';b.style.background=on?(b.dataset.t==='want'?'#E3418A':'#272264'):'#fff';b.style.color=on?'#fff':'#272264';})" style="flex:1;padding:10px;font-family:inherit;font-size:13px;font-weight:700;border-radius:10px;cursor:pointer;border:1.5px solid ${t==='want'?'#E3418A':'#272264'};background:#fff;color:#272264">${t==='want'?'Splurge':'Savings'}</button>`).join('')}</div></div><div id="ng_err" style="display:none;font-size:13px;color:#dc2626;margin-bottom:8px"></div><div class="modal-footer"><button class="modal-cancel" onclick="closeModal()">Cancel</button><button class="modal-save" onclick="addGoal()">Add goal</button></div>`);}
-function addGoal(){const name=(document.getElementById('ng_name').value||'').trim();const goal=parseFloat(document.getElementById('ng_goal').value)||0;const sel=document.querySelector('#ng_type button[data-on="1"]');const err=document.getElementById('ng_err');if(!name){err.style.display='block';err.textContent='Name your goal first.';return;}initFinancial();const id='g'+Date.now().toString(36);DB.financial.goals=[...(DB.financial.goals||[]),{id,name,goal,saved:0,type:sel?sel.dataset.t:'need',log:[]}];saveDB('financial',DB.financial);closeModal();openGoalId=null;renderFinancial();}
+let _newGoalBucket='save';
+function pickNewBucket(b,btn){_newGoalBucket=b;document.querySelectorAll('#ng_type button').forEach(x=>{const k=bucketOf(x.dataset.b),on=x.dataset.b===b;x.style.background=on?k.c:'#fff';x.style.color=on?k.on:'#272264';});}
+function openNewGoal(){_newGoalBucket='save';openModal(`<div class="modal-handle"></div><div class="modal-title">New goal</div><div class="fg"><label class="lbl">What is this for?</label><input class="mi-ta" style="min-height:auto;padding:10px 13px" id="ng_name" placeholder="Emergency fund, trip to Italy, charity…"></div><div class="fg"><label class="lbl">Goal amount</label><input class="mi-ta" style="min-height:auto;padding:10px 13px" type="number" min="0" inputmode="decimal" id="ng_goal" placeholder="$5,000"></div><div class="fg"><label class="lbl">Bucket</label><div id="ng_type" style="margin-top:6px">${bucketButtons('save','pickNewBucket')}</div></div><div id="ng_err" style="display:none;font-size:13px;color:#dc2626;margin-bottom:8px"></div><div class="modal-footer"><button class="modal-cancel" onclick="closeModal()">Cancel</button><button class="modal-save" onclick="addGoal()">Add goal</button></div>`);}
+function addGoal(){const name=(document.getElementById('ng_name').value||'').trim();const goal=parseFloat(document.getElementById('ng_goal').value)||0;const err=document.getElementById('ng_err');if(!name){err.style.display='block';err.textContent='Name your goal first.';return;}initFinancial();const id='g'+Date.now().toString(36);DB.financial.goals=[...(DB.financial.goals||[]),{id,name,goal,saved:0,type:_newGoalBucket,log:[]}];saveDB('financial',DB.financial);closeModal();openGoalId=null;renderFinancial();}
 function confirmDeleteGoal(id){const g=findGoal(id);if(!g)return;openModal(`<div class="modal-handle"></div><div class="modal-title">Delete “${esc(g.name)}”?</div><div style="font-size:14px;color:var(--ink2);margin-bottom:16px;line-height:1.5">This removes the goal and its history.</div><div class="modal-footer"><button class="modal-cancel" onclick="closeModal()">Cancel</button><button class="modal-save" style="background:#ef4444;color:#fff" onclick="closeModal();deleteGoal('${id}')">Delete</button></div>`);}
 function deleteGoal(id){initFinancial();DB.financial.goals=(DB.financial.goals||[]).filter(g=>g.id!==id);openGoalId=null;saveDB('financial',DB.financial);renderFinancial();}
 function renderFinancial(){
