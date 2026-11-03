@@ -68,6 +68,11 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'Inter',
 .win-row.checked .win-circle{background:var(--yellow);border-color:var(--yellow);color:var(--purple)}
 .win-text{font-size:14px;color:var(--ink2);font-weight:500;flex:1}
 .win-row.checked .win-text{color:var(--purple)}
+.todo-row.done .win-text{text-decoration:line-through;color:var(--ink4)}
+.todo-row.done{background:var(--bg)!important;opacity:.85}
+.todo-row.done .win-circle{background:var(--yellow);border-color:var(--yellow);color:var(--purple)}
+.todo-count{font-size:12px;font-weight:600;color:var(--ink3);margin:2px 0 10px}
+.todo-done-toggle{width:100%;display:flex;justify-content:space-between;align-items:center;background:none;border:none;padding:6px 2px;font-family:inherit;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);cursor:pointer}
 .add-win-row{display:flex;gap:8px;margin-top:4px}
 .add-win-inp{flex:1;padding:11px 14px;font-size:14px;font-family:'Inter',system-ui,-apple-system,sans-serif;border:1.5px solid var(--border2);border-radius:12px;background:var(--white);color:var(--ink);outline:none}
 .add-win-inp:focus{border-color:var(--purple-mid)}
@@ -267,6 +272,7 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'Inter',
   </div>
   <div class="tab-bar">
     <button class="tab-btn active" onclick="switchTab('daily',this)">Daily</button>
+    <button class="tab-btn" onclick="switchTab('todo',this)">To do</button>
     <button class="tab-btn" onclick="switchTab('patterns',this)">✺ Patterns</button>
     <button class="tab-btn" onclick="switchTab('exercise',this)">Exercise</button>
     <button class="tab-btn" onclick="switchTab('nourish',this)">Nourishment</button>
@@ -474,7 +480,11 @@ function deepMergeDB(localD, staged){
     const sv = staged[k];
     if(sv==null) continue;
     const lv = out[k];
-    if(ARR.includes(k) && Array.isArray(sv)){
+    if(k==='todos' && Array.isArray(sv)){
+      const byId={};
+      [...sv, ...(Array.isArray(lv)?lv:[])].forEach(t=>{ if(!t||!t.id) return; const cur=byId[t.id]; if(!cur || (t.u||0) >= (cur.u||0)) byId[t.id]=t; });
+      out[k]=Object.values(byId).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+    } else if(ARR.includes(k) && Array.isArray(sv)){
       const cur = Array.isArray(lv) ? lv.slice() : [];
       const seen = new Set(cur.map(skey));
       sv.forEach(e=>{ const sk=skey(e); if(!seen.has(sk)){ seen.add(sk); cur.push(e); } });
@@ -744,6 +754,7 @@ function switchTab(tab,btn){
 
 function renderTab(){
   if(curTab==='daily') renderDaily();
+  else if(curTab==='todo') renderTodo();
   else if(curTab==='patterns') renderPatterns();
   else if(curTab==='emotional') renderEmotional();
   else if(curTab==='relationships') renderRelationships();
@@ -834,6 +845,52 @@ function renderDaily(){
   if(todaySaved.actions)actions=[...todaySaved.actions,'','',''].slice(0,3);
   renderActions();
 }
+
+// ═══════════════ TO DO — stays until checked off ═══════════════
+let todoShowDone=false;
+function renderTodo(){
+  const all=DB.todos||[];
+  const open=all.filter(t=>!t.done);
+  const done=all.filter(t=>t.done).sort((a,b)=>(b.doneAt||0)-(a.doneAt||0));
+  const row=(t)=>`<div class="win-row todo-row${t.done?' done':''}">
+      <div onclick="toggleTodo('${t.id}')" style="display:flex;align-items:center;gap:12px;flex:1;cursor:pointer;min-width:0">
+        <div class="win-circle">${t.done?'✓':''}</div>
+        <div class="win-text" style="overflow-wrap:anywhere">${esc(t.text)}</div>
+      </div>
+      <button onclick="deleteTodo('${t.id}')" style="background:none;border:none;color:var(--ink4);cursor:pointer;font-size:16px;padding:4px 6px;touch-action:manipulation;flex-shrink:0" title="Remove">×</button>
+    </div>`;
+  document.getElementById('viewBody').innerHTML=`
+    <div class="post">
+      <div class="post-header"><div class="post-avatar">📝</div><div><div class="post-title">To do</div><div class="post-sub">Stays here until you check it off</div></div></div>
+      <div class="post-body">
+        <div class="add-win-row" style="margin-bottom:12px">
+          <input class="add-win-inp" id="todoInp" placeholder="Add a to-do…" onkeydown="if(event.key==='Enter')addTodo()">
+          <button class="add-win-btn" onclick="addTodo()">+</button>
+        </div>
+        ${open.length?`<div class="todo-count">${open.length} to go</div><div class="wins-list">${open.map(row).join('')}</div>`
+          :`<div style="font-size:13px;color:var(--ink4);font-style:italic;padding:8px 0">${done.length?'All clear. Nice work ✦':'Nothing here yet. Add your first to-do above.'}</div>`}
+        ${done.length?`<div style="margin-top:14px;border-top:1px solid var(--border);padding-top:8px">
+          <button class="todo-done-toggle" onclick="todoShowDone=!todoShowDone;renderTodo()"><span>Done (${done.length})</span><span>${todoShowDone?'Hide ▲':'Show ▼'}</span></button>
+          ${todoShowDone?`<div class="wins-list" style="margin-top:6px">${done.slice(0,50).map(row).join('')}</div>
+          <button onclick="clearDoneTodos()" style="margin-top:10px;background:none;border:none;font-family:inherit;font-size:12px;font-weight:600;color:var(--ink3);text-decoration:underline;cursor:pointer;padding:4px 0">Clear done items</button>`:''}
+        </div>`:''}
+      </div>
+    </div>`;
+}
+function addTodo(){
+  const inp=document.getElementById('todoInp');const text=(inp.value||'').trim();if(!text)return;
+  const now=Date.now();
+  DB.todos=[{id:'t'+now.toString(36)+Math.random().toString(36).slice(2,6),text,done:false,createdAt:now,u:now},...(DB.todos||[])];
+  saveDB('todos',DB.todos);renderTodo();
+  const again=document.getElementById('todoInp');if(again)again.focus();
+}
+function toggleTodo(id){
+  const now=Date.now();let nowDone=false;
+  DB.todos=(DB.todos||[]).map(t=>{if(t.id!==id)return t;nowDone=!t.done;return {...t,done:nowDone,doneAt:nowDone?now:null,u:now};});
+  saveDB('todos',DB.todos);if(nowDone)burstConfetti();renderTodo();
+}
+function deleteTodo(id){tombstone('todos',id);DB.todos=(DB.todos||[]).filter(t=>t.id!==id);saveDB('todos',DB.todos);renderTodo();}
+function clearDoneTodos(){(DB.todos||[]).filter(t=>t.done).forEach(t=>tombstone('todos',t.id));DB.todos=(DB.todos||[]).filter(t=>!t.done);todoShowDone=false;saveDB('todos',DB.todos);renderTodo();}
 
 function renderWins(){
   const el=document.getElementById('winsList');if(!el)return;
