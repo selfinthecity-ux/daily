@@ -319,6 +319,7 @@ function showAuthScreen(msg){
       '<div class="post-body">' +
         '<div style="margin-bottom:10px"><label class="lbl">Email</label><input class="auth-inp" id="authEmail" type="email" placeholder="you@example.com" autocomplete="email" autocapitalize="off" style="width:100%"></div>' +
         '<div style="margin-bottom:6px"><label class="lbl">Password</label><div style="position:relative"><input class="auth-inp" id="authPass" type="password" placeholder="password" autocomplete="current-password" style="width:100%;padding-right:64px"><button type="button" onclick="togglePassVis(\'authPass\',this)" style="font-family:inherit;position:absolute;right:8px;top:7px;background:none;border:none;font-size:13px;font-weight:600;color:#6b6890;cursor:pointer;padding:8px">Show</button></div></div>' +
+        '<div id="authConfirmWrap" style="display:none;margin:8px 0 6px"><label class="lbl">Confirm password</label><div style="position:relative"><input class="auth-inp" id="authPass2" type="password" placeholder="type it again" autocomplete="new-password" style="width:100%;padding-right:64px"><button type="button" onclick="togglePassVis(\'authPass2\',this)" style="font-family:inherit;position:absolute;right:8px;top:7px;background:none;border:none;font-size:13px;font-weight:600;color:#6b6890;cursor:pointer;padding:8px">Show</button></div></div>' +
         '<div style="text-align:right;margin-bottom:12px"><button type="button" onclick="forgotPassword()" style="font-family:inherit;background:none;border:none;font-size:13px;font-weight:600;color:#272264;text-decoration:underline;cursor:pointer;padding:4px 0">Forgot password?</button></div>' +
         '<div id="authError" style="display:none;font-size:13px;color:#dc2626;margin-bottom:10px;line-height:1.5"></div>' +
         '<button class="primary-btn" id="authSigninBtn" onclick="handleAuth(\'signin\')" style="margin-bottom:8px">Sign in</button>' +
@@ -344,7 +345,7 @@ async function forgotPassword(){
     say('Check your email for a link to set a new password. Open it in this browser.',true);
   }catch(e){
     const m=(e.message||'');
-    say(/rate limit|security purposes/i.test(m)?'Too many emails sent in the last hour. Wait a bit and try again, or change your password from the Profile tab on a device where you are signed in.':(m||'Something went wrong. Try again.'));
+    say(/rate limit|security purposes/i.test(m)?'Too many emails sent in a short time. Wait a few minutes and try again.':friendlyAuthError(e));
   }
 }
 function showNewPasswordScreen(){
@@ -375,12 +376,40 @@ function openChangePassword(){
 }
 const _isRecoveryLink = /type=recovery/.test(location.hash) || /type=recovery/.test(location.search);
 function hideAuthScreen(){ const ov=document.getElementById('authOverlay'); if(ov) ov.style.display='none'; }
+function friendlyAuthError(e){
+  const m=(e&&e.message)||'', c=(e&&e.code)||'';
+  if(c==='invalid_credentials'||/invalid login credentials/i.test(m)) return 'That email and password don\'t match. Tap Show to check for typos, or tap Forgot password? to set a new one.';
+  if(c==='email_not_confirmed'||/email not confirmed/i.test(m)) return 'NOTCONFIRMED';
+  if(c==='email_address_not_authorized'||/not authorized/i.test(m)) return 'We couldn\'t send your email right now. Please try again later or contact support.';
+  if(/rate limit|security purposes/i.test(m)) return 'Too many tries in a short time. Wait a few minutes and try again.';
+  if(c==='weak_password'||/password should be/i.test(m)) return 'Choose a password with at least 6 characters.';
+  if(c==='user_already_exists'||/already registered/i.test(m)) return 'This email already has an account. Sign in, or tap Forgot password?';
+  if(/invalid.*email|email.*invalid/i.test(m)) return 'Check that your email address is typed correctly.';
+  if(/fetch|network/i.test(m)) return 'Can\'t reach the server. Check your internet connection and try again.';
+  return m||'Something went wrong. Try again.';
+}
+async function resendConfirm(){
+  const email=(document.getElementById('authEmail').value||'').trim();
+  const errEl=document.getElementById('authError');
+  try{ const {error}=await _sb.auth.resend({type:'signup',email,options:{emailRedirectTo: location.origin + location.pathname}}); if(error) throw error;
+    errEl.style.color='#3f8f74'; errEl.textContent='Sent. Check your inbox (and spam) for the confirmation link.';
+  }catch(e){ errEl.style.color='#dc2626'; errEl.textContent=friendlyAuthError(e); }
+}
 async function handleAuth(mode){
   const email=(document.getElementById('authEmail').value||'').trim();
   const pass=document.getElementById('authPass').value||'';
   const errEl=document.getElementById('authError');
-  const showErr=(m)=>{ errEl.style.display='block'; errEl.style.color='#dc2626'; errEl.textContent=m; };
+  const showErr=(m,ok)=>{ errEl.style.display='block'; errEl.style.color=ok?'#3f8f74':'#dc2626';
+    if(m==='NOTCONFIRMED'){ errEl.innerHTML='Please confirm your email first. Check your inbox (and spam) for the link. <button type="button" onclick="resendConfirm()" style="font-family:inherit;background:none;border:none;color:#272264;font-weight:600;text-decoration:underline;cursor:pointer;padding:0">Resend email</button>'; return; }
+    errEl.textContent=m; };
   if(!email || !pass){ showErr('Enter your email and password.'); return; }
+  if(mode==='signup'){
+    const wrap=document.getElementById('authConfirmWrap');
+    if(wrap.style.display==='none'){ wrap.style.display='block'; document.getElementById('authPass2').focus(); showErr('Type your password once more to confirm it, then tap Create account again.',true); return; }
+    const pass2=document.getElementById('authPass2').value||'';
+    if(pass!==pass2){ showErr('The two passwords don\'t match. Tap Show to check them.'); return; }
+    if(pass.length<6){ showErr('Choose a password with at least 6 characters.'); return; }
+  }
   const btn=document.getElementById(mode==='signin'?'authSigninBtn':'authSignupBtn');
   btn.disabled=true; btn.style.opacity='.6';
   try{
@@ -388,9 +417,10 @@ async function handleAuth(mode){
     if(mode==='signin'){ res = await _sb.auth.signInWithPassword({email, password:pass}); }
     else { res = await _sb.auth.signUp({email, password:pass, options:{emailRedirectTo: location.origin + location.pathname}}); }
     if(res.error) throw res.error;
-    if(!res.data.session){ showErr('Account created — check your email to confirm, then sign in.'); return; }
+    if(mode==='signup' && res.data.user && Array.isArray(res.data.user.identities) && res.data.user.identities.length===0){ showErr('This email already has an account. Sign in, or tap Forgot password?'); return; }
+    if(!res.data.session){ showErr('Almost done! We sent a confirmation link to '+email+'. Open it on this device, then sign in.',true); return; }
     await afterLogin();
-  }catch(e){ showErr(e.message || 'Something went wrong. Try again.'); }
+  }catch(e){ showErr(friendlyAuthError(e)); }
   finally{ btn.disabled=false; btn.style.opacity=''; }
 }
 async function afterLogin(){
