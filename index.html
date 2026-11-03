@@ -35,10 +35,10 @@
   --purple-dark:#272264;
   --purple-bg:#f3f2f9;
   --yellow:#fec936;
-  --wt:#7a4fd0;--wt-bg:#7a4fd0;--wt-ink:#fff;
-  --cd:#e2558f;--cd-bg:#e2558f;--cd-ink:#fff;
-  --wk:#2fb7b0;--wk-bg:#2fb7b0;--wk-ink:#fff;
-  --st:#b9a6f2;--st-bg:#b9a6f2;--st-ink:#272264;
+  --wt:#272264;--wt-bg:#272264;--wt-ink:#fff;
+  --cd:#E3418A;--cd-bg:#E3418A;--cd-ink:#fff;
+  --wk:#F7873F;--wk-bg:#F7873F;--wk-ink:#272264;
+  --st:#FEC936;--st-bg:#FEC936;--st-ink:#272264;
   --pink:#e3418a;
   --orange:#f7873f;
   --display:'Fraunces','Iowan Old Style',Georgia,serif;
@@ -158,7 +158,7 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'Inter',
 .ex-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;font-weight:600;color:var(--ink2);margin-top:-6px}
 .ex-legend span{display:inline-flex;align-items:center;gap:6px}
 .ex-dot{width:12px;height:12px;border-radius:50%;display:inline-block}
-.ex-dot.weights{background:var(--wt)}.ex-dot.cardio{background:var(--cd)}.ex-dot.stretch{background:var(--st)}.ex-dot.walking{background:var(--wk)}
+.ex-dot.weights{background:var(--wt-bg)}.ex-dot.cardio{background:var(--cd-bg)}.ex-dot.stretch{background:var(--st-bg)}.ex-dot.walking{background:var(--wk-bg)}
 .ex-tag{display:inline-block;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-left:6px;vertical-align:1px}
 .ex-tag.weights{background:var(--wt-bg);color:var(--wt-ink)}.ex-tag.cardio{background:var(--cd-bg);color:var(--cd-ink)}.ex-tag.stretch{background:var(--st-bg);color:var(--st-ink)}.ex-tag.walking{background:var(--wk-bg);color:var(--wk-ink)}.ex-tag.rest,.ex-tag.off{background:var(--bg);color:var(--ink3);border:1px solid var(--border2)}
 .plan-card.t-weights{border-left:5px solid var(--wt)}.plan-card.t-cardio{border-left:5px solid var(--cd)}.plan-card.t-stretch{border-left:5px solid var(--st)}.plan-card.t-walking{border-left:5px solid var(--wk)}
@@ -502,7 +502,7 @@ function deepMergeDB(localD, staged){
 
 
 // ── Update check: GitHub Pages and browsers hold on to old copies of the app ──
-const APP_VERSION='20261103125555';
+const APP_VERSION='20261103125957';
 if(/[?&]v=\d+/.test(location.search)) history.replaceState(null,'',location.pathname+location.hash);
 async function checkForUpdate(){
   try{
