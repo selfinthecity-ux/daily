@@ -502,7 +502,7 @@ function deepMergeDB(localD, staged){
 
 
 // ── Update check: GitHub Pages and browsers hold on to old copies of the app ──
-const APP_VERSION='20261103132011';
+const APP_VERSION='20261103132340';
 if(/[?&]v=\d+/.test(location.search)) history.replaceState(null,'',location.pathname+location.hash);
 async function checkForUpdate(){
   try{
@@ -1620,9 +1620,9 @@ function renderProfile() {
 
         <!-- Avatar -->
         <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:24px">
-          <div id="avatarDisplay" onclick="document.getElementById('avatarInput').click()" style="width:88px;height:88px;border-radius:50%;background:${avatarUrl ? 'transparent' : 'var(--purple)'};display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:800;color:#fff;cursor:pointer;overflow:hidden;border:3px solid var(--purple-light);position:relative;margin-bottom:10px">
+          <div style="position:relative;width:88px;height:88px;margin-bottom:8px"><div id="avatarDisplay" onclick="document.getElementById('avatarInput').click()" style="width:88px;height:88px;border-radius:50%;background:${avatarUrl ? 'transparent' : 'var(--purple)'};display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:800;color:#fff;cursor:pointer;overflow:hidden;border:3px solid var(--purple-light);position:relative;margin-bottom:0;box-sizing:border-box">
             ${avatarUrl ? `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : initials}
-          </div>
+          </div><div onclick="document.getElementById('avatarInput').click()" style="position:absolute;right:-4px;bottom:-2px;width:30px;height:30px;border-radius:50%;background:var(--btn);border:3px solid #fff;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 6px rgba(39,34,100,.18)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#272264" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7h2l2-3h6l2 3h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2"/><circle cx="12" cy="13" r="3.5"/></svg></div></div>
           <input id="avatarInput" type="file" accept="image/*" style="display:none" onchange="if(this.files[0])uploadAvatar(this.files[0])">
           <div style="font-size:12px;color:var(--ink4)">Tap photo to change</div>
           ${memberSince ? `<div style="font-size:11px;color:var(--ink4);margin-top:4px">Member since ${memberSince}</div>` : ''}
