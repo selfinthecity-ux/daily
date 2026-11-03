@@ -318,7 +318,8 @@ function showAuthScreen(msg){
       '<div class="post-header"><div class="post-avatar">\uD83C\uDF19</div><div><div class="post-title">Welcome to daily.</div><div class="post-sub">Sign in to sync across devices</div></div></div>' +
       '<div class="post-body">' +
         '<div style="margin-bottom:10px"><label class="lbl">Email</label><input class="auth-inp" id="authEmail" type="email" placeholder="you@example.com" autocomplete="email" autocapitalize="off" style="width:100%"></div>' +
-        '<div style="margin-bottom:14px"><label class="lbl">Password</label><input class="auth-inp" id="authPass" type="password" placeholder="password" autocomplete="current-password" style="width:100%"></div>' +
+        '<div style="margin-bottom:6px"><label class="lbl">Password</label><div style="position:relative"><input class="auth-inp" id="authPass" type="password" placeholder="password" autocomplete="current-password" style="width:100%;padding-right:64px"><button type="button" onclick="togglePassVis(\'authPass\',this)" style="font-family:inherit;position:absolute;right:8px;top:7px;background:none;border:none;font-size:13px;font-weight:600;color:#6b6890;cursor:pointer;padding:8px">Show</button></div></div>' +
+        '<div style="text-align:right;margin-bottom:12px"><button type="button" onclick="forgotPassword()" style="font-family:inherit;background:none;border:none;font-size:13px;font-weight:600;color:#272264;text-decoration:underline;cursor:pointer;padding:4px 0">Forgot password?</button></div>' +
         '<div id="authError" style="display:none;font-size:13px;color:#dc2626;margin-bottom:10px;line-height:1.5"></div>' +
         '<button class="primary-btn" id="authSigninBtn" onclick="handleAuth(\'signin\')" style="margin-bottom:8px">Sign in</button>' +
         '<button class="primary-btn" id="authSignupBtn" onclick="handleAuth(\'signup\')" style="background:#fff;color:#272264;border:1.5px solid #e9e7f3">Create account</button>' +
@@ -331,12 +332,54 @@ function showAuthScreen(msg){
   const err = document.getElementById('authError');
   if(err){ err.style.display = msg ? 'block' : 'none'; err.textContent = msg || ''; }
 }
+function togglePassVis(id,btn){const i=document.getElementById(id);if(!i)return;const show=i.type==='password';i.type=show?'text':'password';btn.textContent=show?'Hide':'Show';}
+async function forgotPassword(){
+  const email=(document.getElementById('authEmail').value||'').trim();
+  const errEl=document.getElementById('authError');
+  const say=(m,ok)=>{ errEl.style.display='block'; errEl.style.color=ok?'#3f8f74':'#dc2626'; errEl.textContent=m; };
+  if(!email){ say('Type your email above, then tap Forgot password.'); return; }
+  try{
+    const {error}=await _sb.auth.resetPasswordForEmail(email,{redirectTo: location.origin + location.pathname});
+    if(error) throw error;
+    say('Check your email for a link to set a new password. Open it in this browser.',true);
+  }catch(e){
+    const m=(e.message||'');
+    say(/rate limit|security purposes/i.test(m)?'Too many emails sent in the last hour. Wait a bit and try again, or change your password from the Profile tab on a device where you are signed in.':(m||'Something went wrong. Try again.'));
+  }
+}
+function showNewPasswordScreen(){
+  showAuthScreen();
+  const ov=document.getElementById('authOverlay');
+  ov.querySelector('.post').innerHTML=
+    '<div class="post-header"><div class="post-avatar">\uD83D\uDD11</div><div><div class="post-title">Set a new password</div><div class="post-sub">You\'ll use this on every device</div></div></div>'+
+    '<div class="post-body"><label class="lbl">New password</label><div style="position:relative;margin-bottom:12px"><input class="auth-inp" id="newPass" type="password" autocomplete="new-password" placeholder="At least 6 characters" style="width:100%;padding-right:64px"><button type="button" onclick="togglePassVis(\'newPass\',this)" style="font-family:inherit;position:absolute;right:8px;top:7px;background:none;border:none;font-size:13px;font-weight:600;color:#6b6890;cursor:pointer;padding:8px">Show</button></div>'+
+    '<div id="newPassMsg" style="display:none;font-size:13px;color:#dc2626;margin-bottom:10px"></div>'+
+    '<button class="primary-btn" id="newPassBtn" onclick="saveNewPassword(true)">Save password</button></div>';
+}
+async function saveNewPassword(fromRecovery){
+  const pw=(document.getElementById('newPass').value||'');
+  const msg=document.getElementById('newPassMsg');
+  const say=(m,ok)=>{ msg.style.display='block'; msg.style.color=ok?'#3f8f74':'#dc2626'; msg.textContent=m; };
+  if(pw.length<6){ say('Use at least 6 characters.'); return; }
+  const btn=document.getElementById('newPassBtn'); btn.disabled=true; btn.style.opacity='.6';
+  try{
+    const {error}=await _sb.auth.updateUser({password:pw});
+    if(error) throw error;
+    say('Password saved. Use it to sign in anywhere.',true);
+    setTimeout(async()=>{ if(fromRecovery){ document.getElementById('authOverlay').remove(); await afterLogin(); } else { closeModal(); } },1200);
+  }catch(e){ say(e.message||'Could not save. Try again.'); }
+  finally{ btn.disabled=false; btn.style.opacity=''; }
+}
+function openChangePassword(){
+  openModal('<div class="modal-handle"></div><div class="modal-title">Change password</div><label class="lbl">New password</label><div style="position:relative;margin-bottom:12px"><input class="auth-inp" id="newPass" type="password" autocomplete="new-password" placeholder="At least 6 characters" style="width:100%;padding-right:64px"><button type="button" onclick="togglePassVis(\'newPass\',this)" style="font-family:inherit;position:absolute;right:8px;top:7px;background:none;border:none;font-size:13px;font-weight:600;color:#6b6890;cursor:pointer;padding:8px">Show</button></div><div id="newPassMsg" style="display:none;font-size:13px;margin-bottom:10px"></div><div class="modal-footer"><button class="modal-cancel" onclick="closeModal()">Cancel</button><button class="modal-save" id="newPassBtn" onclick="saveNewPassword(false)">Save</button></div>');
+}
+const _isRecoveryLink = /type=recovery/.test(location.hash) || /type=recovery/.test(location.search);
 function hideAuthScreen(){ const ov=document.getElementById('authOverlay'); if(ov) ov.style.display='none'; }
 async function handleAuth(mode){
   const email=(document.getElementById('authEmail').value||'').trim();
   const pass=document.getElementById('authPass').value||'';
   const errEl=document.getElementById('authError');
-  const showErr=(m)=>{ errEl.style.display='block'; errEl.textContent=m; };
+  const showErr=(m)=>{ errEl.style.display='block'; errEl.style.color='#dc2626'; errEl.textContent=m; };
   if(!email || !pass){ showErr('Enter your email and password.'); return; }
   const btn=document.getElementById(mode==='signin'?'authSigninBtn':'authSignupBtn');
   btn.disabled=true; btn.style.opacity='.6';
@@ -1480,6 +1523,7 @@ function renderProfile() {
         <div><div class="post-title">Account</div><div class="post-sub">Settings & sign out</div></div>
       </div>
       <div class="post-body">
+        <button onclick="openChangePassword()" style="width:100%;padding:14px;font-size:14px;font-family:'Inter',system-ui,-apple-system,sans-serif;font-weight:600;background:none;border:1.5px solid var(--border2);border-radius:14px;cursor:pointer;color:var(--ink2);margin-bottom:10px">Change password</button>
         <button onclick="confirmSignOut()" style="width:100%;padding:14px;font-size:14px;font-family:'Inter',system-ui,-apple-system,sans-serif;font-weight:600;background:none;border:1.5px solid var(--border2);border-radius:14px;cursor:pointer;color:var(--ink2);margin-bottom:10px">Sign out</button>
         <button onclick="confirmDeleteData()" style="width:100%;padding:14px;font-size:14px;font-family:'Inter',system-ui,-apple-system,sans-serif;font-weight:600;background:none;border:1.5px solid #fca5a5;border-radius:14px;cursor:pointer;color:#dc2626">Clear all local data</button>
       </div>
@@ -1537,11 +1581,12 @@ renderTab = function() {
 (async function init(){
   const tok = await getToken();
   if(!tok){ showAuthScreen(); return; }
+  if(_isRecoveryLink){ showNewPasswordScreen(); return; }
   await loadDB();
   await maybeMigrate();
   renderTab();
 })();
-_sb.auth.onAuthStateChange((event)=>{ if(event==='SIGNED_OUT'){ showAuthScreen(); } });
+_sb.auth.onAuthStateChange((event)=>{ if(event==='SIGNED_OUT'){ showAuthScreen(); } if(event==='PASSWORD_RECOVERY'){ setTimeout(showNewPasswordScreen,0); } });
 
 // ── PWA icon + manifest ───────────────────────────────────────
 (function(){
