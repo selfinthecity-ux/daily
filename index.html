@@ -441,6 +441,31 @@ async function signOut(){
 }
 // The one-time move of the original single-user data is finished; new accounts start empty.
 async function maybeMigrate(){ return; }
+let _lastSyncedTs = 0;
+function tombstone(key,id){ if(!DB._deleted) DB._deleted={}; DB._deleted[key+':'+id]=Date.now(); }
+// Merge two copies: arrays of entries are combined, dated entries kept from both,
+// "primary" wins where both changed the same thing; deletions stay deleted.
+function mergeDB(primary, secondary){
+  if(!secondary) return primary; if(!primary) return secondary;
+  const out = deepMergeDB(primary, secondary);
+  const dead = {...(secondary._deleted||{}), ...(primary._deleted||{})};
+  out._deleted = dead;
+  for(const k of Object.keys(dead)){
+    const i=k.indexOf(':'); const key=k.slice(0,i), id=k.slice(i+1);
+    if(Array.isArray(out[key])) out[key]=out[key].filter(e=>!(e&&String(e.id)===id));
+    else if(out[key] && typeof out[key]==='object' && id in out[key]){ out[key]={...out[key]}; delete out[key][id]; }
+  }
+  out._ts = Math.max(primary._ts||0, secondary._ts||0);
+  return out;
+}
+async function fetchRemoteDB(){
+  const _tok = await getToken(); if(!_tok) return null;
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/daily_data?select=data&user_id=eq.${encodeURIComponent(USER_ID)}&limit=1`,
+    { headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + _tok, 'Accept': 'application/json' } });
+  if(!res.ok) throw new Error('HTTP '+res.status);
+  const rows = await res.json();
+  return (rows && rows.length && rows[0].data) ? rows[0].data : null;
+}
 function deepMergeDB(localD, staged){
   const out = {...localD};
   const ARR = ['emotional','journal','dailyLog','nightlyReflections','relJournal'];
@@ -511,6 +536,7 @@ let DB = {};
 
 function saveDB(key, value){
   DB[key] = value;
+  DB._ts = Date.now();
   localStorage.setItem(DB_KEY, JSON.stringify(DB));
   if(_sb && USER_ID){ setSyncStatus('saving'); clearTimeout(_syncTimer); _syncTimer = setTimeout(pushToSupabase, 1500); }
 }
@@ -521,6 +547,14 @@ async function pushToSupabase(){
   if(!_tok) return;
   _syncPending = false;
   try {
+    // Another device may have saved since we last synced: fold its changes in first
+    try{
+      const remote = await fetchRemoteDB();
+      if(remote && (remote._ts||0) > _lastSyncedTs && remote._ts !== DB._ts){
+        DB = mergeDB(DB, remote); DB._ts = Date.now();
+        localStorage.setItem(DB_KEY, JSON.stringify(DB));
+      }
+    }catch(e){ throw e; }
     const res = await fetch(
       `${SUPABASE_URL}/rest/v1/daily_data`,
       {
@@ -535,6 +569,7 @@ async function pushToSupabase(){
       }
     );
     if(!res.ok) throw new Error('HTTP ' + res.status);
+    _lastSyncedTs = DB._ts || 0;
     setSyncStatus('saved');
     setTimeout(()=>setSyncStatus('idle'), 3000);
   } catch(e){
@@ -556,14 +591,35 @@ async function pullFromSupabase(){
     if(!res.ok) return false;
     const rows = await res.json();
     if(rows && rows.length && rows[0].data){
-      DB = { ...DB, ...rows[0].data };
+      const remote = rows[0].data;
+      const localNewer = (DB._ts||0) > (remote._ts||0) && Object.keys(DB).length>2;
+      DB = localNewer ? mergeDB(DB, remote) : mergeDB(remote, DB);
+      _lastSyncedTs = remote._ts || 0;
       localStorage.setItem(DB_KEY, JSON.stringify(DB));
+      if(localNewer) _carriedOver = true;
       return true;
     }
   } catch(e){ console.warn('Supabase pull failed:', e.message); }
   return false;
 }
 
+// Coming back to the app (e.g. switching from phone to computer): pick up the other device's entries
+async function refreshFromCloud(){
+  if(!_sb || !USER_ID || document.hidden) return;
+  try{
+    const remote = await fetchRemoteDB();
+    if(!remote || (remote._ts||0) <= (DB._ts||0)) return;
+    DB = mergeDB(remote, DB); _lastSyncedTs = remote._ts||0;
+    localStorage.setItem(DB_KEY, JSON.stringify(DB));
+    wins = DB.wins || [...DEFAULT_WINS];
+    checkedWins = new Set(DB.todayCheckedWins||[]);
+    actions = (DB.todayActions||['','','']).concat(['','','']).slice(0,3);
+    const a=document.activeElement;
+    if(!(a && (a.tagName==='TEXTAREA'||a.tagName==='INPUT'))) renderTab();
+  }catch(e){}
+}
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden) refreshFromCloud(); });
+window.addEventListener('focus', ()=>refreshFromCloud());
 window.addEventListener('online',  ()=>{ if(_syncPending) pushToSupabase(); else setSyncStatus('idle'); });
 window.addEventListener('offline', ()=>setSyncStatus('offline'));
 
@@ -624,7 +680,7 @@ function archiveDay(dateStr){
   if(!dateStr)return;
   if(DB.nourish){
     if(!DB.nourishHistory)DB.nourishHistory={};
-    DB.nourishHistory[dateStr]={glasses:DB.nourish.glasses||0,vitamins:{...DB.nourish.vitamins},meals:{...DB.nourish.meals}};
+    DB.nourishHistory[dateStr]={glasses:DB.nourish.glasses||0,vitamins:{...(DB.nourish.vitaminChecks||DB.nourish.vitamins||{})},meals:{...DB.nourish.meals}};
     DB.nourishHistory=keepRecent(DB.nourishHistory);
   }
   if(DB.todayMood||DB.todayEnergy!=null){
@@ -1002,7 +1058,8 @@ function renderFinancial(){
 }
 
 function addSpend(cat){initFinancial();const inp=document.getElementById('spend_'+cat);const amt=parseFloat(inp.value)||0;if(amt<=0)return;if(!DB.financial.spending[cat])DB.financial.spending[cat]=[];DB.financial.spending[cat].push({date:today(),amt});inp.value='';saveDB('financial',DB.financial);renderFinancial();}
-function resetMonthSpend(){if(!confirm('Reset all spending for this month?'))return;initFinancial();const m=isoMonth(today());SPEND_CATS.forEach(cat=>{if(DB.financial.spending[cat])DB.financial.spending[cat]=DB.financial.spending[cat].filter(e=>!e.date.startsWith(m));});saveDB('financial',DB.financial);renderFinancial();}
+function resetMonthSpend(){openModal('<div class="modal-handle"></div><div class="modal-title">Reset this month\'s spending?</div><div style="font-size:14px;color:var(--ink2);margin-bottom:16px;line-height:1.5">This clears every spending entry for this month. Other months stay.</div><div class="modal-footer"><button class="modal-cancel" onclick="closeModal()">Cancel</button><button class="modal-save" style="background:#ef4444" onclick="closeModal();doResetMonthSpend()">Reset</button></div>');}
+function doResetMonthSpend(){initFinancial();const m=isoMonth(today());SPEND_CATS.forEach(cat=>{if(DB.financial.spending[cat])DB.financial.spending[cat]=DB.financial.spending[cat].filter(e=>!e.date.startsWith(m));});saveDB('financial',DB.financial);renderFinancial();}
 function updateSavings(){initFinancial();const goal=parseFloat(document.getElementById('savings_goal').value)||DB.financial.savings.goal;const add=parseFloat(document.getElementById('savings_add').value)||0;DB.financial.savings.goal=goal;DB.financial.savings.saved=Math.max(0,(DB.financial.savings.saved||0)+add);saveDB('financial',DB.financial);const conf=document.getElementById('savingsConfirm');conf.style.opacity='1';setTimeout(()=>{conf.style.opacity='0';renderFinancial();},1200);}
 function updateDesire(){initFinancial();const item=(document.getElementById('desire_item').value||'').trim();const cost=parseFloat(document.getElementById('desire_cost').value)||DB.financial.desire.cost;const add=parseFloat(document.getElementById('desire_add').value)||0;DB.financial.desire={item,cost,saved:Math.max(0,(DB.financial.desire.saved||0)+add)};saveDB('financial',DB.financial);const conf=document.getElementById('desireConfirm');conf.style.opacity='1';setTimeout(()=>{conf.style.opacity='0';renderFinancial();},1200);}
 function saveMoneyMindset(){initFinancial();DB.financial.mindset=(document.getElementById('money_mindset').value||'').trim();saveDB('financial',DB.financial);const conf=document.getElementById('mindsetConfirm');conf.style.opacity='1';setTimeout(()=>{conf.style.opacity='0';},1400);}
@@ -1045,7 +1102,7 @@ function syncTodayEmotion(){const e=(DB.emotional||[]).find(x=>x.date===today())
 function setEmotionalEnergy(val){emotionalEnergy=val;saveDB('todayEnergy',val);syncTodayEmotion();const el=document.getElementById('energyDots');if(el)el.innerHTML=energyDotsHtml(val);}
 function selectMood(label,emoji){selectedMood={label,emoji};saveDB('todayMood',selectedMood);syncTodayEmotion();document.querySelectorAll('.mood-btn').forEach(b=>b.classList.toggle('mood-sel',b.id==='mood_'+label));}
 function saveEmotional(){const problem=(document.getElementById('em_problem').value||'').trim();const lesson=(document.getElementById('em_lesson').value||'').trim();const excited=(document.getElementById('em_excited').value||'').trim();const excitedAbout=(document.getElementById('em_excitedabout').value||'').trim();const need=(document.getElementById('em_need').value||'').trim();if(!problem&&!lesson&&!excited&&!excitedAbout&&!need&&!selectedMood&&!emotionalEnergy)return;if(!DB.emotional)DB.emotional=[];DB.emotional.unshift({id:Date.now().toString(),date:today(),mood:selectedMood?selectedMood.label:'',moodEmoji:selectedMood?selectedMood.emoji:'',energy:emotionalEnergy||'',problem,lesson,excited,excitedAbout,need});saveDB('emotional',DB.emotional);const conf=document.getElementById('emConfirm');conf.style.opacity='1';setTimeout(()=>{conf.style.opacity='0';renderEmotional();},1400);}
-function deleteEmotional(id){DB.emotional=(DB.emotional||[]).filter(e=>e.id!==id);saveDB('emotional',DB.emotional);renderEmotional();}
+function deleteEmotional(id){tombstone('emotional',id);DB.emotional=(DB.emotional||[]).filter(e=>e.id!==id);saveDB('emotional',DB.emotional);renderEmotional();}
 
 // ═══════════════ RELATIONSHIPS ═══════════════
 const COMM_TIPS=[`Become genuinely curious about someone today. Ask a question you actually don't know the answer to — and then just listen.`,`Before you respond, take a breath. The pause is where real connection lives.`,`Say thank you for something specific. Not "thanks for everything" — but one real, particular thing.`,`Send a voice note instead of a text today. It's 10x more personal and people feel it.`,`Tell someone what you appreciate about them. Not what they did — who they are.`,`Ask "how are you really doing?" and mean it. Most people are waiting for someone to ask.`,`Listen to understand, not to respond. Notice when you're already formulating your reply before they finish.`,`Let someone feel like the most important person in the room when you're with them. Put the phone away.`,`Reach out to someone you've been meaning to contact. The thought doesn't count — the message does.`,`Notice when someone needs to be heard vs. when they need advice. Ask first: "Do you want me to just listen, or do you want my thoughts?"`,];
@@ -1069,7 +1126,7 @@ function renderRelationships(){
     const score=todayScores[c.name]||0;
     const lastCheckin=(r.lastCheckins||{})[c.name];
     const freqDays={Daily:1,Weekly:7,Biweekly:14,Monthly:30}[c.frequency]||7;
-    const daysSince=lastCheckin?Math.floor((new Date()-new Date(lastCheckin))/(864e5)):999;
+    const daysSince=lastCheckin?Math.round((new Date(today()+'T12:00:00')-new Date(lastCheckin+'T12:00:00'))/(864e5)):999;
     const overdue=daysSince>=freqDays;
     const statusHtml=lastCheckin?(overdue?`<span class="contact-overdue">Overdue · ${daysSince}d ago</span>`:`<span class="contact-ok">✓ ${daysSince===0?'Today':(daysSince+'d ago')}</span>`):`<span class="contact-overdue">No check-in yet</span>`;
     return`<div class="contact-item"><div class="contact-avatar">${ini}</div><div class="contact-info" style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><div class="contact-name">${esc(c.name)}</div><div style="font-size:10px;font-weight:600;color:var(--ink4);background:var(--bg);padding:2px 6px;border-radius:99px;border:1px solid var(--border2)">${c.type||'Friend'}</div></div><div style="display:flex;align-items:center;gap:4px;margin-top:6px">${Array.from({length:10},(_,j)=>j+1).map(n=>`<div onclick="setDailyScore('${esc(c.name)}',${n})" style="width:22px;height:22px;border-radius:50%;border:1.5px solid ${n<=score?'var(--purple)':'var(--border2)'};background:${n<=score?'var(--purple)':'var(--bg)'};cursor:pointer;touch-action:manipulation;flex-shrink:0"></div>`).join('')}<span style="font-size:11px;font-weight:700;color:var(--ink3);margin-left:4px">${score||'—'}/10</span></div>${statusHtml}</div><div class="contact-actions"><button class="contact-send-btn" onclick="openKindMessage('${esc(c.name)}')">💌 Send</button><button class="contact-checkin-btn" onclick="markCheckin('${esc(c.name)}')">✓ Seen</button><button onclick="deleteContact(${i})" style="padding:5px 8px;font-size:10px;font-family:'Inter',system-ui,-apple-system,sans-serif;background:none;border:1px solid var(--border2);border-radius:7px;cursor:pointer;color:var(--ink4);touch-action:manipulation">✕</button></div></div>`;
@@ -1094,7 +1151,7 @@ function markCheckin(name){if(!DB.relationships)DB.relationships={contacts:[],la
 function saveRelQ(){const text=(document.getElementById('rel_q_journal').value||'').trim();if(!text)return;if(!DB.relJournal)DB.relJournal=[];DB.relJournal.unshift({id:Date.now().toString(),date:today(),text});saveDB('relJournal',DB.relJournal);const conf=document.getElementById('relQConfirm');conf.style.opacity='1';setTimeout(()=>{conf.style.opacity='0';},1400);document.getElementById('rel_q_journal').value='';}
 function openKindMessage(name){const cards=KIND_MESSAGES.map((m,i)=>`<div style="background:var(--bg);border-radius:10px;padding:12px;margin-bottom:8px"><div style="font-size:11px;font-weight:700;color:var(--purple);margin-bottom:6px">${m.emoji} ${m.type}</div><div style="font-size:13px;color:var(--ink2);line-height:1.6;margin-bottom:8px">${esc(m.text)}</div><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="kind-send-btn send-sms" onclick="sendKindByIndex('sms',${i})">💬 Text</button><button class="kind-send-btn send-email" onclick="sendKindByIndex('email',${i})">📧 Email</button><button class="kind-send-btn send-copy" onclick="sendKindByIndex('copy',${i})">📋 Copy</button></div></div>`).join('');openModal(`<div class="modal-handle"></div><div class="modal-title">Send to ${esc(name)}</div><div style="max-height:60vh;overflow-y:auto">${cards}</div><button class="modal-cancel" onclick="closeModal()" style="width:100%;margin-top:8px">Close</button>`);}
 function sendKindByIndex(method,index){const m=KIND_MESSAGES[index];if(!m)return;sendMessage(method,m.text);}
-function sendMessage(method,text){if(method==='sms'){window.location.href='sms:&body='+encodeURIComponent(text);}else if(method==='email'){window.location.href='mailto:?subject='+encodeURIComponent('Thinking of you')+'&body='+encodeURIComponent(text);}else{if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(text).then(()=>showCopyToast()).catch(()=>fallbackCopy(text));}else{fallbackCopy(text);}}}
+function sendMessage(method,text){if(method==='sms'){window.location.href=(/android/i.test(navigator.userAgent)?'sms:?body=':'sms:&body=')+encodeURIComponent(text);}else if(method==='email'){window.location.href='mailto:?subject='+encodeURIComponent('Thinking of you')+'&body='+encodeURIComponent(text);}else{if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(text).then(()=>showCopyToast()).catch(()=>fallbackCopy(text));}else{fallbackCopy(text);}}}
 function fallbackCopy(text){const ta=document.createElement('textarea');ta.value=text;ta.style.cssText='position:fixed;left:-9999px;top:50%;opacity:0';document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand('copy');showCopyToast();}catch(e){alert('Tap and hold to copy:\n\n'+text);}document.body.removeChild(ta);}
 function showCopyToast(){let t=document.getElementById('copyToast');if(!t){t=document.createElement('div');t.id='copyToast';t.style.cssText='position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#272264;color:#fff;padding:10px 20px;border-radius:99px;font-size:13px;font-weight:600;z-index:9999;font-family:Inter,system-ui,sans-serif;pointer-events:none;transition:opacity .3s;opacity:0';t.textContent='Copied ✓';document.body.appendChild(t);}t.style.opacity='1';setTimeout(()=>{t.style.opacity='0';},2200);}
 
@@ -1111,16 +1168,16 @@ function renderJournal(){
 }
 function usePrompt(btn){const ta=document.getElementById('journal_inp');if(!ta)return;ta.value=ta.value?ta.value+'\n\n'+btn.textContent+'\n':btn.textContent+'\n';ta.focus();ta.scrollTop=ta.scrollHeight;}
 function saveJournal(){const text=(document.getElementById('journal_inp').value||'').trim();if(!text)return;if(!DB.journal)DB.journal=[];DB.journal.unshift({id:Date.now().toString(),date:today(),text});saveDB('journal',DB.journal);const conf=document.getElementById('journalConfirm');conf.style.opacity='1';setTimeout(()=>{conf.style.opacity='0';renderJournal();},1200);}
-function deleteJournal(id){DB.journal=(DB.journal||[]).filter(e=>e.id!==id);saveDB('journal',DB.journal);renderJournal();}
+function deleteJournal(id){tombstone('journal',id);DB.journal=(DB.journal||[]).filter(e=>e.id!==id);saveDB('journal',DB.journal);renderJournal();}
 
 // ═══════════════ INSPIRE ═══════════════
 const FALLBACK=[{text:`The secret of getting ahead is getting started.`,author:`Mark Twain`},{text:`You are never too old to set another goal or to dream a new dream.`,author:`C.S. Lewis`},{text:`Believe you can and you're halfway there.`,author:`Theodore Roosevelt`},{text:`Everything you've ever wanted is on the other side of fear.`,author:`George Addair`},{text:`The future belongs to those who believe in the beauty of their dreams.`,author:`Eleanor Roosevelt`},{text:`Start where you are. Use what you have. Do what you can.`,author:`Arthur Ashe`},{text:`The mind is everything. What you think you become.`,author:`Buddha`},{text:`Your life does not get better by chance. It gets better by change.`,author:`Jim Rohn`},{text:`She believed she could, so she did.`,author:`R.S. Grey`},{text:`The comeback is always stronger than the setback.`,author:`Unknown`},{text:`You didn't come this far to only come this far.`,author:`Unknown`},{text:`Be the energy you want to attract.`,author:`Unknown`},{text:`Do something today that your future self will thank you for.`,author:`Sean Patrick Flanery`},{text:`Wake up with determination. Go to bed with satisfaction.`,author:`Unknown`},{text:`You are enough. You have enough. You do enough.`,author:`Brené Brown`},{text:`You were not made for a small life.`,author:`Unknown`},{text:`Stop shrinking yourself to fit places you've outgrown.`,author:`Unknown`},{text:`You are one decision away from a completely different life.`,author:`Mel Robbins`},{text:`Own your morning. Elevate your life.`,author:`Robin Sharma`},{text:`One day or day one. You decide.`,author:`Unknown`},{text:`Dream big. Start small. Act now.`,author:`Robin Sharma`},];
 
 function renderInspire(){if(!currentQuote){currentQuote=FALLBACK[dayOfYear()%FALLBACK.length];}showQuote();fetchQuote().then(()=>showQuote()).catch(()=>{});}
-async function fetchQuote(){try{const r=await fetch('https://api.quotable.io/random?tags=inspirational,motivational,success,life&maxLength=160');if(r.ok){const d=await r.json();currentQuote={text:d.content,author:d.author};}else throw new Error();}catch(e){currentQuote=FALLBACK[dayOfYear()%FALLBACK.length];}}
-function showQuote(){const el=document.getElementById('viewBody');if(!el)return;const q=currentQuote||FALLBACK[0];el.innerHTML=`<div class="quote-wrap"><div class="quote-card"><div class="quote-mark">"</div><div class="quote-text">${esc(q.text)}</div><div class="quote-author">— ${esc(q.author)}</div></div><button class="new-quote-btn" onclick="newQuote()" style="margin-bottom:12px">✦ New quote</button><div style="background:var(--white);border-radius:14px;padding:16px;border:1px solid var(--border);margin-top:4px"><div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--purple);margin-bottom:10px">Send this quote to someone</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="kind-send-btn send-sms" onclick="sendQuote('sms')" style="flex:1;padding:11px;font-size:13px">💬 Text it</button><button class="kind-send-btn send-email" onclick="sendQuote('email')" style="flex:1;padding:11px;font-size:13px">📧 Email it</button><button class="kind-send-btn send-copy" onclick="sendQuote('copy')" style="flex:1;padding:11px;font-size:13px">📋 Copy</button></div></div></div>`;}
-async function newQuote(){const prev=currentQuote;let rand;do{rand=FALLBACK[Math.floor(Math.random()*FALLBACK.length)];}while(rand.text===prev?.text&&FALLBACK.length>1);currentQuote=rand;showQuote();try{const r=await fetch('https://api.quotable.io/random?tags=inspirational,motivational,success,life&maxLength=160');if(r.ok){const d=await r.json();currentQuote={text:d.content,author:d.author};showQuote();}}catch(e){}}
-function sendQuote(method){const q=currentQuote||FALLBACK[0];const text=`"${q.text}" — ${q.author}`;sendMessage(method,text);}
+async function fetchQuote(){}
+function showQuote(){const el=document.getElementById('viewBody');if(!el)return;const q=currentQuote||FALLBACK[0];el.innerHTML=`<div class="quote-wrap"><div class="quote-card"><div class="quote-mark">"</div><div class="quote-text">${esc(q.text)}</div>${q.author&&!/^unknown$/i.test(q.author)?`<div class="quote-author">— ${esc(q.author)}</div>`:''}</div><button class="new-quote-btn" onclick="newQuote()" style="margin-bottom:12px">✦ New quote</button><div style="background:var(--white);border-radius:14px;padding:16px;border:1px solid var(--border);margin-top:4px"><div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--purple);margin-bottom:10px">Send this quote to someone</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="kind-send-btn send-sms" onclick="sendQuote('sms')" style="flex:1;padding:11px;font-size:13px">💬 Text it</button><button class="kind-send-btn send-email" onclick="sendQuote('email')" style="flex:1;padding:11px;font-size:13px">📧 Email it</button><button class="kind-send-btn send-copy" onclick="sendQuote('copy')" style="flex:1;padding:11px;font-size:13px">📋 Copy</button></div></div></div>`;}
+async function newQuote(){const prev=currentQuote;let rand;do{rand=FALLBACK[Math.floor(Math.random()*FALLBACK.length)];}while(rand.text===prev?.text&&FALLBACK.length>1);currentQuote=rand;showQuote();}
+function sendQuote(method){const q=currentQuote||FALLBACK[0];const text=q.author&&!/^unknown$/i.test(q.author)?`"${q.text}" — ${q.author}`:`"${q.text}"`;sendMessage(method,text);}
 
 // ═══════════════ ENVIRONMENT ═══════════════
 const ENV_AREAS=[{id:'bedroom',emoji:'🛏️',label:'Bedroom',prompts:['Clear the nightstand — keep only what you use every night','Remove clothes from the chair/floor','Check under the bed','Organize your closet — donate anything you haven\'t worn in 6 months','Make your bed every morning, it sets the tone for everything']},{id:'bathroom',emoji:'🪥',label:'Bathroom',prompts:['Clear counters — only what you use daily stays out','Check expiry dates on products and toss what\'s old','Organize under the sink','Wipe down mirrors and surfaces','Restock anything running low']},{id:'kitchen',emoji:'🍳',label:'Kitchen',prompts:['Clear the counter — only appliances you use weekly stay out','Check the fridge and toss anything old','Organize one cabinet or drawer','Wipe down stovetop and counters','Check pantry for expired items']},{id:'living',emoji:'🛋️',label:'Living Room',prompts:['Clear all surfaces — nothing lives on tables that doesn\'t belong','Remove things that don\'t live in this room','Fluff pillows and fold blankets','Dust surfaces','Evaluate: does everything in this room add beauty or function?']},{id:'workspace',emoji:'💻',label:'Workspace',prompts:['Clear your desk — only your computer and what you\'re working on today','File or toss any papers on the desk','Organize cables','Clean your screen','Check your digital desktop too — file or delete what doesn\'t need to be there']},{id:'car',emoji:'🚗',label:'Car',prompts:['Remove any trash or items that don\'t live in the car','Clean out the center console','Wipe down the dashboard','Organize the trunk','Wash or vacuum if needed']},{id:'laundry',emoji:'🧺',label:'Laundry',prompts:['Sort laundry into piles — darks, lights, delicates','Put a load in the wash','Move wet laundry to dryer or hang to dry','Fold and put away anything clean and sitting around','Wipe down the washer and dryer exterior']},{id:'digital',emoji:'📱',label:'Digital Space',prompts:['Delete apps you haven\'t used in 30 days','Unsubscribe from 5 email lists today','Clear your camera roll — back up and delete duplicates','Organize your desktop folders','Delete contacts you no longer need']},];
@@ -1338,7 +1395,7 @@ function renderPatterns(){
 }
 
 function saveNightReflection(){const gratitude=(document.getElementById('night_gratitude').value||'').trim();const release=(document.getElementById('night_release').value||'').trim();const tomorrow_setup=(document.getElementById('night_tomorrow').value||'').trim();if(!gratitude&&!release&&!tomorrow_setup)return;if(!DB.nightlyReflections)DB.nightlyReflections={};DB.nightlyReflections[today()]={gratitude,release,tomorrow_setup,savedAt:Date.now()};DB.nightlyReflections=keepRecent(DB.nightlyReflections);saveDB('nightlyReflections',DB.nightlyReflections);const conf=document.getElementById('nightConfirm');conf.style.opacity='1';setTimeout(()=>{conf.style.opacity='0';},2000);}
-function deleteNightReflection(dateStr){if(DB.nightlyReflections)delete DB.nightlyReflections[dateStr];saveDB('nightlyReflections',DB.nightlyReflections);renderNight();}
+function deleteNightReflection(dateStr){tombstone('nightlyReflections',dateStr);if(DB.nightlyReflections)delete DB.nightlyReflections[dateStr];saveDB('nightlyReflections',DB.nightlyReflections);renderNight();}
 
 // ═══════════════════════════════════════════════════════════════
 // ║              PROFILE SYSTEM — Foundation Layer              ║
@@ -1567,7 +1624,7 @@ function confirmDeleteData() {
     <div style="font-size:14px;color:var(--ink3);margin-bottom:20px;line-height:1.5">This clears your locally cached data. Your cloud data in Supabase is safe and will reload on next open.</div>
     <div class="modal-footer">
       <button class="modal-cancel" onclick="closeModal()">Cancel</button>
-      <button class="modal-save" style="background:#ef4444" onclick="closeModal();localStorage.removeItem(DB_KEY);DB={};renderProfile()">Clear</button>
+      <button class="modal-save" style="background:#ef4444" onclick="closeModal();clearTimeout(_syncTimer);localStorage.removeItem(DB_KEY);location.reload()">Clear</button>
     </div>
   `);
 }
@@ -1576,10 +1633,7 @@ function confirmDeleteData() {
 const _origLoadDB = loadDB;
 loadDB = async function() {
   await _origLoadDB();
-  if (_currentUser) {
-    await ensureProfile(_currentUser);
-    updateHeaderAvatar();
-  }
+  try{ updateHeaderAvatar(); }catch(e){}
 };
 
 // ═══════════════ MODAL ═══════════════
