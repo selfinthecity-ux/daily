@@ -503,7 +503,7 @@ function deepMergeDB(localD, staged){
 
 
 // ── Update check: GitHub Pages and browsers hold on to old copies of the app ──
-const APP_VERSION='20261103141830';
+const APP_VERSION='20261103142043';
 if(/[?&]v=\d+/.test(location.search)) history.replaceState(null,'',location.pathname+location.hash);
 async function checkForUpdate(){
   try{
@@ -848,7 +848,7 @@ function renderDaily(){
         <div class="post-avatar">✨</div>
         <div>
           <div class="post-title">Mindset</div>
-          <div class="post-sub">How you show up & how you give</div>
+          <div class="post-sub">How you show up today</div>
         </div>
       </div>
       <div class="post-body">
@@ -857,9 +857,18 @@ function renderDaily(){
           <div class="mindset-prefix">I want to be someone who…</div>
           <textarea class="ta" id="inp_showup" oninput="autoSaveDaily()" placeholder="…shows up fully, leads with love, moves with intention" rows="2">${esc(todaySaved.showup||'')}</textarea>
         </div>
-        <div style="height:10px"></div>
+      </div>
+    </div>
+    <div class="post">
+      <div class="post-header">
+        <div class="post-avatar" style="color:var(--pink);font-size:18px">♡</div>
+        <div>
+          <div class="post-title">Kindness practice</div>
+          <div class="post-sub">One small act, every day</div>
+        </div>
+      </div>
+      <div class="post-body">
         <div class="mindset-block">
-          <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--pink);margin-bottom:6px">♡ Kindness practice</div>
           <div class="mindset-prompt">How can I make someone's day a little better?</div>
           <div class="mindset-prefix">Today I will…</div>
           <textarea class="ta" id="inp_value" oninput="autoSaveDaily()" placeholder="Listen with patience, offer encouragement, help someone, or show compassion." rows="2">${esc(todaySaved.value||'')}</textarea>
