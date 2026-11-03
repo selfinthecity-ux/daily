@@ -276,7 +276,6 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'Inter',
   </div>
   <div class="tab-bar">
     <button class="tab-btn active" onclick="switchTab('daily',this)">Daily</button>
-    <button class="tab-btn" onclick="switchTab('todo',this)">To do</button>
     <button class="tab-btn" onclick="switchTab('exercise',this)">Exercise</button>
     <button class="tab-btn" onclick="switchTab('nourish',this)">Nourishment</button>
     <button class="tab-btn" onclick="switchTab('emotional',this)">Emotions</button>
@@ -285,6 +284,7 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'Inter',
     <button class="tab-btn" onclick="switchTab('journal',this)">Journal</button>
     <button class="tab-btn" onclick="switchTab('inspire',this)">Inspire</button>
     <button class="tab-btn" onclick="switchTab('environment',this)">Environment</button>
+    <button class="tab-btn" onclick="switchTab('todo',this)">To do</button>
     <button class="tab-btn" onclick="switchTab('patterns',this)">✺ Patterns</button>
     <button class="tab-btn" onclick="switchTab('night',this)">Night ✦</button>
     <button class="tab-btn" onclick="switchTab('profile',this)">Profile</button>
@@ -503,7 +503,7 @@ function deepMergeDB(localD, staged){
 
 
 // ── Update check: GitHub Pages and browsers hold on to old copies of the app ──
-const APP_VERSION='20261103145055';
+const APP_VERSION='20261103145348';
 if(/[?&]v=\d+/.test(location.search)) history.replaceState(null,'',location.pathname+location.hash);
 async function checkForUpdate(){
   try{
