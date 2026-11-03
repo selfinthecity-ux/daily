@@ -34,7 +34,7 @@
   --purple-mid:#b9b5d6;
   --purple-dark:#272264;
   --purple-bg:#f3f2f9;
-  --yellow:#fec936;--btn:#8B5CF6;
+  --yellow:#fec936;--btn:#FEC936;
   --wt:#272264;--wt-bg:#272264;--wt-ink:#fff;
   --cd:#E3418A;--cd-bg:#E3418A;--cd-ink:#fff;
   --wk:#F7873F;--wk-bg:#F7873F;--wk-ink:#272264;
@@ -77,7 +77,7 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'Inter',
 .add-win-inp{flex:1;padding:11px 14px;font-size:14px;font-family:'Inter',system-ui,-apple-system,sans-serif;border:1.5px solid var(--border2);border-radius:12px;background:var(--white);color:var(--ink);outline:none}
 .add-win-inp:focus{border-color:var(--purple-mid)}
 .add-win-inp::placeholder{color:var(--ink4)}
-.add-win-btn{padding:11px 16px;font-size:13px;font-family:'Inter',system-ui,-apple-system,sans-serif;font-weight:700;background:var(--btn);color:#fff;border:none;border-radius:12px;cursor:pointer;touch-action:manipulation}
+.add-win-btn{padding:11px 16px;font-size:13px;font-family:'Inter',system-ui,-apple-system,sans-serif;font-weight:700;background:var(--btn);color:#272264;border:none;border-radius:12px;cursor:pointer;touch-action:manipulation}
 .priority-block{background:var(--purple-bg);border-radius:14px;padding:16px;margin-bottom:8px}
 .block-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--purple);margin-bottom:6px}
 .block-prompt{font-size:14px;color:var(--ink3);margin-bottom:10px;line-height:1.5;font-weight:400}
@@ -86,14 +86,14 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'Inter',
 .ta::placeholder{color:var(--ink4)}
 .action-rows{display:flex;flex-direction:column;gap:8px}
 .action-row{display:flex;align-items:center;gap:10px}
-.action-num{width:28px;height:28px;border-radius:50%;background:var(--btn);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.action-num{width:28px;height:28px;border-radius:50%;background:var(--btn);color:#272264;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .action-inp{flex:1;padding:11px 14px;font-size:14px;font-family:'Inter',system-ui,-apple-system,sans-serif;border:1.5px solid var(--border2);border-radius:12px;background:var(--bg);color:var(--ink);outline:none;transition:border-color .2s;min-width:0}
 .action-inp:focus{border-color:var(--purple-mid);background:var(--white)}
 .action-inp::placeholder{color:var(--ink4)}
 .mindset-block{background:var(--bg);border-radius:14px;padding:16px;margin-bottom:10px}
 .mindset-prompt{font-size:15px;font-weight:700;color:var(--ink2);margin-bottom:4px}
 .mindset-prefix{font-size:13px;color:var(--ink3);margin-bottom:8px}
-.primary-btn{width:100%;padding:15px;font-size:15px;font-family:'Inter',system-ui,-apple-system,sans-serif;font-weight:700;background:var(--btn);color:#fff;border:none;border-radius:14px;cursor:pointer;touch-action:manipulation;margin-top:4px;letter-spacing:.01em}
+.primary-btn{width:100%;padding:15px;font-size:15px;font-family:'Inter',system-ui,-apple-system,sans-serif;font-weight:700;background:var(--btn);color:#272264;border:none;border-radius:14px;cursor:pointer;touch-action:manipulation;margin-top:4px;letter-spacing:.01em}
 .primary-btn:active{opacity:.85}
 .save-confirm{font-size:13px;color:var(--purple);text-align:center;opacity:0;transition:opacity .4s;margin-top:8px;font-weight:500}
 .contact-list{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
@@ -105,7 +105,7 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'Inter',
 .contact-freq{font-size:12px;color:var(--ink3);margin-top:2px}
 .contact-due{font-size:11px;font-weight:600;color:#d04040;margin-top:2px}
 .contact-actions{display:flex;gap:6px;flex-shrink:0}
-.contact-btn{padding:7px 12px;font-size:12px;font-family:'Inter',system-ui,-apple-system,sans-serif;font-weight:600;border:none;border-radius:8px;cursor:pointer;touch-action:manipulation;background:var(--btn);color:#fff}
+.contact-btn{padding:7px 12px;font-size:12px;font-family:'Inter',system-ui,-apple-system,sans-serif;font-weight:600;border:none;border-radius:8px;cursor:pointer;touch-action:manipulation;background:var(--btn);color:#272264}
 .contact-del-btn{background:none;border:1.5px solid var(--border2);color:var(--ink3);padding:7px 10px;font-size:12px;border-radius:8px;cursor:pointer;touch-action:manipulation;font-family:'Inter',system-ui,-apple-system,sans-serif}
 .rel-prompts{display:flex;flex-direction:column;gap:8px;margin-bottom:4px}
 .rel-prompt{background:var(--purple-bg);border-radius:12px;padding:12px 14px;font-size:13px;color:var(--purple-dark);font-weight:500;line-height:1.5;font-style:italic}
@@ -114,7 +114,7 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'Inter',
 .kind-type-btn.kind-sel{background:var(--purple-bg);border-color:var(--purple);color:var(--purple)}
 .kind-preview{background:var(--purple-bg);border-radius:12px;padding:16px;font-size:14px;color:var(--ink2);line-height:1.7;font-style:italic;margin-bottom:12px;min-height:60px}
 .send-options{display:flex;gap:8px}
-.send-sms-btn{flex:1;padding:13px;font-size:14px;font-family:'Inter',system-ui,-apple-system,sans-serif;font-weight:700;background:var(--btn);color:#fff;border:none;border-radius:12px;cursor:pointer;touch-action:manipulation}
+.send-sms-btn{flex:1;padding:13px;font-size:14px;font-family:'Inter',system-ui,-apple-system,sans-serif;font-weight:700;background:var(--btn);color:#272264;border:none;border-radius:12px;cursor:pointer;touch-action:manipulation}
 .send-email-btn{flex:1;padding:13px;font-size:14px;font-family:'Inter',system-ui,-apple-system,sans-serif;font-weight:700;background:var(--ink2);color:#fff;border:none;border-radius:12px;cursor:pointer;touch-action:manipulation}
 .thinking-card{background:linear-gradient(135deg,var(--purple-bg),#f0f7f0);border-radius:14px;border:1.5px solid var(--purple-mid);padding:18px;margin-bottom:10px}
 .mood-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:4px}
@@ -125,7 +125,7 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'Inter',
 .mood-btn.mood-sel .mood-label{color:var(--purple)}
 .energy-dots{display:flex;gap:6px;flex-wrap:wrap}
 .e-dot{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--border2);background:var(--bg);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--ink3);transition:all .15px;touch-action:manipulation}
-.e-dot.e-dot-sel{background:var(--btn);border-color:var(--btn);color:#fff}
+.e-dot.e-dot-sel{background:var(--btn);border-color:var(--btn);color:#272264}
 .plans-list{display:flex;flex-direction:column;gap:8px}
 .plan-card{background:var(--bg);border-radius:14px;border:1.5px solid var(--border);overflow:hidden;cursor:pointer;transition:border-color .15s}
 .plan-card.plan-open{border-color:var(--purple)}
@@ -135,7 +135,7 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'Inter',
 .plan-tag{font-size:12px;color:var(--ink3);margin-top:2px}
 .plan-chevron{font-size:11px;color:var(--ink4);flex-shrink:0}
 .plan-body{padding:0 16px 12px;font-size:13px;color:var(--ink2);line-height:1.8;white-space:pre-wrap;font-family:monospace;background:var(--white);border-top:1px solid var(--border)}
-.plan-use-btn{display:block;width:calc(100% - 32px);margin:0 16px 14px;padding:12px;font-size:13px;font-family:'Inter',system-ui,-apple-system,sans-serif;font-weight:700;background:var(--btn);color:#fff;border:none;border-radius:10px;cursor:pointer;touch-action:manipulation}
+.plan-use-btn{display:block;width:calc(100% - 32px);margin:0 16px 14px;padding:12px;font-size:13px;font-family:'Inter',system-ui,-apple-system,sans-serif;font-weight:700;background:var(--btn);color:#272264;border:none;border-radius:10px;cursor:pointer;touch-action:manipulation}
 .week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:16px}
 .day-pill{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px;border-radius:10px;border:1.5px solid var(--border2);background:var(--bg);cursor:pointer;touch-action:manipulation;transition:all .15s}
 .day-pill.weights{background:var(--wt-bg);border-color:var(--wt)}
@@ -216,11 +216,11 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'Inter',
 .quote-mark{font-size:40px;color:var(--purple-mid);line-height:1;margin-bottom:12px}
 .quote-text{font-family:var(--display);font-size:22px;font-weight:500;color:var(--ink2);line-height:1.6;margin-bottom:18px;letter-spacing:-.01em}
 .quote-author{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3)}
-.new-quote-btn{display:flex;align-items:center;justify-content:center;gap:8px;margin:0 auto;padding:13px 28px;font-size:14px;font-family:'Inter',system-ui,-apple-system,sans-serif;font-weight:700;background:var(--btn);color:#fff;border:none;border-radius:99px;cursor:pointer;touch-action:manipulation}
+.new-quote-btn{display:flex;align-items:center;justify-content:center;gap:8px;margin:0 auto;padding:13px 28px;font-size:14px;font-family:'Inter',system-ui,-apple-system,sans-serif;font-weight:700;background:var(--btn);color:#272264;border:none;border-radius:99px;cursor:pointer;touch-action:manipulation}
 .modal-title{font-family:var(--display);font-size:20px;font-weight:600;color:var(--ink);margin-bottom:16px}
 .modal-footer{display:flex;gap:10px;margin-top:16px}
 .modal-cancel{flex:1;padding:13px;font-size:14px;font-family:'Inter',system-ui,-apple-system,sans-serif;background:none;border:1.5px solid var(--border2);border-radius:10px;cursor:pointer;color:var(--ink2)}
-.modal-save{flex:2;padding:13px;font-size:14px;font-family:'Inter',system-ui,-apple-system,sans-serif;font-weight:700;background:var(--btn);color:#fff;border:none;border-radius:10px;cursor:pointer}
+.modal-save{flex:2;padding:13px;font-size:14px;font-family:'Inter',system-ui,-apple-system,sans-serif;font-weight:700;background:var(--btn);color:#272264;border:none;border-radius:10px;cursor:pointer}
 .mi-ta{width:100%;padding:11px 13px;font-size:14px;font-family:'Inter',system-ui,-apple-system,sans-serif;line-height:1.6;border:1.5px solid var(--border2);border-radius:10px;background:#fff;color:var(--ink);outline:none;resize:vertical;min-height:80px}
 .fg{margin-bottom:12px}
 .lbl{display:block;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:6px}
@@ -230,7 +230,7 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'Inter',
 .contact-overdue{font-size:10px;font-weight:700;color:#e53935;background:#ffeaea;padding:2px 8px;border-radius:99px;margin-top:4px;display:inline-block}
 .contact-ok{font-size:10px;font-weight:700;color:#4caf50;background:#f0f7f0;padding:2px 8px;border-radius:99px;margin-top:4px;display:inline-block}
 .contact-actions{display:flex;flex-direction:column;gap:4px;flex-shrink:0}
-.contact-send-btn{padding:6px 12px;font-size:11px;font-weight:700;font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--btn);color:#fff;border:none;border-radius:8px;cursor:pointer;touch-action:manipulation;white-space:nowrap}
+.contact-send-btn{padding:6px 12px;font-size:11px;font-weight:700;font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--btn);color:#272264;border:none;border-radius:8px;cursor:pointer;touch-action:manipulation;white-space:nowrap}
 .contact-checkin-btn{padding:6px 12px;font-size:11px;font-weight:700;font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--ink3);border:1px solid var(--border2);border-radius:8px;cursor:pointer;touch-action:manipulation}
 .rel-prompt-chip{width:100%;padding:12px 14px;font-size:13px;font-weight:500;font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--purple-bg);border:none;border-radius:12px;color:var(--purple-dark);cursor:pointer;touch-action:manipulation;text-align:left;line-height:1.4;margin-bottom:8px}
 .comm-tip-card{background:linear-gradient(135deg,var(--purple-bg),#f3f2f9);border-radius:14px;padding:18px;border:1px solid var(--purple-light)}
@@ -253,7 +253,7 @@ html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'Inter',
 .auth-sub{font-size:14px;color:var(--ink3);margin-bottom:24px;line-height:1.5}
 .auth-inp{width:100%;padding:14px 16px;font-size:16px;font-family:'Inter',system-ui,-apple-system,sans-serif;border:1.5px solid var(--border2);border-radius:14px;background:var(--white);color:var(--ink);outline:none;margin-bottom:12px;transition:border-color .2s}
 .auth-inp:focus{border-color:var(--purple)}
-.auth-btn{width:100%;padding:15px;font-size:15px;font-family:'Inter',system-ui,-apple-system,sans-serif;font-weight:700;background:var(--btn);color:#fff;border:none;border-radius:14px;cursor:pointer;touch-action:manipulation;transition:opacity .15s}
+.auth-btn{width:100%;padding:15px;font-size:15px;font-family:'Inter',system-ui,-apple-system,sans-serif;font-weight:700;background:var(--btn);color:#272264;border:none;border-radius:14px;cursor:pointer;touch-action:manipulation;transition:opacity .15s}
 .auth-btn:active{opacity:.85}
 .auth-btn:disabled{opacity:.5;cursor:default}
 .auth-msg{font-size:13px;text-align:center;margin-top:14px;line-height:1.6;min-height:20px}
@@ -502,7 +502,7 @@ function deepMergeDB(localD, staged){
 
 
 // ── Update check: GitHub Pages and browsers hold on to old copies of the app ──
-const APP_VERSION='20261103130824';
+const APP_VERSION='20261103131736';
 if(/[?&]v=\d+/.test(location.search)) history.replaceState(null,'',location.pathname+location.hash);
 async function checkForUpdate(){
   try{
@@ -1094,7 +1094,7 @@ function renderNourish(){
   const vitaminHtml=n.vitaminList.length?n.vitaminList.map((v,i)=>`<div class="vitamin-row${n.vitaminChecks[v]?' checked':''}"><div style="display:flex;align-items:center;gap:10px;flex:1" onclick="toggleVitamin('${v.replace(/'/g,"\\'")}')"><div class="vitamin-check">${n.vitaminChecks[v]?'✓':''}</div><div class="vitamin-name">${esc(v)}</div></div><button onclick="removeVitamin(${i})" style="background:none;border:none;color:var(--ink4);cursor:pointer;font-size:14px;padding:4px 8px;touch-action:manipulation">✕</button></div>`).join(''):`<div style="font-size:13px;color:var(--ink4);font-style:italic;padding:8px 0">No vitamins added yet</div>`;
   const suggestHtml=MEAL_SUGGESTIONS.map(m=>`<button class="meal-chip" onclick="useMealSuggestion('${m}')">${m}</button>`).join('');
   const prepGrid=MEAL_DAYS.map(d=>{const prep=n.foodPrepSchedule[d]||'';const isToday=d===todayMealDay;return`<div style="background:${isToday?'var(--purple-bg)':'var(--bg)'};border-radius:10px;padding:10px 12px;border:1.5px solid ${isToday?'var(--purple-mid)':'var(--border)'}"><div style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:${isToday?'var(--purple)':'var(--ink3)'};margin-bottom:4px">${d}</div><input style="width:100%;font-size:12px;font-family:'Inter',system-ui,-apple-system,sans-serif;border:none;background:transparent;color:var(--ink2);outline:none;padding:0" placeholder="What to prep…" value="${esc(prep)}" onchange="savePrepDay('${d}',this.value)"></div>`;}).join('');
-  const recipesHtml=(n.recipes||[]).length?`<div style="margin-bottom:12px">${n.recipes.map((r,i)=>`<div style="background:var(--bg);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px"><div style="flex:1"><div style="font-size:14px;font-weight:600;color:var(--ink2);margin-bottom:3px">${esc(r.name)}</div>${r.notes?`<div style="font-size:12px;color:var(--ink3);line-height:1.5">${esc(r.notes)}</div>`:''}</div><div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0"><button onclick="addRecipeToMeal('${esc(r.name)}')" style="padding:5px 10px;font-size:11px;font-weight:700;font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--btn);color:#fff;border:none;border-radius:7px;cursor:pointer;white-space:nowrap">+ Add to meal</button><button onclick="deleteRecipe(${i})" style="padding:5px 10px;font-size:11px;font-family:'Inter',system-ui,-apple-system,sans-serif;background:none;border:1px solid var(--border2);border-radius:7px;cursor:pointer;color:var(--ink4)">Delete</button></div></div>`).join('')}</div>`:` <div style="font-size:13px;color:var(--ink4);font-style:italic;padding:4px 0 10px">No recipes saved yet</div>`;
+  const recipesHtml=(n.recipes||[]).length?`<div style="margin-bottom:12px">${n.recipes.map((r,i)=>`<div style="background:var(--bg);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px"><div style="flex:1"><div style="font-size:14px;font-weight:600;color:var(--ink2);margin-bottom:3px">${esc(r.name)}</div>${r.notes?`<div style="font-size:12px;color:var(--ink3);line-height:1.5">${esc(r.notes)}</div>`:''}</div><div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0"><button onclick="addRecipeToMeal('${esc(r.name)}')" style="padding:5px 10px;font-size:11px;font-weight:700;font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--btn);color:#272264;border:none;border-radius:7px;cursor:pointer;white-space:nowrap">+ Add to meal</button><button onclick="deleteRecipe(${i})" style="padding:5px 10px;font-size:11px;font-family:'Inter',system-ui,-apple-system,sans-serif;background:none;border:1px solid var(--border2);border-radius:7px;cursor:pointer;color:var(--ink4)">Delete</button></div></div>`).join('')}</div>`:` <div style="font-size:13px;color:var(--ink4);font-style:italic;padding:4px 0 10px">No recipes saved yet</div>`;
   document.getElementById('viewBody').innerHTML=`
     <div class="post"><div class="post-header"><div class="post-avatar">💧</div><div><div class="post-title">Water intake</div><div class="post-sub">Tap each glass as you drink it</div></div></div><div class="post-body"><div class="water-tracker">${glassHtml}</div><div class="water-count">${glasses} of 8 glasses · ${glasses*8} oz</div></div></div>
     <div class="post"><div class="post-header"><div class="post-avatar">💊</div><div><div class="post-title">Vitamins & supplements</div><div class="post-sub">Your daily checklist</div></div></div><div class="post-body"><div class="vitamin-list">${vitaminHtml}</div><div class="add-win-row" style="margin-top:10px"><input class="add-win-inp" id="vitaminInp" placeholder="Add a vitamin or supplement…" onkeydown="if(event.key==='Enter')addVitamin()"><button class="add-win-btn" onclick="addVitamin()">+ Add</button></div></div></div>
