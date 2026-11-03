@@ -503,7 +503,7 @@ function deepMergeDB(localD, staged){
 
 
 // ── Update check: GitHub Pages and browsers hold on to old copies of the app ──
-const APP_VERSION='20261103142043';
+const APP_VERSION='20261103142914';
 if(/[?&]v=\d+/.test(location.search)) history.replaceState(null,'',location.pathname+location.hash);
 async function checkForUpdate(){
   try{
@@ -874,6 +874,24 @@ function renderDaily(){
           <textarea class="ta" id="inp_value" oninput="autoSaveDaily()" placeholder="Listen with patience, offer encouragement, help someone, or show compassion." rows="2">${esc(todaySaved.value||'')}</textarea>
         </div>
         <div style="height:4px"></div>
+      </div>
+    </div>
+    <div class="post">
+      <div class="post-header">
+        <div class="post-avatar">🌿</div>
+        <div>
+          <div class="post-title">Physical well-being</div>
+          <div class="post-sub">Take one intentional action to care for your body today</div>
+        </div>
+      </div>
+      <div class="post-body">
+        <div style="font-size:13px;color:var(--ink2);line-height:1.55;margin-bottom:10px">Whether it's movement, nourishment, hydration, rest, or recovery, choose one action that supports your physical health and well-being.</div>
+        <div class="mindset-block">
+          <div class="mindset-prompt">How will I care for my body today?</div>
+          <div class="mindset-prefix">Today I will…</div>
+          <textarea class="ta" id="inp_body" oninput="autoSaveDaily()" placeholder="Take a 20-minute walk, drink more water, stretch before bed, get to sleep by 10." rows="2">${esc(todaySaved.body||'')}</textarea>
+        </div>
+        <div style="height:4px"></div>
         <button class="primary-btn" onclick="saveDaily()">Save today's entry</button>
         <div class="save-confirm" id="saveConfirm">You're doing great ✦</div>
       </div>
@@ -997,16 +1015,17 @@ function saveDaily(silent){
   const priority=(document.getElementById('inp_priority').value||'').trim();
   const showup=(document.getElementById('inp_showup').value||'').trim();
   const value=(document.getElementById('inp_value').value||'').trim();
+  const body=((document.getElementById('inp_body')||{}).value||'').trim();
   const actionList=actions.filter(a=>a.trim());
   const winsChecked=Array.from(checkedWins).map(i=>wins[i]);
-  if(!priority&&!showup&&!value&&!actionList.length&&!winsChecked.length)return;
+  if(!priority&&!showup&&!value&&!body&&!actionList.length&&!winsChecked.length)return;
   if(!DB.dailySaved)DB.dailySaved={};
-  DB.dailySaved[t]={priority,showup,value,actions:actionList,wins:winsChecked,savedAt:Date.now()};
+  DB.dailySaved[t]={priority,showup,value,body,actions:actionList,wins:winsChecked,savedAt:Date.now()};
   DB.dailySaved=keepRecent(DB.dailySaved);
   saveDB('dailySaved',DB.dailySaved);
   if(!DB.dailyLog)DB.dailyLog=[];
   DB.dailyLog=DB.dailyLog.filter(e=>e.date!==t);
-  DB.dailyLog.unshift({id:Date.now().toString(),date:t,wins:winsChecked,priority,actions:actionList,showup,value});
+  DB.dailyLog.unshift({id:Date.now().toString(),date:t,wins:winsChecked,priority,actions:actionList,showup,value,body});
   saveDB('dailyLog',DB.dailyLog);
   if(silent===true)return;
   const conf=document.getElementById('saveConfirm');
