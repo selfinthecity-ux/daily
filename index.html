@@ -503,7 +503,7 @@ function deepMergeDB(localD, staged){
 
 
 // ── Update check: GitHub Pages and browsers hold on to old copies of the app ──
-const APP_VERSION='20261103143123';
+const APP_VERSION='20261103143600';
 if(/[?&]v=\d+/.test(location.search)) history.replaceState(null,'',location.pathname+location.hash);
 async function checkForUpdate(){
   try{
@@ -829,18 +829,11 @@ function renderDaily(){
           <div class="block-prompt">The one thing I've been avoiding that will move me forward the most…</div>
           <textarea class="ta" id="inp_priority" oninput="autoSaveDaily()" placeholder="Be honest with yourself…" rows="2">${esc(todaySaved.priority||'')}</textarea>
         </div>
-      </div>
-    </div>
-    <div class="post">
-      <div class="post-header">
-        <div class="post-avatar">⚡</div>
-        <div>
-          <div class="post-title">Top 3 actions</div>
-          <div class="post-sub">What moves you closer to your goals today?</div>
+        <div style="margin-top:16px">
+          <div style="font-size:16px;font-weight:700;color:var(--ink2);margin-bottom:2px">Top 3 actions</div>
+          <div style="font-size:13px;color:var(--ink3);margin-bottom:10px">What moves you closer to your goals today?</div>
+          <div class="action-rows" id="actionRows"></div>
         </div>
-      </div>
-      <div class="post-body">
-        <div class="action-rows" id="actionRows"></div>
       </div>
     </div>
     <div class="post">
